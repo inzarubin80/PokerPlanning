@@ -2,37 +2,49 @@ package model
 
 import "time"
 
-type IDtask int64
-type IDpoker string
-type IDuser string
-type Estimate int
+type (
+	TaskID     int64
+	PokerID    string
+	UserID     string
+	Estimate   int
+	CommentID  int64
+	EstimateID int64
 
-type Task struct {
-	ID          IDtask
-	Title       string
-	Description string
-	StoryPoint  int
-	Status      string 
-}
+	User struct {
+		ID   UserID
+		Name string
+	}
 
-type User struct {
-	ID   IDuser
-	Name string
-}
+	Task struct {
+		ID          TaskID
+		Title       string
+		Description string
+		StoryPoint  int
+		Status      string
+	}
 
-type UserEstimate struct {
-	IDuser   IDuser
-	Estimate Estimate
-	TaskID   IDtask 
-}
+	Comment struct {
+		ID     CommentID
+		UserID UserID
+		Text   string
+	}
 
-type Poker struct {
-	ID           IDpoker
-	Tasks        []Task
-	TargetTask   Task
-	Start        time.Time
-	End          time.Time 
-	Estimates    []UserEstimate
-	FinalEstimate Estimate 
-	Participants []IDuser 
-}
+	UserEstimate struct {
+		ID       EstimateID
+		UserID   UserID
+		TaskID   TaskID
+		Estimate Estimate
+	}
+
+	Poker struct {
+		ID            PokerID
+		Tasks         []*Task
+		TargetTask    *Task
+		Start         time.Time
+		End           time.Time
+		Estimates     []*UserEstimate
+		FinalEstimate Estimate
+		Participants  []UserID
+		Comments      []*Comment
+	}
+)
