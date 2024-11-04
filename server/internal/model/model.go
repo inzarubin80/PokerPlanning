@@ -36,14 +36,18 @@ type (
 		Estimate Estimate
 	}
 
-	Poker struct {
+	BaseDataPoker struct {
 		ID            PokerID
-		Tasks         []*Task
-		TargetTask    *Task
+		TargetTaskID  TaskID
 		Start         time.Time
 		End           time.Time
-		Estimates     []*UserEstimate
 		FinalEstimate Estimate
+	}
+
+	Poker struct {
+		BaseDataPoker *BaseDataPoker
+		Tasks         []*Task
+		Estimates     []*UserEstimate
 		Participants  []UserID
 		Comments      []*Comment
 	}
