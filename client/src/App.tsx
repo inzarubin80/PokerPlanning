@@ -1,62 +1,28 @@
-import { Routes, Route, Link } from "react-router-dom";
-import Button from '@mui/material/Button';
-
-import Container from '@mui/material/Container';
-import Typography from '@mui/material/Typography';
-import Box from '@mui/material/Box';
-import LinkM from '@mui/material/Link';
-import Avatar from '@mui/material/Avatar';
-
-
-
+import { Routes, Route, Link, Outlet, useNavigate  } from "react-router-dom";
+import Home from './components/Home'
 
 
 export default function App() {
   return (
     <Routes>
-      <Route path="/" element={<Home />}>
-        <Route path="about" element={<About />} />
-        <Route path="dashboard" element={<Dashboard />} />
-        <Route path="*" element={<NoMatch />} />
-      </Route>
+      <Route path="/" element={<Home />} />
+      <Route path="poker/:pokerId" element={<Poker />} />
+      <Route path="*" element={<NoMatch />} />
     </Routes>
   );
 }
 
 
-function Home() {
-  return (
-    <Container maxWidth="sm">
-      <Box sx={{ my: 4, textAlign: 'center' }}>
 
-        <Typography variant="h4" component="h1" sx={{ mb: 2 }}>
-          Покер планирования
-        </Typography>
-        
-        <Button size="large" variant="outlined" href="#outlined-buttons">
-          Создать
-        </Button>
-
-      </Box>
-    </Container>
-  );
-}
-
-function About() {
+function Poker() {
   return (
     <div>
-      <h2>About</h2>
+      <h2>Poker</h2>
     </div>
   );
 }
 
-function Dashboard() {
-  return (
-    <div>
-      <h2>Dashboard</h2>
-    </div>
-  );
-}
+
 
 function NoMatch() {
   return (
