@@ -6,9 +6,12 @@ package ws
 
 import (
 	"bytes"
+	"inzarubin80/PokerPlanning/internal/app/defenitions"
+	"inzarubin80/PokerPlanning/internal/model"
 	"log"
 	"net/http"
 	"time"
+
 	"github.com/gorilla/websocket"
 )
 
@@ -40,11 +43,11 @@ var upgrader = websocket.Upgrader{
 type Client struct {
 	hub *Hub
 
-	// The websocket connection.
+	pokerID model.PokerID
+
 	conn *websocket.Conn
 
-	// Buffered channel of outbound messages.
-	send chan []byte
+	send chan *Message
 }
 
 // readPump pumps messages from the websocket connection to the hub.
@@ -69,7 +72,7 @@ func (c *Client) readPump() {
 			break
 		}
 		message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
-		c.hub.broadcast <- message
+		c.hub.broadcast <- &Message{data: message, pokerID: c.pokerID}
 	}
 }
 
@@ -98,13 +101,14 @@ func (c *Client) writePump() {
 			if err != nil {
 				return
 			}
-			w.Write(message)
+			w.Write(message.data)
 
 			// Add queued chat messages to the current websocket message.
 			n := len(c.send)
 			for i := 0; i < n; i++ {
 				w.Write(newline)
-				w.Write(<-c.send)
+			
+				w.Write((<-c.send).data)
 			}
 
 			if err := w.Close(); err != nil {
@@ -121,12 +125,15 @@ func (c *Client) writePump() {
 
 // serveWs handles websocket requests from the peer.
 func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
+	
+	pokerID := r.PathValue(defenitions.ParamPokerID)
+
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	client := &Client{hub: hub, conn: conn, send: make(chan []byte, 256)}
+	client := &Client{hub: hub, conn: conn, send: make(chan *Message, 256), pokerID: model.PokerID(pokerID)}
 	client.hub.register <- client
 
 	// Allow collection of memory referenced by the caller by doing all work in
