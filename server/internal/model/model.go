@@ -17,6 +17,7 @@ type (
 
 	Task struct {
 		ID          TaskID
+		PokerID     PokerID
 		Title       string
 		Description string
 		StoryPoint  int
@@ -25,12 +26,14 @@ type (
 
 	Comment struct {
 		ID     CommentID
+		PokerID PokerID
 		UserID UserID
 		Text   string
 	}
 
 	UserEstimate struct {
 		ID       EstimateID
+		PokerID  PokerID
 		UserID   UserID
 		TaskID   TaskID
 		Estimate Estimate

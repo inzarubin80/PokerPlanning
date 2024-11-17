@@ -21,7 +21,7 @@ func (r *Repository) CreatePoker(ctx context.Context, userID model.UserID) (mode
 
 }
 
-func (r *Repository) GetBasedata(ctx context.Context, pokerID model.PokerID) (*model.Poker, error) {
+func (r *Repository) GetPoker(ctx context.Context, pokerID model.PokerID) (*model.Poker, error) {
 
 	basedata, ok := r.storage.pokers[pokerID]
 	if !ok {

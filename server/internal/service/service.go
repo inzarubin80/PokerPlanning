@@ -26,7 +26,7 @@ type (
 		GetComments(ctx context.Context, pokerID model.PokerID) ([]*model.Comment, error)
 		GetUserEstimates(ctx context.Context, pokerID model.PokerID) ([]*model.UserEstimate, error)
 		GetParticipants(ctx context.Context, pokerID model.PokerID) ([]model.UserID, error)
-		//GetBasedata(ctx context.Context, pokerID model.PokerID) (*model.BaseDataPoker, error)
+		GetPoker(ctx context.Context, pokerID model.PokerID) (*model.Poker, error)
 	}
 )
 
@@ -38,43 +38,12 @@ func NewPokerService(repository Repository) *PokerService {
 
 func (s *PokerService) GetPoker(ctx context.Context, pokerID model.PokerID) (*model.Poker, error) {
 
-	/*
-	basedata, err := s.repository.GetBasedata(ctx, pokerID)
+	
+	poker, err := s.repository.GetPoker(ctx, pokerID)
 	if err != nil {
 		return nil, model.ErrorNotFound
-	}
-
-	tasks, err := s.repository.GetTasks(ctx, pokerID)
-	if err != nil {
-		return nil, err
-	}
-
-	comments, err := s.repository.GetComments(ctx, pokerID)
-	if err != nil {
-		return nil, err
-	}
-
-	userEstimates, err := s.repository.GetUserEstimates(ctx, pokerID)
-	if err != nil {
-		return nil, err
-	}
-
-	participants, err := s.repository.GetParticipants(ctx, pokerID)
-	if err != nil {
-		return nil, err
-	}
-
-	return &model.Poker{
-		BaseDataPoker: basedata,
-		Tasks:         tasks,
-		Comments:      comments,
-		Estimates:     userEstimates,
-		Participants:  participants,
-	}, nil
-
-	*/
-
-	return nil, nil
+	}	
+	return poker, nil
 }
 
 func (s *PokerService) CreatePoker(ctx context.Context, userID model.UserID) (model.PokerID, error) {
