@@ -26,7 +26,7 @@ type (
 		GetComments(ctx context.Context, pokerID model.PokerID) ([]*model.Comment, error)
 		GetUserEstimates(ctx context.Context, pokerID model.PokerID) ([]*model.UserEstimate, error)
 		GetParticipants(ctx context.Context, pokerID model.PokerID) ([]model.UserID, error)
-		GetBasedata(ctx context.Context, pokerID model.PokerID) (*model.BaseDataPoker, error)
+		//GetBasedata(ctx context.Context, pokerID model.PokerID) (*model.BaseDataPoker, error)
 	}
 )
 
@@ -38,6 +38,7 @@ func NewPokerService(repository Repository) *PokerService {
 
 func (s *PokerService) GetPoker(ctx context.Context, pokerID model.PokerID) (*model.Poker, error) {
 
+	/*
 	basedata, err := s.repository.GetBasedata(ctx, pokerID)
 	if err != nil {
 		return nil, model.ErrorNotFound
@@ -71,6 +72,9 @@ func (s *PokerService) GetPoker(ctx context.Context, pokerID model.PokerID) (*mo
 		Participants:  participants,
 	}, nil
 
+	*/
+
+	return nil, nil
 }
 
 func (s *PokerService) CreatePoker(ctx context.Context, userID model.UserID) (model.PokerID, error) {

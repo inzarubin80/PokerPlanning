@@ -14,7 +14,7 @@ type (
 	Tasks         map[model.PokerID]map[model.TaskID]*model.Task
 	Comments      map[model.PokerID]map[model.CommentID]*model.Comment
 	UserEstimates map[model.PokerID]map[model.EstimateID]*model.UserEstimate
-	Pokers        map[model.PokerID]*model.BaseDataPoker
+	Pokers        map[model.PokerID]*model.Poker
 	Participants  map[model.PokerID]map[model.UserID]bool
 
 	Storage struct {
