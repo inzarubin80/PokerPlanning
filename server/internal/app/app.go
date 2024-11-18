@@ -31,7 +31,6 @@ type (
 		SetTargetTask(ctx context.Context, pokerID model.PokerID, userID model.UserID, taskID model.TaskID) error
 		AddTask(ctx context.Context, task *model.Task) (*model.Task, error)
 		GetTasks(ctx context.Context, pokerID model.PokerID) ([]*model.Task, error)
-
 	}
 
 	App struct {
@@ -51,7 +50,7 @@ func (a *App) ListenAndServe() error {
 	a.mux.Handle(a.config.path.createPoker, appHttp.NewCreatePoker(a.pokerService, a.config.path.createPoker))
 	a.mux.Handle(a.config.path.getPoker, appHttp.NewGetPokerHandler(a.pokerService, a.config.path.getPoker))
 	a.mux.Handle(a.config.path.createTask, appHttp.NewAddTaskHandler(a.pokerService, a.config.path.createPoker))
-	a.mux.Handle(a.config.path.getTasks, appHttp.NewAddTaskHandler(a.pokerService, a.config.path.getTasks))
+	a.mux.Handle(a.config.path.getTasks, appHttp.NewGetTasksHandler(a.pokerService, a.config.path.getTasks))
 	a.mux.Handle(a.config.path.ws, appHttp.NewWSPokerHandler(a.pokerService, a.config.path.ws, a.hub))
 
 	fmt.Println("start server")
