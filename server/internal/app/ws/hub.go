@@ -11,9 +11,15 @@ import (
 // Hub maintains the set of active clients and broadcasts messages to the
 // clients.
 type (
+	
 	Message struct {
 		pokerID model.PokerID
 		data    []byte
+	}
+
+	DataMessage struct {
+		action  string
+		data    string
 	}
 
 	Hub struct {
@@ -85,3 +91,14 @@ func (h *Hub) Run() {
 		}
 	}
 }
+
+func (h *Hub) AddMessage(pokerID model.PokerID,  data []byte)  {
+
+	
+	message := &Message{pokerID: pokerID, data: data}
+
+	h.broadcast<-message
+
+
+}
+

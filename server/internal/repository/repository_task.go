@@ -46,7 +46,7 @@ func (r *Repository) GetTasks(ctx context.Context, pokerID model.PokerID) ([]*mo
 	return tasks, nil
 }
 
-func (r *Repository) AddTask(ctx context.Context,  task *model.Task) (model.TaskID, error) {
+func (r *Repository) AddTask(ctx context.Context,  task *model.Task) (*model.Task, error) {
 
 	r.storage.mx.Lock()
 	defer r.storage.mx.Unlock()
@@ -60,7 +60,7 @@ func (r *Repository) AddTask(ctx context.Context,  task *model.Task) (model.Task
 
 	r.storage.nextTaskID++
 
-	return task.ID, nil
+	return task, nil
 }
 
 func (r *Repository) UpdateTask(ctx context.Context, pokerID model.PokerID, task *model.Task) error {

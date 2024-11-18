@@ -28,6 +28,7 @@ type (
 		AddComment(ctx context.Context, pokerID model.PokerID, comment *model.Comment) (model.CommentID, error)
 		SetUserEstimate(ctx context.Context, pokerID model.PokerID, userID model.UserID, userEstimate *model.UserEstimate) (model.EstimateID, error)
 		SetTargetTask(ctx context.Context, pokerID model.PokerID, userID model.UserID, taskID model.TaskID) error
+		AddTask(ctx context.Context, task *model.Task) (*model.Task, error)
 	}
 
 	App struct {
@@ -42,11 +43,13 @@ type (
 
 func (a *App) ListenAndServe() error {
 
+	
 	go a.hub.Run()
 	a.mux.Handle(a.config.path.createPoker, appHttp.NewCreatePoker(a.pokerService, a.config.path.createPoker))
 	a.mux.Handle(a.config.path.getPoker, appHttp.NewGetPokerHandler(a.pokerService, a.config.path.getPoker))
+	a.mux.Handle(a.config.path.createTask, appHttp.NewAddTaskHandler(a.pokerService, a.config.path.createPoker))
 	a.mux.Handle(a.config.path.ws, appHttp.NewWSPokerHandler(a.pokerService, a.config.path.ws, a.hub))
-	
+
 	fmt.Println("start server")
 	return a.server.ListenAndServe()
 
@@ -58,8 +61,8 @@ func NewApp(ctx context.Context, config config) (*App, error) {
 	var (
 		mux            = http.NewServeMux()
 		pokerRepository = repository.NewPokerRepository(100)
-		pokerService    = service.NewPokerService(pokerRepository)
 		hub = ws.NewHub()
+		pokerService    = service.NewPokerService(pokerRepository, hub)
 	)
 
 

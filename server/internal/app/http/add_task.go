@@ -3,16 +3,16 @@ package http
 import (
 	"context"
 	"encoding/json"
+	"inzarubin80/PokerPlanning/internal/app/uhttp"
 	"inzarubin80/PokerPlanning/internal/model"
 	"io"
 	"net/http"
-
 	validation "github.com/go-ozzo/ozzo-validation"
 )
 
 type (
 	serviceAddTask interface {
-		AddTask(ctx context.Context, task *model.Task) (model.TaskID, error)
+		AddTask(ctx context.Context, task *model.Task) (*model.Task, error)
 	}
 	AddTaskHandler struct {
 		name    string
@@ -23,7 +23,6 @@ type (
 		Title string `json:"title"`
 		Description string `json:"description"`
 	}
-
 )
 
 func NewAddTaskHandler(service serviceAddTask, name string) *AddTaskHandler {
@@ -37,23 +36,23 @@ func (h *AddTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	ctx:= r.Context();
 
-	pokerID, err := ValidatePatchParameterPokerID(r)
+	pokerID, err := uhttp.ValidatePatchParameterPokerID(r)
 	if err != nil {
-		sendResponse(w, http.StatusBadRequest, []byte(err.Error()))
+		uhttp.SendResponse(w, http.StatusBadRequest, []byte(err.Error()))
 		return
 	}
 
 	
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		sendResponse(w, http.StatusInternalServerError, []byte("{}"))
+		uhttp.SendResponse(w, http.StatusInternalServerError, []byte("{}"))
 		return
 	}
 
 	var bodyRequest BodyRequest
 	err = json.Unmarshal(body, &bodyRequest)
 	if err != nil {
-		sendResponse(w, http.StatusBadRequest, []byte("{}"))
+		uhttp.SendResponse(w, http.StatusBadRequest, []byte("{}"))
 		return
 	}
 
@@ -62,7 +61,7 @@ func (h *AddTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		validation.Field(&bodyRequest.Description, validation.Required))
 	
 	if err!=nil {
-		sendResponse(w, http.StatusBadRequest, []byte(err.Error()))
+		uhttp.SendResponse(w, http.StatusBadRequest, []byte(err.Error()))
 		return
 	}
 
@@ -74,9 +73,9 @@ func (h *AddTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	_, err = h.service.AddTask(ctx, task)
 	if err!=nil {
-		sendResponse(w, http.StatusInternalServerError, []byte(err.Error()))	
+		uhttp.SendResponse(w, http.StatusInternalServerError, []byte(err.Error()))	
 	} else {
-		sendResponse(w, http.StatusOK, []byte("{}"))	
+		uhttp.SendResponse(w, http.StatusOK, []byte("{}"))	
 	}
 	
 }

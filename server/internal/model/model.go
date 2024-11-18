@@ -2,6 +2,12 @@ package model
 
 import "time"
 
+const (
+	ADD_TASK  = "ADD_TASK"
+	REMOVE_TASK = "REMOVE_TASK"
+	UPDATE_TASK = "REMOVE_TASK"
+)
+
 type (
 	TaskID     int64
 	PokerID    string

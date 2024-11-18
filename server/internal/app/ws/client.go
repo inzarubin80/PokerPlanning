@@ -6,8 +6,9 @@ package ws
 
 import (
 	"bytes"
-	"inzarubin80/PokerPlanning/internal/app/defenitions"
+	"inzarubin80/PokerPlanning/internal/app/uhttp"
 	"inzarubin80/PokerPlanning/internal/model"
+
 	"log"
 	"net/http"
 	"time"
@@ -126,8 +127,12 @@ func (c *Client) writePump() {
 // serveWs handles websocket requests from the peer.
 func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	
-	pokerID := r.PathValue(defenitions.ParamPokerID)
-
+	pokerID, err := uhttp.ValidatePatchParameterPokerID(r)
+	if err != nil {
+		uhttp.SendResponse(w, http.StatusBadRequest, []byte(err.Error()))
+		return
+	}
+	
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println(err)

@@ -11,12 +11,13 @@ type (
 	
 	PokerService struct {
 		repository Repository
+		hub Hub
 	}
 
 	Repository interface {
 		CreatePoker(ctx context.Context, userID model.UserID) (model.PokerID, error)
 		AddComment(ctx context.Context, pokerID model.PokerID, comment *model.Comment) (model.CommentID, error)
-		AddTask(ctx context.Context,  task *model.Task) (model.TaskID, error)
+		AddTask(ctx context.Context,  task *model.Task) (*model.Task, error)
 		RemoveTargetTask(ctx context.Context, pokerID model.PokerID) error
 		AddTargetTask(ctx context.Context, pokerID model.PokerID, taskID model.TaskID) error
 		GetTargetTask(ctx context.Context, pokerID model.PokerID) (model.TaskID, error)
@@ -30,23 +31,28 @@ type (
 		GetParticipants(ctx context.Context, pokerID model.PokerID) ([]model.UserID, error)
 		GetPoker(ctx context.Context, pokerID model.PokerID) (*model.Poker, error)
 	}
+
+	Hub interface {
+		AddMessage(pokerID model.PokerID,  data []byte) 
+	}
 )
 
-func NewPokerService(repository Repository) *PokerService {
+
+func NewPokerService(repository Repository, hub Hub) *PokerService {
 	return &PokerService{
 		repository: repository,
+		hub: hub,
 	}
 }
 
-func (s *PokerService) GetPoker(ctx context.Context, pokerID model.PokerID) (*model.Poker, error) {
-
-	
+func (s *PokerService) GetPoker(ctx context.Context, pokerID model.PokerID) (*model.Poker, error) {	
 	poker, err := s.repository.GetPoker(ctx, pokerID)
 	if err != nil {
 		return nil, model.ErrorNotFound
 	}	
 	return poker, nil
 }
+
 
 func (s *PokerService) CreatePoker(ctx context.Context, userID model.UserID) (model.PokerID, error) {
 	return s.repository.CreatePoker(ctx, userID)
