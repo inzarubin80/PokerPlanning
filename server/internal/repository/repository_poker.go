@@ -12,9 +12,8 @@ func (r *Repository) CreatePoker(ctx context.Context, userID model.UserID) (mode
 
 	uid := model.PokerID(uuid.New().String())
 
-	baseDataPoker := &model.BaseDataPoker{
+	baseDataPoker := &model.Poker{
 		ID:         uid,
-		TargetTaskID: 0,
 		Start:      time.Now(),
 	}
 	r.storage.pokers[model.PokerID(uid)] = baseDataPoker
@@ -22,7 +21,7 @@ func (r *Repository) CreatePoker(ctx context.Context, userID model.UserID) (mode
 
 }
 
-func (r *Repository) GetBasedata(ctx context.Context, pokerID model.PokerID) (*model.BaseDataPoker, error) {
+func (r *Repository) GetPoker(ctx context.Context, pokerID model.PokerID) (*model.Poker, error) {
 
 	basedata, ok := r.storage.pokers[pokerID]
 	if !ok {

@@ -2,6 +2,12 @@ package model
 
 import "time"
 
+const (
+	ADD_TASK  = "ADD_TASK"
+	REMOVE_TASK = "REMOVE_TASK"
+	UPDATE_TASK = "REMOVE_TASK"
+)
+
 type (
 	TaskID     int64
 	PokerID    string
@@ -17,6 +23,7 @@ type (
 
 	Task struct {
 		ID          TaskID
+		PokerID     PokerID
 		Title       string
 		Description string
 		StoryPoint  int
@@ -25,30 +32,24 @@ type (
 
 	Comment struct {
 		ID     CommentID
+		PokerID PokerID
 		UserID UserID
 		Text   string
 	}
 
 	UserEstimate struct {
 		ID       EstimateID
+		PokerID  PokerID
 		UserID   UserID
 		TaskID   TaskID
 		Estimate Estimate
 	}
 
-	BaseDataPoker struct {
+	Poker struct {
 		ID            PokerID
-		TargetTaskID  TaskID
+		Task  		  Task
 		Start         time.Time
 		End           time.Time
 		FinalEstimate Estimate
-	}
-
-	Poker struct {
-		BaseDataPoker *BaseDataPoker
-		Tasks         []*Task
-		Estimates     []*UserEstimate
-		Participants  []UserID
-		Comments      []*Comment
 	}
 )

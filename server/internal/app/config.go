@@ -11,7 +11,7 @@ type (
 	
 	}
 	path struct {
-		index, getPoker,  createPoker string
+		index, getPoker,  createPoker, createTask, ws string
 	}
 	
 	config struct {
@@ -24,9 +24,11 @@ func NewConfig(opts Options) config {
 	return config{
 		addr: opts.Addr,
 		path: path{
-			index:          "/",
-			createPoker:   fmt.Sprintf("POST /poker"),
+			index:       "/",
+			createPoker: "POST /poker",
+			createTask:  fmt.Sprintf("POST /poker/{%s}/task", defenitions.ParamPokerID),
 			getPoker:    fmt.Sprintf("GET /poker/{%s}", defenitions.ParamPokerID),
+			ws:    fmt.Sprintf("GET /ws/poker/{%s}", defenitions.ParamPokerID),
 		},
 	}
 }
