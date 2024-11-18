@@ -16,10 +16,8 @@ function Home() {
             .catch((e) => {
 
             });
-
     }
     return (
-
         <div>
             <Container maxWidth="sm" >
                 <Box sx={{ my: 4, textAlign: 'center' }}>

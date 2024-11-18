@@ -1,5 +1,7 @@
 import { Routes, Route, Link, Outlet, useNavigate  } from "react-router-dom";
 import Home from './components/Home'
+import Poker from './components/Poker'
+
 
 
 export default function App() {
@@ -11,17 +13,6 @@ export default function App() {
     </Routes>
   );
 }
-
-
-
-function Poker() {
-  return (
-    <div>
-      <h2>Poker</h2>
-    </div>
-  );
-}
-
 
 
 function NoMatch() {
