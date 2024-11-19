@@ -3,6 +3,7 @@ import axios from 'axios';
 import { io, Socket } from 'socket.io-client';
 
 const API_URL = 'api';
+const pokerID = '';
 
 interface Task {
   id: number;
@@ -35,10 +36,11 @@ const initialState: TaskState = {
   error: null,
 };
 
-export const fetchTasks = createAsyncThunk('tasks/fetchTasks', async () => {
-  const response = await axios.get<Task[]>(`${API_URL}/tasks`);
+export const fetchTasks = createAsyncThunk('tasks/fetchTasks', async (pokerID: string) => {
+  const response = await axios.get<Task[]>(`${API_URL}/poker/${pokerID}/tasks`);
   return response.data;
 });
+
 
 export const addTask = createAsyncThunk('tasks/addTask', async (task: Omit<Task, 'id'>) => {
   const response = await axios.post<Task>(`${API_URL}/tasks`, task);
