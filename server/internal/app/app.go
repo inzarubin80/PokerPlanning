@@ -5,12 +5,17 @@ import (
 	"fmt"
 	appHttp "inzarubin80/PokerPlanning/internal/app/http"
 	ws "inzarubin80/PokerPlanning/internal/app/ws"
-	
+	"time"
+
 	middleware "inzarubin80/PokerPlanning/internal/app/http/middleware"
 	"inzarubin80/PokerPlanning/internal/model"
 	repository "inzarubin80/PokerPlanning/internal/repository"
 	service "inzarubin80/PokerPlanning/internal/service"
 	"net/http"
+)
+
+const (
+	readHeaderTimeoutSeconds = 3
 )
 
 type (
@@ -71,7 +76,7 @@ func NewApp(ctx context.Context, config config) (*App, error) {
 
 	return &App{
 		mux:         mux,
-		server:      &http.Server{Addr: config.addr, Handler: middleware.NewLogMux(mux)},
+		server:      &http.Server{Addr: config.addr, Handler: middleware.NewLogMux(mux), ReadHeaderTimeout: readHeaderTimeoutSeconds * time.Second},
 		pokerService: pokerService,
 		config:config,
 		hub: hub,

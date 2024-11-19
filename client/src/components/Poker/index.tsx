@@ -4,14 +4,9 @@ import React, { useState } from 'react';
 import TaskManager from '../TaskManager'
 
 function Poker() {
-   
-    
-   
     return (
       <div>
-        
-        <TaskManager/>
-
+       <TaskManager/>
       </div>
     );
   }

@@ -22,12 +22,13 @@ type (
 	}
 
 	Task struct {
-		ID          TaskID
-		PokerID     PokerID
-		Title       string
-		Description string
-		StoryPoint  int
-		Status      string
+		ID          TaskID  `json:"id"`
+		PokerID     PokerID `json:"poker_id"`
+		Title       string  `json:"title"`
+		Description string  `json:"description"`
+		StoryPoint  int     `json:"story_point"` 
+		Status      string  `json:"status"` 
+		Completed   bool    `json:"completed"`
 	}
 
 	Comment struct {

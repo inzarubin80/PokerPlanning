@@ -1,14 +1,7 @@
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import axios from 'axios';
-import { io, Socket } from 'socket.io-client';
-
-const API_URL = 'api';
-const pokerID = '';
-
-interface Task {
-  id: number;
-  title: string;
-}
+import { createSlice, createAsyncThunk, PayloadAction, $CombinedState } from '@reduxjs/toolkit';
+//import { io, Socket } from 'socket.io-client';
+import { Task } from '../../model'
+import axios from "../../service/http-common";
 
 interface Comment {
   id: number;
@@ -19,66 +12,54 @@ interface Comment {
 interface Message {
   type: string;
   task?: Task;
-  comment?: Comment;
 }
 
 interface TaskState {
   tasks: Task[];
-  comments: Comment[];
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
   error: string | null;
 }
 
 const initialState: TaskState = {
   tasks: [],
-  comments: [],
   status: 'idle',
   error: null,
 };
 
 export const fetchTasks = createAsyncThunk('tasks/fetchTasks', async (pokerID: string) => {
-  const response = await axios.get<Task[]>(`${API_URL}/poker/${pokerID}/tasks`);
+  const response = await axios.get<Task[]>(`/poker/${pokerID}/tasks`);
   return response.data;
 });
 
 
 export const addTask = createAsyncThunk('tasks/addTask', async (task: Omit<Task, 'id'>) => {
-  const response = await axios.post<Task>(`${API_URL}/tasks`, task);
+  const response = await axios.post<Task>(`/tasks`, task);
   return response.data;
 });
 
 export const updateTask = createAsyncThunk('tasks/updateTask', async (task: Task) => {
-  const response = await axios.put<Task>(`${API_URL}/tasks/${task.id}`, task);
+  const response = await axios.put<Task>(`/tasks/${task.id}`, task);
   return response.data;
 });
 
 export const deleteTask = createAsyncThunk('tasks/deleteTask', async (taskId: number) => {
-  await axios.post(`${API_URL}/tasks/delete`, { id: taskId });
+  await axios.post(`/tasks/delete`, { id: taskId });
   return taskId;
 });
 
-export const fetchComments = createAsyncThunk('tasks/fetchComments', async () => {
-  const response = await axios.get<Comment[]>(`${API_URL}/comments`);
-  return response.data;
-});
-
-export const addComment = createAsyncThunk('tasks/addComment', async (comment: Omit<Comment, 'id'>) => {
-  const response = await axios.post<Comment>(`${API_URL}/comments`, comment);
-  return response.data;
-});
 
 const taskSlice = createSlice({
   name: 'tasks',
   initialState,
   reducers: {
     taskAdded: (state, action: PayloadAction<Task>) => {
+    
+      console.log(action.payload);
+
       state.tasks.push(action.payload);
     },
     taskRemoved: (state, action: PayloadAction<number>) => {
       state.tasks = state.tasks.filter((task) => task.id !== action.payload);
-    },
-    commentAdded: (state, action: PayloadAction<Comment>) => {
-      state.comments.push(action.payload);
     },
   },
   extraReducers: (builder) => {
@@ -107,36 +88,67 @@ const taskSlice = createSlice({
       .addCase(deleteTask.fulfilled, (state, action: PayloadAction<number>) => {
         const taskId = action.payload;
         state.tasks = state.tasks.filter((task) => task.id !== taskId);
-      })
-      .addCase(fetchComments.fulfilled, (state, action: PayloadAction<Comment[]>) => {
-        state.comments = action.payload;
-      })
-      .addCase(addComment.fulfilled, (state, action: PayloadAction<Comment>) => {
-        state.comments.push(action.payload);
       });
   },
 });
 
-export const { taskAdded, taskRemoved, commentAdded } = taskSlice.actions;
+export const { taskAdded, taskRemoved } = taskSlice.actions;
 export default taskSlice.reducer;
+/*
+let socket: WebSocket | null = null;
 
-let socket: Socket | null = null;
 
-export const connectWebSocket = (PokerID:string) => (dispatch: any) => {
-  socket = io(`${API_URL}/ws/poker/${PokerID}`);
-  socket.on('message', (message: Message) => {
-    if (message.type === 'ADD_TASK') {
-      dispatch(taskAdded(message.task!));
-    } else if (message.type === 'REMOVE_TASK') {
-      dispatch(taskRemoved(message.task!.id));
-    } else if (message.type === 'ADD_COMMENT') {
-      dispatch(commentAdded(message.comment!));
-    }
-  });
-};
+export const connectWebSocket = (PokerID: string) => (dispatch: any) => {
 
-export const disconnectWebSocket = () => () => {
-  if (socket) {
-    socket.disconnect();
+  const socket = new WebSocket(`ws://localhost:8080/ws/${PokerID}`);
+
+  console.log("Attempting Connection...");
+
+  socket.onerror = (error) => {
+    console.error("Socket Error: ", error);
+
+
+  };
+
+  socket.onclose = function (error) {
+    console.log("WebSocket onclose: ", error);
   }
+
+
+  socket.onopen = () => {
+    console.log("Successfully connected");
+  };
+
+
+
+  socket.onmessage = (msgEvent: any) => {
+
+    const msg = JSON.parse(msgEvent.data);
+
+    console.log(msg);
+
+    switch (msg.action) {
+      case 'ADD_TASK':
+        dispatch(taskAdded(msg.task));
+        break;
+      case 'REMOVE_TASK':
+        dispatch(taskRemoved(msg.task.id));
+        break;
+      default:
+        console.warn("Unknown message type:", msg.type);
+    }
+
+
+    
+  }
+
+  socket.onclose = (event) => {
+    console.log("Socket Closed Connection: ", event);
+  };
 };
+*/
+
+
+
+
+

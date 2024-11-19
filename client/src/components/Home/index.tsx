@@ -4,6 +4,7 @@ import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
+import { ConstructionOutlined } from "@mui/icons-material";
 
 function Home() {
     const navigate = useNavigate();
@@ -11,6 +12,8 @@ function Home() {
         PokerService
             .create()
             .then((response) => {
+
+                console.log(response.data)
                 navigate(`/poker/${response.data}`);
             })
             .catch((e) => {

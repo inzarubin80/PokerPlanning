@@ -15,16 +15,17 @@ import '@fontsource/roboto/700.css';
 const container = document.getElementById('root')!;
 const root = createRoot(container);
 
-root.render(
-  <React.StrictMode>
-    <Provider store={store}>
+//<React.StrictMode>
+//</React.StrictMode>
 
-      <BrowserRouter>
+root.render(
+<React.StrictMode>
+    <Provider store={store}>
+      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true}}>
         <App />
       </BrowserRouter>
-
     </Provider>
-  </React.StrictMode>
+    </React.StrictMode>
 );
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))

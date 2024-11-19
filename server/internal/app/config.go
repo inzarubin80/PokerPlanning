@@ -27,7 +27,7 @@ func NewConfig(opts Options) config {
 			createTask:  fmt.Sprintf("POST /poker/{%s}/task", defenitions.ParamPokerID),
 			getTasks:  	 fmt.Sprintf("GET /poker/{%s}/tasks", defenitions.ParamPokerID),
 			getPoker:    fmt.Sprintf("GET /poker/{%s}", defenitions.ParamPokerID),
-			ws:    		 fmt.Sprintf("GET /ws/poker/{%s}", defenitions.ParamPokerID),
+			ws:    		 fmt.Sprintf("GET /ws/{%s}", defenitions.ParamPokerID),
 		},
 	}
 }
