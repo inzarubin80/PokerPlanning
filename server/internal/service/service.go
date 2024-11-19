@@ -18,6 +18,7 @@ type (
 		CreatePoker(ctx context.Context, userID model.UserID) (model.PokerID, error)
 		AddComment(ctx context.Context, pokerID model.PokerID, comment *model.Comment) (model.CommentID, error)
 		AddTask(ctx context.Context,  task *model.Task) (*model.Task, error)
+		
 		RemoveTargetTask(ctx context.Context, pokerID model.PokerID) error
 		AddTargetTask(ctx context.Context, pokerID model.PokerID, taskID model.TaskID) error
 		GetTargetTask(ctx context.Context, pokerID model.PokerID) (model.TaskID, error)

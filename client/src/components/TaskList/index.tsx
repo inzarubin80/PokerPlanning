@@ -1,13 +1,7 @@
 import React from 'react';
 import { List, ListItemText, ListItemIcon, Checkbox, ListItemButton } from '@mui/material';
 import ListItem from '@mui/material/ListItem';
-
-interface Task {
-  id: number;
-  title: string;
-  description: string;
-  completed: boolean;
-}
+import {Task} from '../../model'
 
 interface TaskListProps {
   tasks: Task[];
@@ -22,7 +16,7 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, toggleTask }) => {
 
         return (
           <ListItem
-            key={task.id}
+            key={task.id.toString()}
             disablePadding
           >
             <ListItemButton role={undefined} onClick={() => toggleTask(task.id)} dense>
@@ -37,7 +31,7 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, toggleTask }) => {
               </ListItemIcon>
               <ListItemText
                 id={labelId}
-                primary={task.title}
+                primary={task.id.toString() + " " + task.title}
                 secondary={task.description}
                 style={{
                   textDecoration: task.completed ? 'line-through' : 'none',

@@ -32,6 +32,5 @@ func NewWSPokerHandler(service serviceGetPoker, name string, hub *ws.Hub) *WSPok
 }
 
 func (h *WSPokerHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	
 	ws.ServeWs(h.hub, w, r)
 }

@@ -1,37 +1,98 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Container, Typography } from '@mui/material';
 import TaskForm from '../TaskForm';
 import TaskList from '../TaskList';
+import { useParams } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchTasks, taskAdded, updateTask, deleteTask } from '../../features/task/taskSlice';
+import { AppDispatch, RootState } from '../../app/store';
+import { Task } from '../../model'
+import WebSocketClient from '../../api/WebSocketClient'
 
-interface Task {
-  id: number;
-  title: string;
-  description: string;
-  completed: boolean;
-}
+
 
 const TaskManager: React.FC = () => {
-  const [tasks, setTasks] = useState<Task[]>([]);
 
-  const addTask = (task: Omit<Task, 'id' | 'completed'>) => {
-    setTasks([...tasks, { ...task, id: Date.now(), completed: false }]);
+  const dispatch = useDispatch<AppDispatch>();
+  const tasks = useSelector((state: RootState) => state.taskReducer.tasks);
+  const status = useSelector((state: RootState) => state.taskReducer.status);
+  const error = useSelector((state: RootState) => state.taskReducer.error);
+  const { pokerId } = useParams<{ pokerId: string }>();
+  const previousPokerIdRef = useRef<WebSocketClient | null>(null);
+  
+  const socketOnMessage = (msgEvent: any) => {
+    const msg = JSON.parse(msgEvent.data);
+    switch (msg.action) {
+      case 'ADD_TASK':
+        dispatch(taskAdded(msg.task));
+        break;
+      case 'REMOVE_TASK':
+        dispatch(deleteTask(msg.task.id));
+        break;
+      default:
+        console.warn("Unknown message type:", msg.type);
+    }
+  }
+
+  useEffect(() => {
+
+    if (!pokerId) {
+      return;
+    }
+
+    console.log("useEffect pokerId", pokerId)
+
+    const url = `ws://localhost:8080/ws/${pokerId}`
+
+    if (!(previousPokerIdRef.current) || (previousPokerIdRef.current.getUrl() !== url) || !previousPokerIdRef.current.isOpen())  {
+      dispatch(fetchTasks(pokerId));
+      previousPokerIdRef.current = new WebSocketClient(url, socketOnMessage);
+    }
+
+    return () => {
+      if (previousPokerIdRef.current) {
+           console.log("closeConnection --useEffect");
+           previousPokerIdRef.current.closeConnection()
+      }
+    };
+
+  }, [pokerId]);
+
+
+  /*
+    const handleAddTask = () => {
+      const newTask: Task = { id: -1, completed: false, description: "", poker_id: "", status: "", story_point: 0, title: 'New Task' };
+      dispatch(addTask(newTask));
+    };
+  */
+
+  const handleUpdateTask = (task: Task) => {
+    const updatedTask = { ...task, title: 'Updated Task' };
+    dispatch(updateTask(updatedTask));
   };
 
-  const toggleTask = (id: number) => {
-    setTasks(
-      tasks.map((task) =>
-        task.id === id ? { ...task, completed: !task.completed } : task
-      )
-    );
+  const handleDeleteTask = (taskId: number) => {
+    dispatch(deleteTask(taskId));
   };
+
+
+  if (status === 'loading') {
+    return <div>Loading...</div>;
+  }
+
+  if (status === 'failed') {
+    return <div>Error: {error}</div>;
+  }
 
   return (
     <Container maxWidth="sm">
       <Typography variant="h4" align="center" gutterBottom>
         Task Manager
       </Typography>
-      <TaskForm addTask={addTask} />
-      <TaskList tasks={tasks} toggleTask={toggleTask} />
+      <TaskForm addTask={() => { }} />
+
+      <TaskList tasks={tasks} toggleTask={() => { }} /> *
+
     </Container>
   );
 };

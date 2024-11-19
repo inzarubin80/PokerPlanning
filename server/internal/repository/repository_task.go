@@ -36,6 +36,9 @@ func (r *Repository) GetTask(ctx context.Context, pokerID model.PokerID) ([]*mod
 
 func (r *Repository) GetTasks(ctx context.Context, pokerID model.PokerID) ([]*model.Task, error) {
 
+	r.storage.mx.Lock()
+	defer r.storage.mx.Unlock()
+
 	tasks := []*model.Task{}
 	tasksRepo, ok := r.storage.tasks[pokerID]
 	if ok {
@@ -54,10 +57,12 @@ func (r *Repository) AddTask(ctx context.Context,  task *model.Task) (*model.Tas
 	taskRepo, ok := r.storage.tasks[task.PokerID]
 	if !ok {
 		taskRepo = make(map[model.TaskID]*model.Task)
+		r.storage.tasks[task.PokerID] = taskRepo
 	}
+
+	
 	task.ID = r.storage.nextTaskID
 	taskRepo[r.storage.nextTaskID] = task
-
 	r.storage.nextTaskID++
 
 	return task, nil

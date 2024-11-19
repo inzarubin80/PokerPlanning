@@ -1,12 +1,27 @@
 import React, { useState } from 'react';
 import { TextField, Button, Grid } from '@mui/material';
+import {Task} from '../../model'
+
 
 interface TaskFormProps {
-  addTask: (task: { title: string; description: string }) => void;
+  addTask: (task: Task) => void;
 }
 
+
+const initialTask: Task = {
+  id: 0,
+  poker_id: '',
+  title: '',
+  description: '',
+  story_point: 0,
+  status: '',
+  completed: false
+};
+
+
+
 const TaskForm: React.FC<TaskFormProps> = ({ addTask }) => {
-  const [task, setTask] = useState({ title: '', description: '' });
+  const [task, setTask] = useState(initialTask);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTask({ ...task, [e.target.name]: e.target.value });
@@ -16,7 +31,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ addTask }) => {
     e.preventDefault();
     if (task.title.trim()) {
       addTask(task);
-      setTask({ title: '', description: '' });
+      setTask(initialTask);
     }
   };
 

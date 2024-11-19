@@ -36,7 +36,15 @@ func (s *PokerService) AddTask(ctx context.Context,  task *model.Task) (*model.T
 
 	s.hub.AddMessage(task.PokerID, jsonData)
 	return task, nil
-
 }
+
+func (s *PokerService) GetTasks(ctx context.Context, pokerID model.PokerID) ([]*model.Task, error) {
+	tasks, err := s.repository.GetTasks(ctx, pokerID)
+	if err != nil {
+		return nil, err
+	}
+	return tasks, nil
+}
+
 
 
