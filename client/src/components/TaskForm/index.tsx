@@ -18,8 +18,6 @@ const initialTask: Task = {
   completed: false
 };
 
-
-
 const TaskForm: React.FC<TaskFormProps> = ({ addTask }) => {
   const [task, setTask] = useState(initialTask);
 

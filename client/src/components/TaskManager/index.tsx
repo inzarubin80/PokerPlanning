@@ -4,7 +4,7 @@ import TaskForm from '../TaskForm';
 import TaskList from '../TaskList';
 import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchTasks, taskAdded, updateTask, deleteTask } from '../../features/task/taskSlice';
+import { fetchTasks, taskAdded, updateTask, deleteTask, addTask} from '../../features/task/taskSlice';
 import { AppDispatch, RootState } from '../../app/store';
 import { Task } from '../../model'
 import WebSocketClient from '../../api/WebSocketClient'
@@ -59,12 +59,15 @@ const TaskManager: React.FC = () => {
   }, [pokerId]);
 
 
-  /*
-    const handleAddTask = () => {
-      const newTask: Task = { id: -1, completed: false, description: "", poker_id: "", status: "", story_point: 0, title: 'New Task' };
-      dispatch(addTask(newTask));
+  
+
+  const handleAddTask = (newTask:Task) => {
+    if (pokerId) {
+      newTask.poker_id  = pokerId;
+    }
+    dispatch(addTask(newTask));
     };
-  */
+
 
   const handleUpdateTask = (task: Task) => {
     const updatedTask = { ...task, title: 'Updated Task' };
@@ -89,8 +92,8 @@ const TaskManager: React.FC = () => {
       <Typography variant="h4" align="center" gutterBottom>
         Task Manager
       </Typography>
-      <TaskForm addTask={() => { }} />
-
+    
+      <TaskForm addTask={handleAddTask} />
       <TaskList tasks={tasks} toggleTask={() => { }} /> *
 
     </Container>
