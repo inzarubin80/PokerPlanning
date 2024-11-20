@@ -1,6 +1,10 @@
-import { createSlice, createAsyncThunk, PayloadAction, $CombinedState } from '@reduxjs/toolkit';
-import { Task } from '../../model'
-import axios from "../../service/http-common";
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import { Task } from '../../model';
+
+interface ErrorResponse {
+  error: boolean;
+  message: string;
+}
 
 interface Comment {
   id: number;
@@ -22,28 +26,63 @@ interface TaskState {
 const initialState: TaskState = {
   tasks: [],
   status: 'idle',
-  error:   null,
+  error: null,
 };
 
-
 export const fetchTasks = createAsyncThunk('tasks/fetchTasks', async (pokerID: string) => {
-  const response = await axios.get<Task[]>(`/poker/${pokerID}/tasks`);
-  return response.data;
+  const response = await fetch(`/api/poker/${pokerID}/tasks`);
+  if (!response.ok) {
+    const errorData: ErrorResponse = await response.json();
+    throw new Error(errorData.message);
+  }
+  const data = await response.json();
+  return data;
 });
 
-
 export const addTask = createAsyncThunk('tasks/addTask', async (task: Omit<Task, 'id'>) => {
-  const response = await axios.post<Task>(`/poker/${task.poker_id}/task`, task);
-  return response.data;
+  const response = await fetch(`/api/poker/${task.poker_id}/task`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(task),
+  });
+  if (!response.ok) {
+    const errorData: ErrorResponse = await response.json();
+    throw new Error(errorData.message);
+  }
+  const data = await response.json();
+  return data;
 });
 
 export const updateTask = createAsyncThunk('tasks/updateTask', async (task: Task) => {
-  const response = await axios.put<Task>(`/tasks/${task.id}`, task);
-  return response.data;
+  const response = await fetch(`/api/tasks/${task.id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(task),
+  });
+  if (!response.ok) {
+    const errorData: ErrorResponse = await response.json();
+    throw new Error(errorData.message);
+  }
+  const data = await response.json();
+  return data;
 });
 
 export const deleteTask = createAsyncThunk('tasks/deleteTask', async (taskId: number) => {
-  await axios.post(`/tasks/delete`, { id: taskId });
+  const response = await fetch(`/api/tasks/delete`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ id: taskId }),
+  });
+  if (!response.ok) {
+    const errorData: ErrorResponse = await response.json();
+    throw new Error(errorData.message);
+  }
   return taskId;
 });
 
@@ -52,10 +91,8 @@ const taskSlice = createSlice({
   initialState,
   reducers: {
     taskAdded: (state, action: PayloadAction<Task>) => {
-    
-      const newState = state.tasks.filter(item=>item.id!==action.payload.id)
-      state.tasks = [...newState, action.payload]
-   
+      const newState = state.tasks.filter(item => item.id !== action.payload.id);
+      state.tasks = [...newState, action.payload];
     },
     taskRemoved: (state, action: PayloadAction<number>) => {
       state.tasks = state.tasks.filter((task) => task.id !== action.payload);
@@ -74,19 +111,17 @@ const taskSlice = createSlice({
         state.status = 'failed';
         state.error = action.error.message ?? 'Something went wrong';
       })
-      
       .addCase(addTask.rejected, (state, action) => {
+        console.log("addTask.rejected", action);
+        state.status = 'failed';
         state.error = action.error.message ?? 'Something went wrong';
       })
-
       .addCase(addTask.pending, (state) => {
         state.status = 'loading';
       })
-
       .addCase(addTask.fulfilled, (state) => {
         state.status = 'succeeded';
       })
-     
       .addCase(updateTask.fulfilled, (state, action: PayloadAction<Task>) => {
         const updatedTask = action.payload;
         const index = state.tasks.findIndex((task) => task.id === updatedTask.id);
@@ -103,8 +138,3 @@ const taskSlice = createSlice({
 
 export const { taskAdded, taskRemoved } = taskSlice.actions;
 export default taskSlice.reducer;
-
-
-
-
-
