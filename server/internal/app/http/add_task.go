@@ -3,11 +3,11 @@ package http
 import (
 	"context"
 	"encoding/json"
+	validation "github.com/go-ozzo/ozzo-validation"
 	"inzarubin80/PokerPlanning/internal/app/uhttp"
 	"inzarubin80/PokerPlanning/internal/model"
 	"io"
 	"net/http"
-	validation "github.com/go-ozzo/ozzo-validation"
 )
 
 type (
@@ -17,11 +17,6 @@ type (
 	AddTaskHandler struct {
 		name    string
 		service serviceAddTask
-	}
-
-	BodyRequest struct {
-		Title 		string `json:"title"`
-		Description string `json:"description"`
 	}
 )
 
@@ -34,48 +29,47 @@ func NewAddTaskHandler(service serviceAddTask, name string) *AddTaskHandler {
 
 func (h *AddTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
-	ctx:= r.Context();
+	ctx := r.Context()
 
 	pokerID, err := uhttp.ValidatePatchParameterPokerID(r)
 	if err != nil {
-		uhttp.SendResponse(w, http.StatusBadRequest, []byte(err.Error()))
+		uhttp.SendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		uhttp.SendResponse(w, http.StatusInternalServerError, []byte("{}"))
+		uhttp.SendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	var bodyRequest BodyRequest
+	var bodyRequest model.Task
 	err = json.Unmarshal(body, &bodyRequest)
 	if err != nil {
-		uhttp.SendResponse(w, http.StatusBadRequest, []byte("{}"))
+		uhttp.SendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	err = validation.ValidateStruct(&bodyRequest, 
-		validation.Field(&bodyRequest.Title, validation.Required), 
+	err = validation.ValidateStruct(&bodyRequest,
+		validation.Field(&bodyRequest.Title, validation.Required),
 		validation.Field(&bodyRequest.Description, validation.Required))
-	
-	if err!=nil {
-		uhttp.SendResponse(w, http.StatusBadRequest, []byte(err.Error()))
+
+	if err != nil {
+		uhttp.SendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	task := &model.Task{
-		PokerID: model.PokerID(pokerID),
-		Title: bodyRequest.Title,
+		PokerID:     model.PokerID(pokerID),
+		Title:       bodyRequest.Title,
 		Description: bodyRequest.Description,
 	}
 
 	_, err = h.service.AddTask(ctx, task)
-	if err!=nil {
-		uhttp.SendResponse(w, http.StatusInternalServerError, []byte(err.Error()))	
+	if err != nil {
+		uhttp.SendErrorResponse(w, http.StatusInternalServerError, err.Error())
 	} else {
-		uhttp.SendResponse(w, http.StatusOK, []byte("{}"))	
+		uhttp.SendSuccessfulResponse(w, []byte("{}"))
 	}
-	
+
 }

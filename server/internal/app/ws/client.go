@@ -130,7 +130,7 @@ func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	
 	pokerID, err := uhttp.ValidatePatchParameterPokerID(r)
 	if err != nil {
-		uhttp.SendResponse(w, http.StatusBadRequest, []byte(err.Error()))
+		uhttp.SendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
 	
@@ -146,4 +146,6 @@ func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	// new goroutines.
 	go client.writePump()
 	go client.readPump()
+
+
 }

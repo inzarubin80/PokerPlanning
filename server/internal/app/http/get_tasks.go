@@ -32,22 +32,22 @@ func (h *GetTasksHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context();
 	pokerID, err := uhttp.ValidatePatchParameterPokerID(r)
 	if err != nil {
-		uhttp.SendResponse(w, http.StatusBadRequest, []byte(err.Error()))
+		uhttp.SendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	tasks, err := h.service.GetTasks(ctx, pokerID)
 	if err != nil {
-		uhttp.SendResponse(w, http.StatusInternalServerError, []byte("{}"))
+		uhttp.SendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	jsonData, err := json.Marshal(tasks)
 	if err != nil {
-		uhttp.SendResponse(w, http.StatusInternalServerError, []byte("{}"))
+		uhttp.SendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	uhttp.SendResponse(w, http.StatusOK, jsonData)
+	uhttp.SendSuccessfulResponse(w,  jsonData)
 
 }
