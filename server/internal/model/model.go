@@ -5,7 +5,7 @@ import "time"
 const (
 	ADD_TASK  = "ADD_TASK"
 	REMOVE_TASK = "REMOVE_TASK"
-	UPDATE_TASK = "REMOVE_TASK"
+	UPDATE_TASK = "UPDATE_TASK"
 )
 
 type (
@@ -29,6 +29,8 @@ type (
 		StoryPoint  int     `json:"story_point"` 
 		Status      string  `json:"status"` 
 		Completed   bool    `json:"completed"`
+		Estimate    string  `json:"estimate"`
+
 	}
 
 	Comment struct {

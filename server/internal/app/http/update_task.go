@@ -11,23 +11,23 @@ import (
 )
 
 type (
-	serviceAddTask interface {
-		AddTask(ctx context.Context, task *model.Task) (*model.Task, error)
+	serviceUpdateTask interface {
+		UpdateTask(ctx context.Context, pokerID model.PokerID, task *model.Task) (*model.Task, error) 
 	}
-	AddTaskHandler struct {
+	UpdateTaskHandler struct {
 		name    string
-		service serviceAddTask
+		service serviceUpdateTask
 	}
 )
 
-func NewAddTaskHandler(service serviceAddTask, name string) *AddTaskHandler {
-	return &AddTaskHandler{
+func NewUpdateTaskHandler(service serviceUpdateTask, name string) *UpdateTaskHandler {
+	return &UpdateTaskHandler{
 		name:    name,
 		service: service,
 	}
 }
 
-func (h *AddTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h *UpdateTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
@@ -60,13 +60,11 @@ func (h *AddTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if task.PokerID!=pokerID {
-
 		uhttp.SendErrorResponse(w, http.StatusBadRequest, "")
 		return
-
 	}
 	
-	_, err = h.service.AddTask(ctx, task)
+	_, err = h.service.UpdateTask(ctx, pokerID, task)
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusInternalServerError, err.Error())
 	} else {

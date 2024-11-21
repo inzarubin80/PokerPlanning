@@ -47,7 +47,6 @@ func (h *GetTasksHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		uhttp.SendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-
+	
 	uhttp.SendSuccessfulResponse(w,  jsonData)
-
 }

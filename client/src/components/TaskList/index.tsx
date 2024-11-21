@@ -1,48 +1,54 @@
-import React from 'react';
-import { List, ListItemText, ListItemIcon, Checkbox, ListItemButton } from '@mui/material';
-import ListItem from '@mui/material/ListItem';
-import {Task} from '../../model'
+
+import React, { useState } from 'react';
+import {
+  Grid2,
+  Paper,
+  Typography,
+  Button,
+  Box,
+  List,
+} from '@mui/material';
+import { Task } from '../../model'
+import { Add } from '@mui/icons-material';
+import TaskCard from '../TaskCard'
 
 interface TaskListProps {
   tasks: Task[];
-  toggleTask: (id: number) => void;
+  handleEditTask: (id: number) => void
+  handleDeleteTask: (id: number) => void
+  handleVote: (id: number) => void
+  setEditingTask: (task: Task | null) => void
 }
 
-const TaskList: React.FC<TaskListProps> = ({ tasks, toggleTask }) => {
-  return (
-    <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
-      {tasks.map((task) => {
-        const labelId = `checkbox-list-label-${task.id}`;
-
-        return (
-          <ListItem
-            key={task.id.toString()}
-            disablePadding
-          >
-            <ListItemButton role={undefined} onClick={() => toggleTask(task.id)} dense>
-              <ListItemIcon>
-                <Checkbox
-                  edge="start"
-                  checked={task.completed}
-                  tabIndex={-1}
-                  disableRipple
-                  inputProps={{ 'aria-labelledby': labelId }}
-                />
-              </ListItemIcon>
-              <ListItemText
-                id={labelId}
-                primary={task.id.toString() + " " + task.title}
-                secondary={task.description}
-                style={{
-                  textDecoration: task.completed ? 'line-through' : 'none',
-                }}
+const TaskList: React.FC<TaskListProps> = ({ tasks, handleEditTask, handleDeleteTask, handleVote, setEditingTask }) => (
+  <Grid2 size={{ xs: 6 }}>
+    <Paper elevation={3}>
+      <Box p={2}>
+        <Typography variant="h6">Список задач</Typography>
+        <List>
+          {tasks.map((task: Task) => (
+            <Box key={task.id.toString()} mb={2}>
+              <TaskCard
+                task={task}
+                onEdit={handleEditTask}
+                onDelete={handleDeleteTask}
+                onVote={handleVote}
               />
-            </ListItemButton>
-          </ListItem>
-        );
-      })}
-    </List>
-  );
-};
+            </Box>
+          ))}
+        </List>
+        <Button
+          variant="contained"
+          color="primary"
+          startIcon={<Add />}
+          onClick={() => handleEditTask(-1)}
+        >
+          Добавить задачу
+        </Button>
+      </Box>
+    </Paper>
+  </Grid2>)
 
-export default TaskList;
+
+export default TaskList
+

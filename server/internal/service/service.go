@@ -15,10 +15,15 @@ type (
 	}
 
 	Repository interface {
+		
+		AddTask(ctx context.Context,  task *model.Task) (*model.Task, error)
+		GetTasks(ctx context.Context, pokerID model.PokerID) ([]*model.Task, error)
+		GetTask(ctx context.Context, pokerID model.PokerID, taskID model.TaskID ) (*model.Task, error)
+		UpdateTask(ctx context.Context, pokerID model.PokerID, task *model.Task) (*model.Task, error) 
+
 		CreatePoker(ctx context.Context, userID model.UserID) (model.PokerID, error)
 		AddComment(ctx context.Context, pokerID model.PokerID, comment *model.Comment) (model.CommentID, error)
-		AddTask(ctx context.Context,  task *model.Task) (*model.Task, error)
-		
+
 		RemoveTargetTask(ctx context.Context, pokerID model.PokerID) error
 		AddTargetTask(ctx context.Context, pokerID model.PokerID, taskID model.TaskID) error
 		GetTargetTask(ctx context.Context, pokerID model.PokerID) (model.TaskID, error)
@@ -26,7 +31,7 @@ type (
 		AddUserEstimate(ctx context.Context, pokerID model.PokerID, userEstimate *model.UserEstimate) (model.EstimateID, error)
 		GetUserEstimateForUserID(ctx context.Context, pokerID model.PokerID, userID model.UserID) (*model.UserEstimate, error)
 		UpdateUserEstimate(ctx context.Context, pokerID model.PokerID, estimate *model.UserEstimate) (model.EstimateID, error)
-		GetTasks(ctx context.Context, pokerID model.PokerID) ([]*model.Task, error)
+		
 		GetComments(ctx context.Context, pokerID model.PokerID) ([]*model.Comment, error)
 		GetUserEstimates(ctx context.Context, pokerID model.PokerID) ([]*model.UserEstimate, error)
 		GetParticipants(ctx context.Context, pokerID model.PokerID) ([]model.UserID, error)

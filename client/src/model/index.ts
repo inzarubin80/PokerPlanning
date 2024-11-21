@@ -6,4 +6,11 @@ export interface Task {
     story_point:number;
     status: string; 
     completed: boolean;
+    estimate: string;
+  }
+
+  export interface CommentItem {
+    id: number;
+    text: string;
+    author: string;
   }
