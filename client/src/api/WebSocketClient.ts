@@ -6,7 +6,7 @@ class WebSocketClient {
     
     constructor(url: string, onMessage:(me:MessageEvent<any>)=>any) {
 
-        console.log("constructor WebSocketClient");
+       // console.log("constructor WebSocketClient");
 
         this.url = url;
         this.socket = new WebSocket(this.url);

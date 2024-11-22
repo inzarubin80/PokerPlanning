@@ -9,25 +9,23 @@ import (
 )
 
 type (
-	serviceGetTasks interface {
-		GetTasks(ctx context.Context, pokerID model.PokerID) ([]*model.Task, error)
+	serviceGetComments interface {
+		GetComments(ctx context.Context, pokerID model.PokerID) ([]*model.Comment, error)
 	}
-	GetTasksHandler struct {
+	GetCommentsHandler struct {
 		name    string
-		service serviceGetTasks
-	}
-
-	
+		service serviceGetComments 
+	}	
 )
 
-func NewGetTasksHandler(service serviceGetTasks, name string) *GetTasksHandler {
-	return &GetTasksHandler{
+func NewGetCommentsHandler(service serviceGetComments, name string) *GetCommentsHandler {
+	return &GetCommentsHandler{
 		name:    name,
 		service: service,
 	}
 }
 
-func (h *GetTasksHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h *GetCommentsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context();
 	pokerID, err := uhttp.ValidatePatchParameterPokerID(r)
@@ -36,13 +34,13 @@ func (h *GetTasksHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tasks, err := h.service.GetTasks(ctx, pokerID)
+	comments, err := h.service.GetComments(ctx, pokerID)
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	jsonData, err := json.Marshal(tasks)
+	jsonData, err := json.Marshal(comments)
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return

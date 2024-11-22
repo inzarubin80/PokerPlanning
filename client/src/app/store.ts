@@ -1,9 +1,11 @@
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
 import taskReducer from '../features/task/taskSlice';
+import commentReducer from '../features/task/commentSlice';
 
 export const store = configureStore({
   reducer: {
     taskReducer: taskReducer,
+    commentReducer: commentReducer
   },
 });
 

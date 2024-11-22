@@ -50,38 +50,38 @@ func (r *Repository) GetComment(ctx context.Context, pokerID model.PokerID, comm
 	return comment, nil
 }
 
-func (r *Repository) AddComment(ctx context.Context, pokerID model.PokerID, comment *model.Comment) (model.CommentID, error) {
+func (r *Repository) AddComment(ctx context.Context, comment *model.Comment) (*model.Comment, error) {
 
 	r.storage.mx.Lock()
 	defer r.storage.mx.Unlock()
 
 	comment.ID = r.storage.nextCommentID
-	commentsRepo, ok := r.storage.comments[pokerID]
+	commentsRepo, ok := r.storage.comments[comment.PokerID]
 	if !ok {
 		commentsRepo = make(map[model.CommentID]*model.Comment)
-		r.storage.comments[pokerID] = commentsRepo
+		r.storage.comments[comment.PokerID] = commentsRepo
 	}
 	commentsRepo[r.storage.nextCommentID] = comment
 	r.storage.nextCommentID++
-	return comment.ID, nil
+	return comment, nil
 
 }
 
-func (r *Repository) UpdateComment(ctx context.Context, pokerID model.PokerID, commentID model.CommentID, text string) error {
+func (r *Repository) UpdateComment(ctx context.Context, comment *model.Comment) (*model.Comment, error) {
 
 	r.storage.mx.Lock()
 	defer r.storage.mx.Unlock()
 
-	commentsRepo, ok := r.storage.comments[pokerID]
+	commentsRepo, ok := r.storage.comments[comment.PokerID]
 	if !ok {
-		return model.ErrorNotFound
+		return nil, model.ErrorNotFound
 	}
-	_, ok = commentsRepo[commentID]
+	_, ok = commentsRepo[comment.ID]
 	if !ok {
-		return model.ErrorNotFound
+		return nil, model.ErrorNotFound
 	}
-	commentsRepo[commentID].Text = text
-	return nil
+	commentsRepo[comment.ID].Text = comment.Text
+	return commentsRepo[comment.ID], nil
 }
 
 func (r *Repository) RemoveComment(ctx context.Context, pokerID model.PokerID, commentID model.CommentID) error {

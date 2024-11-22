@@ -93,12 +93,7 @@ func (h *Hub) Run() {
 }
 
 func (h *Hub) AddMessage(pokerID model.PokerID,  data []byte)  {
-
-	
 	message := &Message{pokerID: pokerID, data: data}
-
 	h.broadcast<-message
-
-
 }
 

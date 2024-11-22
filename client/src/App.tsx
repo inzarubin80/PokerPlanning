@@ -1,6 +1,8 @@
 import { Routes, Route, Link, Outlet, useNavigate  } from "react-router-dom";
 import Home from './components/Home'
 import Poker from './components/Poker'
+import TaskForm from './components/TaskForm'
+
 
 
 
@@ -9,6 +11,7 @@ export default function App() {
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="poker/:pokerId" element={<Poker />} />
+      <Route path="poker/:pokerId/task/:taskId" element={<TaskForm/>} />   
       <Route path="*" element={<NoMatch />} />
     </Routes>
   );
