@@ -20,7 +20,7 @@ interface TaskCardProps {
 const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete, onVote }) => (
     <Card>
       <CardContent>
-        <Typography variant="h6">{task.title}</Typography>
+        <Typography variant="h6"> ID: {task.id} - {task.title}</Typography>
         <Typography variant="body2">{task.description}</Typography>
         <Typography variant="subtitle2">Оценка: {task.estimate}</Typography>
       </CardContent>

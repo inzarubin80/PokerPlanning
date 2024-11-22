@@ -15,11 +15,12 @@ type (
 	}
 
 	Repository interface {
-		
+		//Task
 		AddTask(ctx context.Context,  task *model.Task) (*model.Task, error)
 		GetTasks(ctx context.Context, pokerID model.PokerID) ([]*model.Task, error)
 		GetTask(ctx context.Context, pokerID model.PokerID, taskID model.TaskID ) (*model.Task, error)
 		UpdateTask(ctx context.Context, pokerID model.PokerID, task *model.Task) (*model.Task, error) 
+		DeleteTask(ctx context.Context, pokerID model.PokerID, taskID model.TaskID ) (error) 
 
 		CreatePoker(ctx context.Context, userID model.UserID) (model.PokerID, error)
 		AddComment(ctx context.Context, pokerID model.PokerID, comment *model.Comment) (model.CommentID, error)

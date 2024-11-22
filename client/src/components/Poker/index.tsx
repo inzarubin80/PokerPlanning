@@ -13,7 +13,7 @@ import { CommentItem } from '../../model'
 import { useNavigate } from "react-router-dom";
 import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchTasks, taskAdded, deleteTask, tasksUpdating} from '../../features/task/taskSlice';
+import { fetchTasks, taskAdded, taskRemoved, tasksUpdating, deleteTask } from '../../features/task/taskSlice';
 import { AppDispatch, RootState } from '../../app/store';
 import WebSocketClient from '../../api/WebSocketClient'
 
@@ -61,10 +61,10 @@ const App: React.FC = () => {
         dispatch(taskAdded(msg.task));
         break;
       case 'UPDATE_TASK':
-          dispatch(tasksUpdating(msg.task));
-          break;     
+        dispatch(tasksUpdating(msg.task));
+        break;
       case 'REMOVE_TASK':
-        dispatch(deleteTask(msg.task.id));
+        dispatch(taskRemoved(msg.task_id));
         break;
       default:
         console.warn("Unknown message type:", msg.type);
@@ -77,8 +77,9 @@ const App: React.FC = () => {
 
 
   const handleDeleteTask = (taskId: number) => {
-    //const updatedTasks = tasks.filter((t) => t.id !== taskId);
-    //setTasks(updatedTasks);
+    if (taskId && pokerId) {
+      dispatch(deleteTask({ pokerID: pokerId, taskID: taskId }));
+    }
   };
 
   const handleVote = (taskId: number) => {
@@ -97,8 +98,10 @@ const App: React.FC = () => {
     setShowSettings(!showSettings);
   };
 
+  //maxWidth="lg" 
+
   return (
-    <Container maxWidth="lg">
+    <Container maxWidth={false}>
       <Box mt={4}>
         <Box display="flex" justifyContent="center" alignItems="center">
           <Typography variant="h4" gutterBottom>
@@ -111,29 +114,35 @@ const App: React.FC = () => {
           </Box>
         </Box>
       </Box>
-      <Grid2 container spacing={3}>
+      <Grid2 container spacing={1} style={{ height: 'calc(100vh - 120px)', display: 'flex' }}>
 
-        <Voting
-          selectedTask={selectedTask}
-          averageEstimate={1}
-          averageMethod={""}
-          showSettings={showSettings}
-          numberVoters={1}
-          handleSettingsToggle={handleSettingsToggle}
-          handleVote={handleVote}
-          handleEndVoting={handleEndVoting} />
+        <Grid2 size={{ xs: 3 }} style={{ display: 'flex', flexDirection: 'column' }}>
+          <Voting
+            selectedTask={selectedTask}
+            averageEstimate={1}
+            averageMethod={""}
+            showSettings={showSettings}
+            numberVoters={1}
+            handleSettingsToggle={handleSettingsToggle}
+            handleVote={handleVote}
+            handleEndVoting={handleEndVoting} />
+        </Grid2>
 
-        <TaskList
-          tasks={tasks}
-          handleEditTask={handleEditTask}
-          handleDeleteTask={handleDeleteTask}
-          handleVote={handleVote}
-          setEditingTask={() => { }} />
-
+        <Grid2 size={{ xs: 5 }} style={{ display: 'flex', flexDirection: 'column' }}>
         <Comments
-          comments={comments}
-          handleAddComment={handleAddComment} />
+            comments={comments}
+            handleAddComment={handleAddComment} />
+        </Grid2>
 
+        <Grid2 size={{ xs: 4 }} style={{ display: 'flex', flexDirection: 'column' }}>
+           <TaskList
+            tasks={tasks}
+            handleEditTask={handleEditTask}
+            handleDeleteTask={handleDeleteTask}
+            handleVote={handleVote}
+            setEditingTask={() => { }} />
+
+        </Grid2>
       </Grid2>
 
 

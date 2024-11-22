@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"inzarubin80/PokerPlanning/internal/model"
+	"sort"
 )
 
 func (r *Repository) ClearTasks(ctx context.Context, pokerID model.PokerID) error {
@@ -26,16 +27,31 @@ func (r *Repository) GetTask(ctx context.Context, pokerID model.PokerID, taskID 
 
 	tasksRepo, ok := r.storage.tasks[pokerID]
 	if !ok {
-		return nil,  fmt.Errorf("poker %s: %w",pokerID, model.ErrorNotFound) 
+		return nil,  fmt.Errorf("poker %s %w",pokerID, model.ErrorNotFound) 
 	}
 
 	task, ok:= tasksRepo[taskID]
 	if !ok {
-		return nil,  fmt.Errorf("task %d:%w", taskID, model.ErrorNotFound) 
+		return nil,  fmt.Errorf("task %d %w", taskID, model.ErrorNotFound) 
 	}
 
 	return task, nil
 }
+
+
+func (r *Repository) DeleteTask(ctx context.Context, pokerID model.PokerID, taskID model.TaskID ) (error) {
+	
+	r.storage.mx.RLock()
+	defer r.storage.mx.RUnlock()
+	tasksRepo, ok := r.storage.tasks[pokerID]
+	if !ok {
+		return nil
+	}
+
+	delete(tasksRepo, taskID)
+	return  nil
+}
+
 
 
 func (r *Repository) GetTasks(ctx context.Context, pokerID model.PokerID) ([]*model.Task, error) {
@@ -50,6 +66,11 @@ func (r *Repository) GetTasks(ctx context.Context, pokerID model.PokerID) ([]*mo
 			tasks = append(tasks, value)
 		}
 	}
+
+	sort.Slice(tasks, func(i, j int) bool {
+		return tasks[i].ID < tasks[j].ID
+	})
+	
 	return tasks, nil
 }
 
@@ -78,11 +99,11 @@ func (r *Repository) UpdateTask(ctx context.Context, pokerID model.PokerID, task
 
 	taskRepo, ok := r.storage.tasks[pokerID]
 	if !ok {
-		return nil, fmt.Errorf("poker %s: %w",pokerID, model.ErrorNotFound) 
+		return nil, fmt.Errorf("poker %s %w",pokerID, model.ErrorNotFound) 
 	}
 	_, ok = taskRepo[task.ID]
 	if !ok {
-		return  nil, fmt.Errorf("task %d:%w", task.ID, model.ErrorNotFound) 
+		return  nil, fmt.Errorf("task %d %w", task.ID, model.ErrorNotFound) 
 	}
 	taskRepo[task.ID] = task
 	return task, nil

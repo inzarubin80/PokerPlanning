@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import {
   Grid2,
@@ -21,10 +20,12 @@ interface TaskListProps {
 }
 
 const TaskList: React.FC<TaskListProps> = ({ tasks, handleEditTask, handleDeleteTask, handleVote, setEditingTask }) => (
-  <Grid2 size={{ xs: 6 }}>
-    <Paper elevation={3}>
-      <Box p={2}>
-        <Typography variant="h6">Список задач</Typography>
+  <Paper elevation={3}>
+    <Box position="sticky" top={0}  bgcolor="grey.200" zIndex={1} p={2} display="flex" justifyContent="center" height={"4vh"}>
+      <Typography variant="h6">Задачи</Typography>
+    </Box>
+    <Box display="flex" height="80vh" flexDirection="column" justifyContent="space-between">
+      <Box p={1} overflow="auto">
         <List>
           {tasks.map((task: Task) => (
             <Box key={task.id.toString()} mb={2}>
@@ -37,18 +38,20 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, handleEditTask, handleDelete
             </Box>
           ))}
         </List>
+      </Box>
+      <Box p={2} display="flex" flexDirection="column" justifyContent="flex-start">
         <Button
           variant="contained"
           color="primary"
           startIcon={<Add />}
           onClick={() => handleEditTask(-1)}
+          style={{ width: '220px' }}
         >
           Добавить задачу
         </Button>
       </Box>
-    </Paper>
-  </Grid2>)
-
+    </Box>
+  </Paper>
+)
 
 export default TaskList
-

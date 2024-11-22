@@ -27,17 +27,22 @@ interface VotingProps {
 }
 
 const Voting: React.FC<VotingProps> = ({selectedTask, averageEstimate, averageMethod, showSettings, numberVoters, handleSettingsToggle, handleVote, handleEndVoting }) => (
-    <Grid2 size={{ xs: 3 }}>
+
         <Paper elevation={3}>
-            <Box p={2}>
-                <Box display="flex" justifyContent="space-between" alignItems="center">
-                    <Typography variant="h6">Задача за которую идет голосование</Typography>
+            
+                
+                <Box position="sticky" top={0}  bgcolor="grey.200" zIndex={1} p={2} height={"4vh"} display="flex" justifyContent="space-between" flexDirection={"row"} >
+
+                    <Typography variant="h6">Голосование</Typography>
                     <IconButton onClick={handleSettingsToggle}>
                         <Settings />
                     </IconButton>
+                 
                 </Box>
+
+               
                 {selectedTask ? (
-                    <>
+                     <Box display="flex" height="80vh" flexDirection="column" justifyContent="space-between">
                         <Typography variant="subtitle1">{selectedTask.title}</Typography>
                         <Typography variant="body2">{selectedTask.description}</Typography>
                         <Button variant="outlined" color="primary" onClick={() => handleVote(selectedTask.id)}>XS</Button>
@@ -67,13 +72,16 @@ const Voting: React.FC<VotingProps> = ({selectedTask, averageEstimate, averageMe
                                 </FormControl>
                             </Box>
                         )}
-                    </>
+                    </Box>
                 ) : (
-                    <Typography variant="body2">Выберите задачу для голосования</Typography>
+                    <Box display="flex" height="80vh" flexDirection="column" justifyContent="center" alignItems={'center'}>
+                    <Box>
+                         <Typography variant="body2">Выберите задачу для голосования</Typography>
+                    </Box>
+                    </Box>
                 )}
-            </Box>
+            
         </Paper>
-    </Grid2>
 )
 
 

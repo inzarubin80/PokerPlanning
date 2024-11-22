@@ -11,6 +11,7 @@ type (
 	ADD_TASK_MESSAGE struct {
 		Action string      `json:"action"`
 		Task   *model.Task `json:"task"`
+		TaskID  model.TaskID `json:"task_id"`
 	}
 
 )
@@ -69,6 +70,31 @@ func (s *PokerService) GetTasks(ctx context.Context, pokerID model.PokerID) ([]*
 	}
 	return tasks, nil
 }
+
+func (s *PokerService)	DeleteTask(ctx context.Context, pokerID model.PokerID, taskID model.TaskID ) (error)  {
+	
+	err:= s.repository.DeleteTask(ctx, pokerID, taskID)
+
+	if err!=nil {
+		return err;
+	}
+
+	dataMessage := &ADD_TASK_MESSAGE{
+		Action:  model.REMOVE_TASK,
+		TaskID:  taskID,
+	}
+	
+	jsonData, err := json.Marshal(dataMessage)
+	
+	if err != nil {
+		return err
+	}
+
+	s.hub.AddMessage(pokerID, jsonData)
+
+	return nil
+}
+
 
 func (s *PokerService)  GetTask(ctx context.Context, pokerID model.PokerID, taskID model.TaskID ) (*model.Task, error){
 	task, err := s.repository.GetTask(ctx, pokerID, taskID)

@@ -30,6 +30,9 @@ interface TaskState {
   statusSaveTask: 'idle' | 'loading' | 'succeeded' | 'failed';
   errorSaveTask: string | null;
   
+  statusDeleteTask: 'idle' | 'loading' | 'succeeded' | 'failed';
+  errorDeleteTask: string | null;
+  
 }
 
 const initialState: TaskState = {
@@ -37,10 +40,15 @@ const initialState: TaskState = {
   statusFetchTasks: 'idle',
   statusGetTask:'idle',
   statusSaveTask:'idle',
+  statusDeleteTask:'idle',
+  
   errorFetchTasks: null,
   errorGetTask:null,
   errorSaveTask:null,
+  
+  errorDeleteTask:null,
   curentTask:null,
+
 };
 
 interface GetTaskParams {
@@ -53,6 +61,12 @@ interface SaveTaskParams {
   task: Task;
   callback:()=>void|null
 }
+
+interface DeleteTaskParams {
+  pokerID: string;
+  taskID: number;
+}
+
 
 export const getTask = createAsyncThunk(
   'tasks/getTask',
@@ -120,19 +134,19 @@ export const updateTask = createAsyncThunk('tasks/updateTask', async (params: Sa
   return data;
 });
 
-export const deleteTask = createAsyncThunk('tasks/deleteTask', async (taskId: number) => {
-  const response = await fetch(`/api/tasks/delete`, {
-    method: 'POST',
+export const deleteTask = createAsyncThunk('tasks/deleteTask', async (params: DeleteTaskParams) => {
+  const { pokerID, taskID } = params;
+  const response = await fetch(`/api/poker/${pokerID}/task/${taskID}`, {
+    method: 'DELETE',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ id: taskId }),
   });
   if (!response.ok) {
     const errorData: ErrorResponse = await response.json();
     throw new Error(errorData.message);
   }
-  return taskId;
+  return taskID;
 });
 
 const taskSlice = createSlice({
@@ -141,8 +155,14 @@ const taskSlice = createSlice({
   reducers: {
     
     taskAdded: (state, action: PayloadAction<Task>) => {
-      const newState = state.tasks.filter(item => item.id !== action.payload.id);
-      state.tasks = [...newState, action.payload];
+
+      const updatedTask = action.payload;
+      const index = state.tasks.findIndex((task) => task.id === updatedTask.id);
+        if (index !== -1) {
+          state.tasks[index] = updatedTask;
+        } else {
+          state.tasks.push(updatedTask)
+        }
     },
 
     tasksUpdating: (state, action: PayloadAction<Task>) => {
@@ -196,7 +216,6 @@ const taskSlice = createSlice({
 
       //'tasks/updateTask'
       .addCase(updateTask.rejected, (state, action) => {
-        console.log("addTask.rejected", action);
         state.statusSaveTask = 'failed';
         state.errorSaveTask = action.error.message ?? 'Something went wrong';
       })
@@ -209,10 +228,21 @@ const taskSlice = createSlice({
       })
 
       //'tasks/deleteTask'
-      .addCase(deleteTask.fulfilled, (state, action: PayloadAction<number>) => {
-        const taskId = action.payload;
-        state.tasks = state.tasks.filter((task) => task.id !== taskId);
+      .addCase(deleteTask.fulfilled, (state, action) => {
+        state.statusDeleteTask = 'succeeded';
+   
       })
+
+      .addCase(deleteTask.pending, (state, action) => {
+        state.statusDeleteTask = 'loading';
+        state.errorDeleteTask  = ''
+      })
+
+      .addCase(deleteTask.rejected, (state, action) => {
+        state.statusDeleteTask = 'failed';
+        state.errorDeleteTask  = action.error.message ?? 'Something went wrong';
+      })
+
 
       //'tasks/getTask'
       .addCase(getTask.pending, (state) => {

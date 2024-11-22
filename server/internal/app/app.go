@@ -38,6 +38,7 @@ type (
 		GetTasks(ctx context.Context, pokerID model.PokerID) ([]*model.Task, error)
 		GetTask(ctx context.Context, pokerID model.PokerID, taskID model.TaskID ) (*model.Task, error)
 		UpdateTask(ctx context.Context, pokerID model.PokerID, task *model.Task) (*model.Task, error) 
+		DeleteTask(ctx context.Context, pokerID model.PokerID, taskID model.TaskID ) (error) 
 
 	}
 
@@ -60,6 +61,8 @@ func (a *App) ListenAndServe() error {
 	a.mux.Handle(a.config.path.createTask, appHttp.NewAddTaskHandler(a.pokerService, a.config.path.createPoker))
 	a.mux.Handle(a.config.path.getTasks, appHttp.NewGetTasksHandler(a.pokerService, a.config.path.getTasks))
 	a.mux.Handle(a.config.path.getTask, appHttp.NewGetTaskHandler(a.pokerService, a.config.path.getTask))
+	a.mux.Handle(a.config.path.deleteTask, appHttp.NewDeleteTaskHandler(a.pokerService, a.config.path.deleteTask))
+	
 	a.mux.Handle(a.config.path.updateTask, appHttp.NewUpdateTaskHandler(a.pokerService, a.config.path.updateTask))
 	
 	a.mux.Handle(a.config.path.ws, appHttp.NewWSPokerHandler(a.pokerService, a.config.path.ws, a.hub))
