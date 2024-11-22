@@ -12,5 +12,8 @@ export interface Task {
   export interface CommentItem {
     id: number;
     text: string;
-    author: string;
+    user_id: string;
+    poker_id: string;  
   }
+
+

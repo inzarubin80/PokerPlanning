@@ -7,8 +7,7 @@ import (
 )
 
 type (
-
-	ADD_TASK_MESSAGE struct {
+	TASK_MESSAGE struct {
 		Action string      `json:"action"`
 		Task   *model.Task `json:"task"`
 		TaskID  model.TaskID `json:"task_id"`
@@ -24,7 +23,7 @@ func (s *PokerService) AddTask(ctx context.Context,  task *model.Task) (*model.T
 		return nil, err
 	}
 	
-	dataMessage := &ADD_TASK_MESSAGE{
+	dataMessage := &TASK_MESSAGE{
 		Action:  model.ADD_TASK,
 		Task: task,
 	}
@@ -47,7 +46,7 @@ func (s *PokerService)  UpdateTask(ctx context.Context, pokerID model.PokerID, t
 		return nil, err
 	}
 	
-	dataMessage := &ADD_TASK_MESSAGE{
+	dataMessage := &TASK_MESSAGE{
 		Action:  model.UPDATE_TASK,
 		Task: task,
 	}
@@ -79,7 +78,7 @@ func (s *PokerService)	DeleteTask(ctx context.Context, pokerID model.PokerID, ta
 		return err;
 	}
 
-	dataMessage := &ADD_TASK_MESSAGE{
+	dataMessage := &TASK_MESSAGE{
 		Action:  model.REMOVE_TASK,
 		TaskID:  taskID,
 	}

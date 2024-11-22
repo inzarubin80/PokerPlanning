@@ -1,19 +1,36 @@
 import React, { useState } from 'react';
 import { Box, TextField, Button } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
+import {SaveCommentParams} from '../../features/comment/commentSlice';
+import { useParams } from 'react-router-dom';
 
 interface CommentFormProps {
-  onAddComment: (text: string) => void;
+  onAddComment: (saveCommentParams: SaveCommentParams) => void;
 }
 
 const CommentForm: React.FC<CommentFormProps> = ({ onAddComment }) => {
   const [text, setText] = useState('');
 
+  const { pokerId } = useParams<{ pokerId: string }>();
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (text.trim()) {
-      onAddComment(text);
-      setText('');
+    if (text.trim() && pokerId) {
+    
+      
+     const saveCommentParams:SaveCommentParams = {
+      callback:()=>{ setText('');},
+      comment:{
+
+        id:-1,
+        poker_id:pokerId,
+        text:text,
+        user_id:"Бран старк"
+
+      },
+      pokerID:"" 
+    }
+      onAddComment(saveCommentParams);
     }
   };
 

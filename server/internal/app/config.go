@@ -10,7 +10,7 @@ type (
 		Addr string
 	}
 	path struct {
-		index, getPoker,  createPoker, createTask, getTasks, getTask, updateTask, deleteTask, ws string
+		index, getPoker,  createPoker, createTask, getTasks, getTask, updateTask, deleteTask,getComents, addComent,ws string
 	}
 	config struct {
 		addr string
@@ -24,11 +24,16 @@ func NewConfig(opts Options) config {
 		path: path{
 			index:       "/",
 			createPoker: "POST /poker",
+			
 			createTask:  fmt.Sprintf("POST /poker/{%s}/task", defenitions.ParamPokerID),
 			getTasks:  	 fmt.Sprintf("GET /poker/{%s}/tasks", defenitions.ParamPokerID),
 			getTask:  	 fmt.Sprintf("GET /poker/{%s}/task/{%s}", defenitions.ParamPokerID, defenitions.ParamTaskID),
 			updateTask:  fmt.Sprintf("PUT /poker/{%s}/task/{%s}", defenitions.ParamPokerID, defenitions.ParamTaskID),	
-			deleteTask:  fmt.Sprintf("DELETE /poker/{%s}/task/{%s}", defenitions.ParamPokerID, defenitions.ParamTaskID),	
+			deleteTask:  fmt.Sprintf("DELETE /poker/{%s}/task/{%s}", defenitions.ParamPokerID, defenitions.ParamTaskID),
+			
+			getComents:  	 fmt.Sprintf("GET /poker/{%s}/comments", defenitions.ParamPokerID),
+			addComent:  	 fmt.Sprintf("POST /poker/{%s}/comment", defenitions.ParamPokerID),
+			
 			getPoker:    fmt.Sprintf("GET /poker/{%s}", defenitions.ParamPokerID),
 			ws:    		 fmt.Sprintf("GET /ws/{%s}", defenitions.ParamPokerID),		
 

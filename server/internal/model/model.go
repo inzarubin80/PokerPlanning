@@ -6,6 +6,11 @@ const (
 	ADD_TASK  = "ADD_TASK"
 	REMOVE_TASK = "REMOVE_TASK"
 	UPDATE_TASK = "UPDATE_TASK"
+	
+	ADD_COMMENT  = "ADD_COMMENT"
+	REMOVE_COMMENT = "REMOVE_COMMENT"
+	UPDATE_COMMENT = "UPDATE_COMMENT"
+
 )
 
 type (
@@ -34,10 +39,10 @@ type (
 	}
 
 	Comment struct {
-		ID     CommentID
-		PokerID PokerID
-		UserID UserID
-		Text   string
+		ID     CommentID `json:"id"`
+		PokerID PokerID  `json:"poker_id"`
+		UserID UserID `json:"user_id"`
+		Text   string `json:"text"`
 	}
 
 	UserEstimate struct {

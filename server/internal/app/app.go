@@ -31,8 +31,9 @@ type (
 		
 		CreatePoker(ctx context.Context, userID model.UserID) (model.PokerID, error) 
 		GetPoker(ctx context.Context, pokerID model.PokerID) (*model.Poker, error) 
-		AddComment(ctx context.Context, pokerID model.PokerID, comment *model.Comment) (model.CommentID, error)
+	
 		SetUserEstimate(ctx context.Context, pokerID model.PokerID, userID model.UserID, userEstimate *model.UserEstimate) (model.EstimateID, error)
+		
 		SetTargetTask(ctx context.Context, pokerID model.PokerID, userID model.UserID, taskID model.TaskID) error
 		AddTask(ctx context.Context, task *model.Task) (*model.Task, error)
 		GetTasks(ctx context.Context, pokerID model.PokerID) ([]*model.Task, error)
@@ -40,6 +41,10 @@ type (
 		UpdateTask(ctx context.Context, pokerID model.PokerID, task *model.Task) (*model.Task, error) 
 		DeleteTask(ctx context.Context, pokerID model.PokerID, taskID model.TaskID ) (error) 
 
+		AddComment(ctx context.Context,    comment *model.Comment) (*model.Comment, error) 
+		GetComments(ctx context.Context,   pokerID model.PokerID) ([]*model.Comment, error)
+		UpdateComment(ctx context.Context, comment *model.Comment) (*model.Comment, error)
+		RemoveComment(ctx context.Context, pokerID model.PokerID, commentID model.CommentID) error 
 	}
 
 	App struct {
@@ -62,8 +67,10 @@ func (a *App) ListenAndServe() error {
 	a.mux.Handle(a.config.path.getTasks, appHttp.NewGetTasksHandler(a.pokerService, a.config.path.getTasks))
 	a.mux.Handle(a.config.path.getTask, appHttp.NewGetTaskHandler(a.pokerService, a.config.path.getTask))
 	a.mux.Handle(a.config.path.deleteTask, appHttp.NewDeleteTaskHandler(a.pokerService, a.config.path.deleteTask))
-	
 	a.mux.Handle(a.config.path.updateTask, appHttp.NewUpdateTaskHandler(a.pokerService, a.config.path.updateTask))
+
+	a.mux.Handle(a.config.path.addComent, appHttp.NewAddCommentHandler(a.pokerService, a.config.path.addComent))
+	a.mux.Handle(a.config.path.getComents, appHttp.NewGetCommentsHandler(a.pokerService, a.config.path.getComents))
 	
 	a.mux.Handle(a.config.path.ws, appHttp.NewWSPokerHandler(a.pokerService, a.config.path.ws, a.hub))
 	fmt.Println("start server")

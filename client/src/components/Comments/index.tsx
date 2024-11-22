@@ -1,6 +1,5 @@
 import React, { useRef, useEffect } from 'react';
 import {
-  Grid2,
   Paper,
   Typography,
   List,
@@ -9,17 +8,18 @@ import {
   Box,
 } from '@mui/material';
 import { CommentItem } from '../../model';
-
 import CommentForm from '../CommentForm'
+import {SaveCommentParams} from '../../features/comment/commentSlice';
 
 interface CommentsProps {
   comments: CommentItem[];
-  handleAddComment: (message: string) => void
+  handleAddComment: (saveCommentParams: SaveCommentParams) => void
 }
 
 const Comments: React.FC<CommentsProps> = ({ comments, handleAddComment }) => {
   const commentsEndRef = useRef<HTMLDivElement>(null);
 
+  
   useEffect(() => {
     if (commentsEndRef.current) {
       commentsEndRef.current.scrollIntoView({ behavior: 'smooth' });
@@ -41,18 +41,16 @@ const Comments: React.FC<CommentsProps> = ({ comments, handleAddComment }) => {
           <List>
             {comments.map((comment) => (
               <ListItem key={comment.id}>
-                <ListItemText primary={comment.text} secondary={`Автор: ${comment.author}`} />
+                <ListItemText primary={comment.text} secondary={`Автор: ${comment.user_id}`} />
               </ListItem>
             ))}
             <div ref={commentsEndRef} />
           </List>
 
         </Box>
+                
+        <CommentForm onAddComment={handleAddComment} />
 
-  
-            <CommentForm onAddComment={handleAddComment} />
-      
-        
       </Box>
 
     </Paper>

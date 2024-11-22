@@ -14,6 +14,7 @@ import { useNavigate } from "react-router-dom";
 import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchTasks, taskAdded, taskRemoved, tasksUpdating, deleteTask } from '../../features/task/taskSlice';
+import { addComment, commentAdded, getComments, SaveCommentParams} from '../../features/comment/commentSlice';
 import { AppDispatch, RootState } from '../../app/store';
 import WebSocketClient from '../../api/WebSocketClient'
 
@@ -22,10 +23,17 @@ const App: React.FC = () => {
 
   const previousPokerIdRef = useRef<WebSocketClient | null>(null);
   const dispatch = useDispatch<AppDispatch>();
+
   const tasks = useSelector((state: RootState) => state.taskReducer.tasks);
   const status = useSelector((state: RootState) => state.taskReducer.statusFetchTasks);
   const error = useSelector((state: RootState) => state.taskReducer.errorFetchTasks);
-  const [comments, setComments] = useState<CommentItem[]>([]);
+
+
+  const comments = useSelector((state: RootState) => state.commentReducer.comments);
+  const statusFetchComments = useSelector((state: RootState) => state.commentReducer.statusFetchComments);
+  const errorFetchComments = useSelector((state: RootState) => state.commentReducer.errorFetchComments);
+
+
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [showSettings, setShowSettings] = useState(false);
   const [participants, setParticipants] = useState(1); // Добавлено состояние для количества участников
@@ -38,10 +46,12 @@ const App: React.FC = () => {
       return;
     }
 
+    dispatch(fetchTasks(pokerId));
+    dispatch(getComments(pokerId));
+
     const url = `ws://localhost:8080/ws/${pokerId}`
 
     if (!(previousPokerIdRef.current) || (previousPokerIdRef.current.getUrl() !== url) || !previousPokerIdRef.current.isOpen()) {
-      dispatch(fetchTasks(pokerId));
       previousPokerIdRef.current = new WebSocketClient(url, socketOnMessage);
     }
 
@@ -66,6 +76,11 @@ const App: React.FC = () => {
       case 'REMOVE_TASK':
         dispatch(taskRemoved(msg.task_id));
         break;
+        case 'ADD_COMMENT':
+          dispatch(commentAdded(msg.comment));
+          break;
+  
+
       default:
         console.warn("Unknown message type:", msg.type);
     }
@@ -86,8 +101,12 @@ const App: React.FC = () => {
 
   };
 
-  const handleAddComment = (text: string) => {
-    setComments([...comments, { id: comments.length + 1, text, author: 'Убойный кодер' }]);
+  const handleAddComment = (saveCommentParams: SaveCommentParams) => {
+    if (!pokerId) {
+      return
+    }
+    saveCommentParams.pokerID = pokerId
+    dispatch(addComment(saveCommentParams))
   };
 
   const handleEndVoting = () => {
@@ -129,13 +148,13 @@ const App: React.FC = () => {
         </Grid2>
 
         <Grid2 size={{ xs: 5 }} style={{ display: 'flex', flexDirection: 'column' }}>
-        <Comments
+          <Comments
             comments={comments}
             handleAddComment={handleAddComment} />
         </Grid2>
 
         <Grid2 size={{ xs: 4 }} style={{ display: 'flex', flexDirection: 'column' }}>
-           <TaskList
+          <TaskList
             tasks={tasks}
             handleEditTask={handleEditTask}
             handleDeleteTask={handleDeleteTask}
