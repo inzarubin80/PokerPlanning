@@ -32,7 +32,6 @@ type (
 		CreatePoker(ctx context.Context, userID model.UserID) (model.PokerID, error) 
 		GetPoker(ctx context.Context, pokerID model.PokerID) (*model.Poker, error) 
 	
-		SetUserEstimate(ctx context.Context, pokerID model.PokerID, userID model.UserID, userEstimate *model.UserEstimate) (model.EstimateID, error)
 		
 		AddTask(ctx context.Context, task *model.Task) (*model.Task, error)
 		GetTasks(ctx context.Context, pokerID model.PokerID) ([]*model.Task, error)
@@ -45,8 +44,8 @@ type (
 		UpdateComment(ctx context.Context, comment *model.Comment) (*model.Comment, error)
 		RemoveComment(ctx context.Context, pokerID model.PokerID, commentID model.CommentID) error 
 	
-		GetTargetTask(ctx context.Context, pokerID model.PokerID) (model.TaskID, error) 
-		AddTargetTask(ctx context.Context, pokerID model.PokerID, taskID model.TaskID) (error) 
+		GetVotingTask(ctx context.Context, pokerID model.PokerID) (model.TaskID, error) 
+		AddVotingTask(ctx context.Context, pokerID model.PokerID, taskID model.TaskID) (error) 
 	}
 
 	App struct {

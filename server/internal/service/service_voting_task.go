@@ -6,9 +6,9 @@ import (
 	"inzarubin80/PokerPlanning/internal/model"
 )
 
-func (s *PokerService) GetTargetTask(ctx context.Context, pokerID model.PokerID) (model.TaskID, error)  {
+func (s *PokerService) GetVotingTask(ctx context.Context, pokerID model.PokerID) (model.TaskID, error)  {
 
-	taskID, err := s.repository.GetTargetTask(ctx, pokerID)
+	taskID, err := s.repository.GetVotingTask(ctx, pokerID)
 	if err != nil {
 		return 0, err
 	}
@@ -17,7 +17,7 @@ func (s *PokerService) GetTargetTask(ctx context.Context, pokerID model.PokerID)
 }
 
 
-func (s *PokerService) AddTargetTask(ctx context.Context, pokerID model.PokerID, taskID model.TaskID) (error)  {
+func (s *PokerService) AddVotingTask(ctx context.Context, pokerID model.PokerID, taskID model.TaskID) (error)  {
 
 	task, err := s.repository.GetTask(ctx, pokerID, taskID)
 	if err != nil {
@@ -28,7 +28,7 @@ func (s *PokerService) AddTargetTask(ctx context.Context, pokerID model.PokerID,
 		return fmt.Errorf("taskID %w", model.ErrorNotFound)
 	}
 
-	err = s.repository.AddTargetTask(ctx, pokerID, taskID)
+	err = s.repository.AddVotingTask(ctx, pokerID, taskID)
 	if err != nil {
 		return  err
 	}
