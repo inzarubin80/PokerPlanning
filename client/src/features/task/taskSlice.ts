@@ -72,7 +72,7 @@ export const getTask = createAsyncThunk(
   'tasks/getTask',
   async (params: GetTaskParams) => {
     const { pokerID, taskID } = params;
-    const response = await fetch(`/api/poker/${pokerID}/task/${taskID}`);
+    const response = await fetch(`/api/poker/${pokerID}/tasks/${taskID}`);
     if (!response.ok) {
       const errorData: ErrorResponse = await response.json();
       throw new Error(errorData.message);
@@ -97,7 +97,7 @@ export const addTask = createAsyncThunk('tasks/addTask', async (params: SaveTask
   
   const { pokerID, task, callback} = params;
 
-  const response = await fetch(`/api/poker/${pokerID}/task`, {
+  const response = await fetch(`/api/poker/${pokerID}/tasks`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -117,7 +117,7 @@ export const addTask = createAsyncThunk('tasks/addTask', async (params: SaveTask
 export const updateTask = createAsyncThunk('tasks/updateTask', async (params: SaveTaskParams) => {
   const { pokerID, task, callback } = params;
  
-  const response = await fetch(`/api/poker/${pokerID}/task/${task.id}`, {
+  const response = await fetch(`/api/poker/${pokerID}/tasks/${task.id}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -136,7 +136,7 @@ export const updateTask = createAsyncThunk('tasks/updateTask', async (params: Sa
 
 export const deleteTask = createAsyncThunk('tasks/deleteTask', async (params: DeleteTaskParams) => {
   const { pokerID, taskID } = params;
-  const response = await fetch(`/api/poker/${pokerID}/task/${taskID}`, {
+  const response = await fetch(`/api/poker/${pokerID}/tasks/${taskID}`, {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json',

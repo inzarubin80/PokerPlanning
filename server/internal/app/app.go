@@ -34,7 +34,6 @@ type (
 	
 		SetUserEstimate(ctx context.Context, pokerID model.PokerID, userID model.UserID, userEstimate *model.UserEstimate) (model.EstimateID, error)
 		
-		SetTargetTask(ctx context.Context, pokerID model.PokerID, userID model.UserID, taskID model.TaskID) error
 		AddTask(ctx context.Context, task *model.Task) (*model.Task, error)
 		GetTasks(ctx context.Context, pokerID model.PokerID) ([]*model.Task, error)
 		GetTask(ctx context.Context, pokerID model.PokerID, taskID model.TaskID ) (*model.Task, error)
@@ -45,6 +44,9 @@ type (
 		GetComments(ctx context.Context,   pokerID model.PokerID) ([]*model.Comment, error)
 		UpdateComment(ctx context.Context, comment *model.Comment) (*model.Comment, error)
 		RemoveComment(ctx context.Context, pokerID model.PokerID, commentID model.CommentID) error 
+	
+		GetTargetTask(ctx context.Context, pokerID model.PokerID) (model.TaskID, error) 
+		AddTargetTask(ctx context.Context, pokerID model.PokerID, taskID model.TaskID) (error) 
 	}
 
 	App struct {
@@ -72,6 +74,8 @@ func (a *App) ListenAndServe() error {
 	a.mux.Handle(a.config.path.addComent, appHttp.NewAddCommentHandler(a.pokerService, a.config.path.addComent))
 	a.mux.Handle(a.config.path.getComents, appHttp.NewGetCommentsHandler(a.pokerService, a.config.path.getComents))
 	
+
+
 	a.mux.Handle(a.config.path.ws, appHttp.NewWSPokerHandler(a.pokerService, a.config.path.ws, a.hub))
 	fmt.Println("start server")
 	return a.server.ListenAndServe()

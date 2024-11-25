@@ -11,7 +11,6 @@ import (
 func (r *Repository) CreatePoker(ctx context.Context, userID model.UserID) (model.PokerID, error) {
 
 	uid := model.PokerID(uuid.New().String())
-
 	baseDataPoker := &model.Poker{
 		ID:         uid,
 		Start:      time.Now(),

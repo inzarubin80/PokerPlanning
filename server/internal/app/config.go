@@ -25,14 +25,14 @@ func NewConfig(opts Options) config {
 			index:       "/",
 			createPoker: "POST /poker",
 			
-			createTask:  fmt.Sprintf("POST /poker/{%s}/task", defenitions.ParamPokerID),
+			createTask:  fmt.Sprintf("POST /poker/{%s}/tasks", defenitions.ParamPokerID),
 			getTasks:  	 fmt.Sprintf("GET /poker/{%s}/tasks", defenitions.ParamPokerID),
-			getTask:  	 fmt.Sprintf("GET /poker/{%s}/task/{%s}", defenitions.ParamPokerID, defenitions.ParamTaskID),
-			updateTask:  fmt.Sprintf("PUT /poker/{%s}/task/{%s}", defenitions.ParamPokerID, defenitions.ParamTaskID),	
-			deleteTask:  fmt.Sprintf("DELETE /poker/{%s}/task/{%s}", defenitions.ParamPokerID, defenitions.ParamTaskID),
+			getTask:  	 fmt.Sprintf("GET /poker/{%s}/tasks/{%s}", defenitions.ParamPokerID, defenitions.ParamTaskID),
+			updateTask:  fmt.Sprintf("PUT /poker/{%s}/tasks/{%s}", defenitions.ParamPokerID, defenitions.ParamTaskID),	
+			deleteTask:  fmt.Sprintf("DELETE /poker/{%s}/tasks/{%s}", defenitions.ParamPokerID, defenitions.ParamTaskID),
 			
 			getComents:  	 fmt.Sprintf("GET /poker/{%s}/comments", defenitions.ParamPokerID),
-			addComent:  	 fmt.Sprintf("POST /poker/{%s}/comment", defenitions.ParamPokerID),
+			addComent:  	 fmt.Sprintf("POST /poker/{%s}/comments", defenitions.ParamPokerID),
 			
 			getPoker:    fmt.Sprintf("GET /poker/{%s}", defenitions.ParamPokerID),
 			ws:    		 fmt.Sprintf("GET /ws/{%s}", defenitions.ParamPokerID),		

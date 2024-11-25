@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"inzarubin80/PokerPlanning/internal/model"
+	"sort"
 )
 
 func (s *Storage) ClearComments(ctx context.Context, pokerID model.PokerID) error {
@@ -31,6 +32,12 @@ func (r *Repository) GetComments(ctx context.Context, pokerID model.PokerID) ([]
 			comments = append(comments, value)
 		}
 	}
+
+	sort.Slice(comments, func(i, j int) bool {
+		return comments[i].ID < comments[j].ID
+	})
+	
+
 	return comments, nil
 }
 

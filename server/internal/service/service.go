@@ -33,12 +33,11 @@ type (
 		UpdateComment(ctx context.Context, comment *model.Comment) (*model.Comment, error) 
 		RemoveComment(ctx context.Context, pokerID model.PokerID, commentID model.CommentID) error
 		
-		
-	
-		RemoveTargetTask(ctx context.Context, pokerID model.PokerID) error
+		//TargetTask		
 		AddTargetTask(ctx context.Context, pokerID model.PokerID, taskID model.TaskID) error
 		GetTargetTask(ctx context.Context, pokerID model.PokerID) (model.TaskID, error)
-		ClearTargetTask(ctx context.Context, pokerID model.PokerID) error
+	
+		
 		AddUserEstimate(ctx context.Context, pokerID model.PokerID, userEstimate *model.UserEstimate) (model.EstimateID, error)
 		GetUserEstimateForUserID(ctx context.Context, pokerID model.PokerID, userID model.UserID) (*model.UserEstimate, error)
 		UpdateUserEstimate(ctx context.Context, pokerID model.PokerID, estimate *model.UserEstimate) (model.EstimateID, error)
