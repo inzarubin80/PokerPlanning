@@ -44,7 +44,7 @@ export const getComments = createAsyncThunk(
 export const addComment = createAsyncThunk('comment/addComment', async (params: SaveCommentParams) => {
 
   const { pokerID, comment, callback} = params;
-  const response = await fetch(`/api/poker/${pokerID}/comment`, {
+  const response = await fetch(`/api/poker/${pokerID}/comments`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

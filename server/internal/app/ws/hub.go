@@ -10,8 +10,7 @@ import (
 
 // Hub maintains the set of active clients and broadcasts messages to the
 // clients.
-type (
-	
+type (	
 	Message struct {
 		pokerID model.PokerID
 		data    []byte
@@ -65,6 +64,7 @@ func (h *Hub) Run() {
 		case client := <-h.unregister:
 
 			if clientsPoker, ok := h.clients[client.pokerID]; ok {
+				
 				if _, ok := clientsPoker[client]; ok {
 
 					delete(clientsPoker, client)
@@ -72,6 +72,9 @@ func (h *Hub) Run() {
 					if len(clientsPoker) == 0 {
 						delete(h.clients, client.pokerID)
 					}
+
+
+					
 				}
 			}
 		case message := <-h.broadcast:

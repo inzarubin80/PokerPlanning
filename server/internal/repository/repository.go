@@ -16,7 +16,8 @@ type (
 	UserEstimates map[model.PokerID]map[model.EstimateID]*model.UserEstimate
 	Pokers        map[model.PokerID]*model.Poker
 	Participants  map[model.PokerID]map[model.UserID]bool
-
+	TargetTasks   map[model.PokerID]model.TaskID
+	
 	Storage struct {
 		mx             *sync.RWMutex
 		users          Users
@@ -28,6 +29,7 @@ type (
 		nextCommentID  model.CommentID
 		nextEstimateID model.EstimateID
 		nextTaskID     model.TaskID
+		targetTasks    TargetTasks
 	}
 )
 
@@ -41,6 +43,7 @@ func NewPokerRepository(capacity int) *Repository {
 			userEstimates:  make(UserEstimates, capacity),
 			pokers:         make(Pokers, capacity),
 			participants:   make(Participants),
+			targetTasks:    make(TargetTasks),
 			nextCommentID:  1,
 			nextEstimateID: 1,
 			nextTaskID:     1,

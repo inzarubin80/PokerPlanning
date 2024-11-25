@@ -76,11 +76,9 @@ const App: React.FC = () => {
       case 'REMOVE_TASK':
         dispatch(taskRemoved(msg.task_id));
         break;
-        case 'ADD_COMMENT':
+      case 'ADD_COMMENT':
           dispatch(commentAdded(msg.comment));
           break;
-  
-
       default:
         console.warn("Unknown message type:", msg.type);
     }
