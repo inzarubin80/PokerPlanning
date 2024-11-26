@@ -75,7 +75,7 @@ func (a *App) ListenAndServe() error {
 	
 
 	a.mux.Handle(a.config.path.addVotingTask, appHttp.NewAddVotingTaskHandler(a.pokerService, a.config.path.addVotingTask))
-	a.mux.Handle(a.config.path.getVotingTask, appHttp.NewGetCommentsHandler(a.pokerService, a.config.path.getVotingTask))
+	a.mux.Handle(a.config.path.getVotingTask, appHttp.NewGetVotingTaskHandler(a.pokerService, a.config.path.getVotingTask))
 
 
 	a.mux.Handle(a.config.path.ws, appHttp.NewWSPokerHandler(a.pokerService, a.config.path.ws, a.hub))
