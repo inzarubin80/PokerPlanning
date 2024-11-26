@@ -38,5 +38,4 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete, onVote }) =
     </Card>
   );
 
-
   export default TaskCard

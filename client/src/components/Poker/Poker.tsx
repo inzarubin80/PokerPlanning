@@ -5,9 +5,9 @@ import {
   Typography,
   Box,
 } from '@mui/material';
-import Voting from '../Voting'
-import TaskList from '../TaskList'
-import Comments from '../Comments'
+import Voting from '../Voting/Voting'
+import TaskList from '../TaskList/TaskList'
+import Comments from '../Comments/Comments'
 import { Task } from '../../model'
 import { CommentItem } from '../../model'
 import { useNavigate } from "react-router-dom";
@@ -28,11 +28,9 @@ const App: React.FC = () => {
   const status = useSelector((state: RootState) => state.taskReducer.statusFetchTasks);
   const error = useSelector((state: RootState) => state.taskReducer.errorFetchTasks);
 
-
   const comments = useSelector((state: RootState) => state.commentReducer.comments);
   const statusFetchComments = useSelector((state: RootState) => state.commentReducer.statusFetchComments);
   const errorFetchComments = useSelector((state: RootState) => state.commentReducer.errorFetchComments);
-
 
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [showSettings, setShowSettings] = useState(false);
@@ -96,7 +94,7 @@ const App: React.FC = () => {
   };
 
   const handleVote = (taskId: number) => {
-
+    
   };
 
   const handleAddComment = (saveCommentParams: SaveCommentParams) => {

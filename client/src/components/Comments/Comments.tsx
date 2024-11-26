@@ -8,7 +8,7 @@ import {
   Box,
 } from '@mui/material';
 import { CommentItem } from '../../model';
-import CommentForm from '../CommentForm'
+import CommentForm from '../CommentForm/CommentForm'
 import {SaveCommentParams} from '../../features/comment/commentSlice';
 
 interface CommentsProps {

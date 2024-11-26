@@ -9,7 +9,7 @@ import {
 } from '@mui/material';
 import { Task } from '../../model'
 import { Add } from '@mui/icons-material';
-import TaskCard from '../TaskCard'
+import TaskCard from '../TaskCard/TaskCard'
 
 interface TaskListProps {
   tasks: Task[];

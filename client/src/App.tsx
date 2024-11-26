@@ -1,7 +1,7 @@
 import { Routes, Route, Link, Outlet, useNavigate  } from "react-router-dom";
-import Home from './components/Home'
-import Poker from './components/Poker'
-import TaskForm from './components/TaskForm'
+import Home from './components/Home/Home'
+import Poker from './components/Poker/Poker'
+import TaskForm from './components/TaskForm/TaskForm'
 
 
 
