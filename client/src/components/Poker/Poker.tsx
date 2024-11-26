@@ -143,7 +143,7 @@ const App: React.FC = () => {
 
         <Grid2 size={{ xs: 3 }} style={{ display: 'flex', flexDirection: 'column' }}>
           <Voting
-            selectedTask={selectedTask}
+           // selectedTask={selectedTask}
             averageEstimate={1}
             averageMethod={""}
             showSettings={showSettings}
