@@ -10,22 +10,22 @@ import (
 
 type (
 	serviceTargetTask interface {
-		GetTargetTask(ctx context.Context, pokerID model.PokerID) (model.TaskID, error) 
+		GetVotingTask(ctx context.Context, pokerID model.PokerID) (model.TaskID, error) 
 	}
-	GetTargetTaskHandler struct {
+	GetVotingTaskHandler struct {
 		name    string
 		service serviceTargetTask
 	}
 )
 
-func NewGetTargetTaskHandler(service serviceTargetTask, name string) *GetTargetTaskHandler {
-	return &GetTargetTaskHandler{
+func NewGetVotingTaskHandler(service serviceTargetTask, name string) *GetVotingTaskHandler {
+	return &GetVotingTaskHandler{
 		name:    name,
 		service: service,
 	}
 }
 
-func (h *GetTargetTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h *GetVotingTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context();
 	pokerID, err := uhttp.ValidatePatchParameterPokerID(r)
@@ -34,7 +34,7 @@ func (h *GetTargetTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	taskID, err:= h.service.GetTargetTask(ctx, model.PokerID(pokerID))
+	taskID, err:= h.service.GetVotingTask(ctx, model.PokerID(pokerID))
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return

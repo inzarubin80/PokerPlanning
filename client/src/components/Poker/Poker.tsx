@@ -5,9 +5,9 @@ import {
   Typography,
   Box,
 } from '@mui/material';
-import Voting from '../Voting'
-import TaskList from '../TaskList'
-import Comments from '../Comments'
+import Voting from '../Voting/Voting'
+import TaskList from '../TaskList/TaskList'
+import Comments from '../Comments/Comments'
 import { Task } from '../../model'
 import { CommentItem } from '../../model'
 import { useNavigate } from "react-router-dom";
@@ -15,6 +15,8 @@ import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchTasks, taskAdded, taskRemoved, tasksUpdating, deleteTask } from '../../features/task/taskSlice';
 import { addComment, commentAdded, getComments, SaveCommentParams} from '../../features/comment/commentSlice';
+import { setVotingTask, fetchAddVotingTask, fetchGetVotingTask} from '../../features/volumeTask/volumeTask';
+
 import { AppDispatch, RootState } from '../../app/store';
 import WebSocketClient from '../../api/WebSocketClient'
 
@@ -28,11 +30,9 @@ const App: React.FC = () => {
   const status = useSelector((state: RootState) => state.taskReducer.statusFetchTasks);
   const error = useSelector((state: RootState) => state.taskReducer.errorFetchTasks);
 
-
   const comments = useSelector((state: RootState) => state.commentReducer.comments);
   const statusFetchComments = useSelector((state: RootState) => state.commentReducer.statusFetchComments);
   const errorFetchComments = useSelector((state: RootState) => state.commentReducer.errorFetchComments);
-
 
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [showSettings, setShowSettings] = useState(false);
@@ -48,7 +48,9 @@ const App: React.FC = () => {
 
     dispatch(fetchTasks(pokerId));
     dispatch(getComments(pokerId));
-
+    dispatch(fetchGetVotingTask(pokerId));
+    
+  
     const url = `ws://localhost:8080/ws/${pokerId}`
 
     if (!(previousPokerIdRef.current) || (previousPokerIdRef.current.getUrl() !== url) || !previousPokerIdRef.current.isOpen()) {
@@ -79,6 +81,10 @@ const App: React.FC = () => {
       case 'ADD_COMMENT':
           dispatch(commentAdded(msg.comment));
           break;
+      case 'ADD_VOTING_TASK':
+          dispatch(setVotingTask(msg.task_id));
+          break;
+      
       default:
         console.warn("Unknown message type:", msg.type);
     }
@@ -95,8 +101,10 @@ const App: React.FC = () => {
     }
   };
 
-  const handleVote = (taskId: number) => {
-
+  const handleVote = (taskID:number) => {
+    if (pokerId) {
+      dispatch(fetchAddVotingTask({pokerID:pokerId, taskID}));
+    } 
   };
 
   const handleAddComment = (saveCommentParams: SaveCommentParams) => {
@@ -135,13 +143,13 @@ const App: React.FC = () => {
 
         <Grid2 size={{ xs: 3 }} style={{ display: 'flex', flexDirection: 'column' }}>
           <Voting
-            selectedTask={selectedTask}
+           // selectedTask={selectedTask}
             averageEstimate={1}
             averageMethod={""}
             showSettings={showSettings}
             numberVoters={1}
             handleSettingsToggle={handleSettingsToggle}
-            handleVote={handleVote}
+            handleVote= {(id: number) => {}}
             handleEndVoting={handleEndVoting} />
         </Grid2>
 

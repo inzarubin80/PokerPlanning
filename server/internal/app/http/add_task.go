@@ -59,6 +59,7 @@ func (h *AddTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	
 	if task.PokerID!=pokerID {
 
 		uhttp.SendErrorResponse(w, http.StatusBadRequest, "")
@@ -66,7 +67,8 @@ func (h *AddTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	}
 	
-	_, err = h.service.AddTask(ctx, task)
+	
+	 _, err = h.service.AddTask(ctx, task)
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusInternalServerError, err.Error())
 	} else {

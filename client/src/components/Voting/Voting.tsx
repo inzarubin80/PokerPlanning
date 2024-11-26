@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo } from 'react';
 import {
     Grid2,
     Paper,
@@ -12,11 +12,12 @@ import {
     MenuItem,
 } from '@mui/material';
 import { Settings } from '@mui/icons-material';
-
+import { useDispatch, useSelector } from 'react-redux';
 import { Task } from '../../model'
+import { AppDispatch, RootState } from '../../app/store';
 
 interface VotingProps {
-    selectedTask: Task | null;
+    //selectedTask: Task | null;
     handleSettingsToggle: () => void
     handleVote: (id: number) => void
     averageEstimate: number
@@ -26,9 +27,19 @@ interface VotingProps {
     numberVoters: number
 }
 
-const Voting: React.FC<VotingProps> = ({selectedTask, averageEstimate, averageMethod, showSettings, numberVoters, handleSettingsToggle, handleVote, handleEndVoting }) => (
+const Voting: React.FC<VotingProps> = ({ averageEstimate, averageMethod, showSettings, numberVoters, handleSettingsToggle, handleVote, handleEndVoting }) => 
+{
+    const tasks = useSelector((state: RootState) => state.taskReducer.tasks);
+    const votingTask = useSelector((state: RootState) => state.volumeTaskReducer.VotingTask);
+    
 
-        <Paper elevation={3}>
+    const selectedTask = useMemo(
+        () => tasks.find(item=>item.id==votingTask),
+        [tasks, votingTask]
+      );
+    
+    
+    return (<Paper elevation={3}>
             
                 
                 <Box position="sticky" top={0}  bgcolor="grey.200" zIndex={1} p={2} height={"4vh"} display="flex" justifyContent="space-between" flexDirection={"row"} >
@@ -83,6 +94,8 @@ const Voting: React.FC<VotingProps> = ({selectedTask, averageEstimate, averageMe
             
         </Paper>
 )
+
+}
 
 
 export default Voting

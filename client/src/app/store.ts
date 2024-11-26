@@ -1,11 +1,14 @@
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
 import taskReducer from '../features/task/taskSlice';
 import commentReducer from '../features/comment/commentSlice';
+import volumeTaskReducer from '../features/volumeTask/volumeTask';
+
 
 export const store = configureStore({
   reducer: {
     taskReducer: taskReducer,
-    commentReducer: commentReducer
+    commentReducer: commentReducer,
+    volumeTaskReducer: volumeTaskReducer
   },
 });
 

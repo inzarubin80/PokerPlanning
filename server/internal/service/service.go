@@ -2,8 +2,6 @@ package service
 
 import (
 	"context"
-	"errors"
-	"fmt"
 	"inzarubin80/PokerPlanning/internal/model"
 )
 
@@ -34,9 +32,9 @@ type (
 		RemoveComment(ctx context.Context, pokerID model.PokerID, commentID model.CommentID) error
 		
 		//TargetTask		
-		AddTargetTask(ctx context.Context, pokerID model.PokerID, taskID model.TaskID) error
-		GetTargetTask(ctx context.Context, pokerID model.PokerID) (model.TaskID, error)
-	
+		AddVotingTask(ctx context.Context, pokerID model.PokerID, taskID model.TaskID) error
+		GetVotingTask(ctx context.Context, pokerID model.PokerID) (model.TaskID, error)
+		
 		
 		AddUserEstimate(ctx context.Context, pokerID model.PokerID, userEstimate *model.UserEstimate) (model.EstimateID, error)
 		GetUserEstimateForUserID(ctx context.Context, pokerID model.PokerID, userID model.UserID) (*model.UserEstimate, error)
@@ -75,39 +73,3 @@ func (s *PokerService) CreatePoker(ctx context.Context, userID model.UserID) (mo
 }
 
 
-func (s *PokerService) SetUserEstimate(ctx context.Context, pokerID model.PokerID, userID model.UserID, userEstimate *model.UserEstimate) (model.EstimateID, error) {
-
-	targetTaskID, err := s.repository.GetTargetTask(ctx, pokerID)
-
-	if err != nil {
-		return 0, err
-	}
-
-	if targetTaskID == 0 {
-		return 0, fmt.Errorf("target task poker %s %w", pokerID, model.ErrorNotFound)
-	}
-
-	_, err = s.repository.GetUserEstimateForUserID(ctx, pokerID, userID)
-	if err != nil {
-		if errors.Is(err, model.ErrorNotFound) {
-			return s.repository.AddUserEstimate(ctx, pokerID, userEstimate)
-		} else {
-			return 0, err
-		}
-	} else {
-		return s.repository.UpdateUserEstimate(ctx, pokerID, userEstimate)
-	}
-
-}
-
-func (s *PokerService) SetTargetTask(ctx context.Context, pokerID model.PokerID, userID model.UserID, taskID model.TaskID) error {
-	targetTaskID, err := s.repository.GetTargetTask(ctx, pokerID)
-	if !errors.Is(err, model.ErrorNotFound) {
-		return err
-	}
-
-	if targetTaskID > 0 {
-		return model.ErrorTargetTaskNotEmpty
-	}
-	return s.repository.AddTargetTask(ctx, pokerID, taskID)
-}

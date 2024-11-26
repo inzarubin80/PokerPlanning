@@ -155,7 +155,6 @@ const taskSlice = createSlice({
   reducers: {
     
     taskAdded: (state, action: PayloadAction<Task>) => {
-
       const updatedTask = action.payload;
       const index = state.tasks.findIndex((task) => task.id === updatedTask.id);
         if (index !== -1) {
@@ -219,10 +218,12 @@ const taskSlice = createSlice({
         state.statusSaveTask = 'failed';
         state.errorSaveTask = action.error.message ?? 'Something went wrong';
       })
+      
       .addCase(updateTask.pending, (state) => {
         state.statusSaveTask = 'loading';
         state.errorSaveTask  = ''
       })
+
       .addCase(updateTask.fulfilled, (state) => {
         state.statusSaveTask = 'succeeded';
       })
