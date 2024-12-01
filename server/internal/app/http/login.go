@@ -43,8 +43,7 @@ func (h *LoginHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	code := r.FormValue("code")
-	token, err := h.oauthConfig.Exchange(context.Background(), code)
+	token, err := h.oauthConfig.Exchange(context.Background(), authorizationCode)
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusBadRequest, fmt.Errorf("Code exchange failed with '%s'\n", err).Error())
 		return
@@ -92,6 +91,6 @@ func (h *LoginHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	session.Values[defenitions.UserID] = user.ID
 	session.Save(r, w)
 
-	uhttp.SendSuccessfulResponse(w, []byte("{}"))
+	uhttp.SendSuccessfulResponse(w, []byte(`{"success": true}`))
 
 }

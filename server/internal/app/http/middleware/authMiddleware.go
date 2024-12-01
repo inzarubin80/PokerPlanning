@@ -21,7 +21,7 @@ func NewAuthMiddleware(h http.Handler, store *sessions.CookieStore) *AuthMiddlew
 func (m *AuthMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
-
+    
 	session, err := m.store.Get(r, defenitions.SessionAuthenticationName)
     if err != nil {
         http.Error(w, "Unauthorized", http.StatusUnauthorized)
@@ -34,7 +34,7 @@ func (m *AuthMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-	ctx = context.WithValue(ctx, defenitions.UserID, userID)
+	ctx = context.WithValue(ctx, defenitions.UserID, 1)
 
     m.h.ServeHTTP(w, r)
 

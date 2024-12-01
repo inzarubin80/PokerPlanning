@@ -26,7 +26,7 @@ func NewConfig(opts Options) config {
 			index:       "/",
 			createPoker: "POST /poker",
 			login:  	 fmt.Sprintf("GET  /user/login/{%s}", defenitions.AuthorizationCode),	
-			session:  	 fmt.Sprintf("GET  /user/session/"),		
+			session:  	 fmt.Sprintf("GET  /user/session"),		
 			createTask:  fmt.Sprintf("POST /poker/{%s}/tasks", defenitions.ParamPokerID),
 			getTasks:  	 fmt.Sprintf("GET /poker/{%s}/tasks", defenitions.ParamPokerID),
 			getTask:  	 fmt.Sprintf("GET /poker/{%s}/tasks/{%s}", defenitions.ParamPokerID, defenitions.ParamTaskID),

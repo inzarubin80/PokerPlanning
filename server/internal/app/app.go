@@ -66,7 +66,6 @@ type (
 	}
 )
 
-
 func (a *App) ListenAndServe() error {
 
 
@@ -86,9 +85,10 @@ func (a *App) ListenAndServe() error {
 	a.mux.Handle(a.config.path.addVotingTask,  middleware.NewAuthMiddleware(appHttp.NewAddVotingTaskHandler(a.pokerService, a.config.path.addVotingTask), a.store))
 	a.mux.Handle(a.config.path.getVotingTask,  middleware.NewAuthMiddleware(appHttp.NewGetVotingTaskHandler(a.pokerService, a.config.path.getVotingTask), a.store))
 	a.mux.Handle(a.config.path.ws,  middleware.NewAuthMiddleware(appHttp.NewWSPokerHandler(a.pokerService, a.config.path.ws, a.hub), a.store))
+	
 	a.mux.Handle(a.config.path.login,  appHttp.NewLoginHandler(a.pokerService, a.config.path.login, a.oauthConfig, a.store))
 	a.mux.Handle(a.config.path.session,  appHttp.NewGetSessionHandler(a.store, a.config.path.session))
-	
+
 	fmt.Println("start server")
 	return a.server.ListenAndServe()
 

@@ -1,24 +1,33 @@
-import { Routes, Route, Link, Outlet, useNavigate  } from "react-router-dom";
-import Home from './components/Home/Home'
-import Poker from './components/Poker/Poker'
-import TaskForm from './components/TaskForm/TaskForm'
+// src/App.tsx
+import React from 'react';
+import { Routes, Route, Link } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext/AuthContext';
+import Home from './components/Home/Home';
+import Poker from './components/Poker/Poker';
+import TaskForm from './components/TaskForm/TaskForm';
+import Login from './components/Login/Login';
+import PrivateRoute from './components/PrivateRoute/PrivateRoute';
+import YandexAuthCallback from './components/YandexAuthCallback/YandexAuthCallback';
 
 
-
-
-export default function App() {
+const App: React.FC = () => {
   return (
-    <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="poker/:pokerId" element={<Poker />} />
-      <Route path="poker/:pokerId/task/:taskId" element={<TaskForm/>} />   
-      <Route path="*" element={<NoMatch />} />
-    </Routes>
+    <AuthProvider>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/YandexAuthCallback" element={<YandexAuthCallback />} /> 
+        <Route element={<PrivateRoute />}>
+          <Route path="/" element={<Home />} />
+          <Route path="poker/:pokerId" element={<Poker />} />
+          <Route path="poker/:pokerId/task/:taskId" element={<TaskForm />} />
+        </Route>
+        <Route path="*" element={<NoMatch />} />
+      </Routes>
+    </AuthProvider>
   );
-}
+};
 
-
-function NoMatch() {
+const NoMatch: React.FC = () => {
   return (
     <div>
       <h2>Nothing to see here!</h2>
@@ -27,7 +36,6 @@ function NoMatch() {
       </p>
     </div>
   );
-}
+};
 
-
-
+export default App;
