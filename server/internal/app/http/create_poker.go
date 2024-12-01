@@ -27,7 +27,7 @@ func NewCreatePoker(service serviceCreatePoker, name string) *CreatePokerHandler
 func (h *CreatePokerHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	ctx:= r.Context();
-	poker, _:= h.service.CreatePoker(ctx, "123")
+	poker, _:= h.service.CreatePoker(ctx, 1)
 	jsonContent,_ := json.Marshal(poker)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)

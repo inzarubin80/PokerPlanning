@@ -29,6 +29,9 @@ type (
 		nextCommentID  model.CommentID
 		nextEstimateID model.EstimateID
 		nextTaskID     model.TaskID
+		nextUsererID     model.UserID
+
+
 		votingTasks    VotingTasks
 	}
 )
@@ -47,6 +50,7 @@ func NewPokerRepository(capacity int) *Repository {
 			nextCommentID:  1,
 			nextEstimateID: 1,
 			nextTaskID:     1,
+			nextUsererID:   1,
 		},
 	}
 }

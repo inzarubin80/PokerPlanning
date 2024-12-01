@@ -35,15 +35,12 @@ type (
 		AddVotingTask(ctx context.Context, pokerID model.PokerID, taskID model.TaskID) error
 		GetVotingTask(ctx context.Context, pokerID model.PokerID) (model.TaskID, error)
 		
-		
-		AddUserEstimate(ctx context.Context, pokerID model.PokerID, userEstimate *model.UserEstimate) (model.EstimateID, error)
-		GetUserEstimateForUserID(ctx context.Context, pokerID model.PokerID, userID model.UserID) (*model.UserEstimate, error)
-		UpdateUserEstimate(ctx context.Context, pokerID model.PokerID, estimate *model.UserEstimate) (model.EstimateID, error)
-		
-		
-		GetUserEstimates(ctx context.Context, pokerID model.PokerID) ([]*model.UserEstimate, error)
 		GetParticipants(ctx context.Context, pokerID model.PokerID) ([]model.UserID, error)
 		GetPoker(ctx context.Context, pokerID model.PokerID) (*model.Poker, error)
+
+		//User
+		GetUserByEmail(ctx context.Context, email string) (*model.User, error)
+		AddUser(ctx context.Context, userData *model.UserData) (*model.User, error) 
 	}
 
 	Hub interface {

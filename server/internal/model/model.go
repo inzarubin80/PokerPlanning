@@ -19,14 +19,20 @@ const (
 type (
 	TaskID     int64
 	PokerID    string
-	UserID     string
+	UserID     int64
 	Estimate   int
 	CommentID  int64
 	EstimateID int64
 
+	UserData struct {
+		Name string
+		Email string		
+	}
+
 	User struct {
 		ID   UserID
 		Name string
+		Email string		
 	}
 
 	Task struct {

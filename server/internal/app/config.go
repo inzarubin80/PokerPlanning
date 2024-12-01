@@ -10,7 +10,7 @@ type (
 		Addr string
 	}
 	path struct {
-		index, getPoker,  createPoker, createTask, getTasks, getTask, updateTask, deleteTask,getComents, addComent,addVotingTask,getVotingTask, ws string
+		index, getPoker,  createPoker, createTask, getTasks, getTask, updateTask, deleteTask,getComents, addComent,addVotingTask,getVotingTask, ws, login, session string
 	}
 	config struct {
 		addr string
@@ -22,9 +22,11 @@ func NewConfig(opts Options) config {
 	return config{
 		addr: opts.Addr,
 		path: path{
+
 			index:       "/",
 			createPoker: "POST /poker",
-			
+			login:  	 fmt.Sprintf("GET  /user/login/{%s}", defenitions.AuthorizationCode),	
+			session:  	 fmt.Sprintf("GET  /user/session"),		
 			createTask:  fmt.Sprintf("POST /poker/{%s}/tasks", defenitions.ParamPokerID),
 			getTasks:  	 fmt.Sprintf("GET /poker/{%s}/tasks", defenitions.ParamPokerID),
 			getTask:  	 fmt.Sprintf("GET /poker/{%s}/tasks/{%s}", defenitions.ParamPokerID, defenitions.ParamTaskID),
@@ -38,8 +40,8 @@ func NewConfig(opts Options) config {
 			getVotingTask:  	 fmt.Sprintf("GET  /poker/{%s}/votingtask", defenitions.ParamPokerID),
 			
 			getPoker:    fmt.Sprintf("GET /poker/{%s}", defenitions.ParamPokerID),
-			ws:    		 fmt.Sprintf("GET /ws/{%s}", defenitions.ParamPokerID),		
-
+			ws:    		 fmt.Sprintf("GET /ws/{%s}", defenitions.ParamPokerID),	
+		
 		},
 	}
 }
