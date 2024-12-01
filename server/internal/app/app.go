@@ -71,7 +71,7 @@ func (a *App) ListenAndServe() error {
 
 
 	go a.hub.Run()
-	
+
 	a.mux.Handle(a.config.path.createPoker, middleware.NewAuthMiddleware(appHttp.NewCreatePoker(a.pokerService, a.config.path.createPoker), a.store))
 	a.mux.Handle(a.config.path.getPoker,  middleware.NewAuthMiddleware(appHttp.NewGetPokerHandler(a.pokerService, a.config.path.getPoker), a.store))
 	a.mux.Handle(a.config.path.createTask, middleware.NewAuthMiddleware(appHttp.NewAddTaskHandler(a.pokerService, a.config.path.createPoker), a.store))
@@ -85,9 +85,7 @@ func (a *App) ListenAndServe() error {
 
 	a.mux.Handle(a.config.path.addVotingTask,  middleware.NewAuthMiddleware(appHttp.NewAddVotingTaskHandler(a.pokerService, a.config.path.addVotingTask), a.store))
 	a.mux.Handle(a.config.path.getVotingTask,  middleware.NewAuthMiddleware(appHttp.NewGetVotingTaskHandler(a.pokerService, a.config.path.getVotingTask), a.store))
-
 	a.mux.Handle(a.config.path.ws,  middleware.NewAuthMiddleware(appHttp.NewWSPokerHandler(a.pokerService, a.config.path.ws, a.hub), a.store))
-
 	a.mux.Handle(a.config.path.login,  appHttp.NewLoginHandler(a.pokerService, a.config.path.login, a.oauthConfig, a.store))
 
 
@@ -111,8 +109,8 @@ func NewApp(ctx context.Context, config config) (*App, error) {
 			Scopes:       []string{"login:email", "login:info"},
 			Endpoint:     yandex.Endpoint,
 		}
-		store       = sessions.NewCookieStore([]byte("415d2aa8f8e6453f92f050b937588b25")) // Используйте ваш секретный ключ
-
+		store       = sessions.NewCookieStore([]byte("415d2aa8f8e6453f92f050b937588b25")) 
+		
 	)
 
 	return &App{

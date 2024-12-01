@@ -87,23 +87,11 @@ func (h *LoginHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		uhttp.SendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-
+	
 	session, _ := h.store.Get(r, "session-name")
 	session.Values[defenitions.UserID] = user.ID
 	session.Save(r, w)
 
-	responseData := map[string]string{
-		"access_token": token.AccessToken,
-	}
-	jsonData, err := json.Marshal(responseData)
-	if err != nil {
-		uhttp.SendErrorResponse(w, http.StatusInternalServerError, "Failed to marshal response data")
-		return
-	}
-	
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(jsonData)
-
-	uhttp.SendSuccessfulResponse(w, jsonData)
+	uhttp.SendSuccessfulResponse(w, []byte("{}"))
 
 }
