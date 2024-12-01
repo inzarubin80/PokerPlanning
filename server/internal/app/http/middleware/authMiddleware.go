@@ -22,7 +22,7 @@ func (m *AuthMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
-	session, err := m.store.Get(r, "session-name")
+	session, err := m.store.Get(r, defenitions.SessionAuthenticationName)
     if err != nil {
         http.Error(w, "Unauthorized", http.StatusUnauthorized)
         return

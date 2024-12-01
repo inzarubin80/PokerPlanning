@@ -88,7 +88,7 @@ func (h *LoginHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	
-	session, _ := h.store.Get(r, "session-name")
+	session, _ := h.store.Get(r, defenitions.SessionAuthenticationName)
 	session.Values[defenitions.UserID] = user.ID
 	session.Save(r, w)
 

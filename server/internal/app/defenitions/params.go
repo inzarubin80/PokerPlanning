@@ -8,4 +8,7 @@ const (
 	UserID  = "user_id"
 	DisplayName = "display_name"
 	DefaultEmail = "default_email"
+
+	SessionAuthenticationName = "authentication"
+
 )
