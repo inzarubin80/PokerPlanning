@@ -13,20 +13,22 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  const [isAuthenticated, setIsAuthenticated] = useState(localStorage.getItem('isAuthenticated')==='true');
 
   useEffect(() => {
-    // Проверка состояния авторизации при загрузке приложения
     checkAuthStatus();
-  }, []);
+  });
 
   const checkAuthStatus = async () => {
     try {
       const response = await fetch(`/api/user/session`);
       const data = await response.json();
-      setIsAuthenticated(data.isAuthenticated);
+      localStorage.setItem('isAuthenticated', 'true');
+      setIsAuthenticated(true);
     } catch (error) {
-      console.error('Ошибка при проверке состояния авторизации:', error);
+      setIsAuthenticated(false);
+      localStorage.removeItem('isAuthenticated');
     }
   };
 
