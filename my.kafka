@@ -1,0 +1,84 @@
+PRODUCER ukf-test
+topic: mdm-1c-finmd
+key: 1
+{
+    "Type": "CostCenter",
+    "MDMId": "43fdf512-ac4f-43a5-8af7-0d503b15a0cc",
+    "SrcId": "123234513213214",
+    "Code1C": "0008613",
+    "Name": "LG|DL|TRP|PVZ2ParcelLocker|Kemerovo/Tsentralnaya",
+    "CodeAxapta": "LG|DL|Ownxx|COURI|r082099",
+    "Organization":
+        {"MDMId": "de1314a8-c1b2-11ee-8700-88e9a43d6cb4",
+        "name": "Интернет Решения, ООО",
+        "D365Id": "ISOL",
+        "SrcId": "8584866000"
+        "INN": "7704217370",
+        "KPP": "997750001"
+      },
+    "OwnerFirst": "Гейль Александр",
+    "BusinessSegment":       
+        {"MDMId": "fdfb2a35-1854-43c1-9751-e9ce9ad2272c",
+        "name": "Logistics",
+        "code": "LG"
+        },
+    "CostSegment":
+        {"MDMId": "fdfb2a35-1854-43c1-9751-e9ce9ad2272c",
+        "name": "Fulfillment",
+        "code": "FF"
+        },
+    "GroupOfCC": ,
+        {"MDMId": "509b0172-59a3-4b2c-a540-83063e60520b",
+        "name": "Own parcel lockers",
+        "SrcId": "11022491195090"
+        "FunctionMSFO":
+             {"MDMId": "bf442c86-9c19-4ac4-aa4d-3e8c56c5d888",
+              "name": " Fulfillment and delivery"
+             }
+        },
+    "AreaOfResponsibility":
+        {"MDMId": "509b0172-59a3-4b2c-a540-83063e60520b",
+        "name": "Kemerovo/Tsentralnaya"
+        },
+    "ObjectType":
+        {"MDMId": "cfef492a-e2ce-469e-bf41-346f0ec61264",
+        "name": "PVZ2ParcelLocker"
+        },
+    "Function":
+        {"MDMId": "cfef492a-e2ce-469e-bf41-346f0ec61264",
+        "name": "DL"
+        },
+     "UnderFunction":
+        {"MDMId": "dd2c5e45-91d0-41ff-a450-6fc439ff7bc2",
+        "name": "TRP"
+        },
+    "NotUsedAxapta": false,
+    "CostObject": true,   
+    "CostObjectId": "C780008",
+    "CostObjectName": "COURIER|Troitskiy"
+    "City": "Казань",
+    "ZupId": "GA989",
+    "ClusterCC":
+        {"MDMId": "bf442c86-9c19-4ac4-aa4d-3e8c56c5d888",
+        "name": "LG|DL|Own|COURIER|Moskva"
+        "SrcId": 11081626168340
+        "CodeAxapta": "LG|DL|Ownxx|COURI|r080398"
+        },
+    "LozonID": "15066285956000",
+    "Parent":
+        {"MDMId": "bf442c86-9c19-4ac4-aa4d-3e8c56c5d888",
+      "SrcId": "123234513213111",
+        "name": "LG|DL|Own|COURIER|Moskva"
+        },
+    "WriteOffCompensation": false,
+    "Description": "",
+    "StaffUnits": false,
+    "DynamicCeiling": false,
+    "Mass": "not mass",
+    "Allocation": false,
+    "TaxBenefits": false,
+    "Stock": " ",
+    "Polygon": " ",
+    "DateOfBlocking": "2024-04-22T00:00:00",
+    "Blocked": true
+  }

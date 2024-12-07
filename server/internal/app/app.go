@@ -105,7 +105,7 @@ func NewApp(ctx context.Context, config config) (*App, error) {
 		oauthConfig = &oauth2.Config{
 			ClientID:     "415d2aa8f8e6453f92f050b937588b25",
 			ClientSecret: "1d4a98b4709146e19f138fee68b9d46f",
-			RedirectURL:  "http://localhost:8080/callback",
+			RedirectURL:  "http://localhost:8000/YandexAuthCallback",
 			Scopes:       []string{"login:email", "login:info"},
 			Endpoint:     yandex.Endpoint,
 		}

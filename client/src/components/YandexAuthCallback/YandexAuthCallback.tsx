@@ -12,14 +12,14 @@ const YandexAuthCallback: React.FC = () => {
   useEffect(() => {
 
     const queryParams = new URLSearchParams(location.search);
-    const code = queryParams.get('code');
-   
+    const code = `${queryParams.get('code')}`;
     
     if ((code) && (intervalRef.current != code)) {
       
       intervalRef.current = code
 
-      
+      console.log('code***********', code)
+
       fetch(`/api/user/login/${code}`)
         .then((response) => response.json())
         .then((data: { success: boolean; message?: string }) => {

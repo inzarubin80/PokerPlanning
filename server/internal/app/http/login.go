@@ -35,6 +35,8 @@ func NewLoginHandler(service serviceLogin, name string, oauthConfig *oauth2.Conf
 
 func (h *LoginHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
+
+	fmt.Println("Зашли в обработчик Login")
 	ctx := r.Context()
 	authorizationCode := r.PathValue(defenitions.AuthorizationCode)
 
@@ -42,6 +44,9 @@ func (h *LoginHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		uhttp.SendErrorResponse(w, http.StatusBadRequest, "Authorization code must be filled in")
 		return
 	}
+
+	fmt.Println("authorizationCode" + authorizationCode)
+	
 
 	token, err := h.oauthConfig.Exchange(context.Background(), authorizationCode)
 	if err != nil {
@@ -87,9 +92,22 @@ func (h *LoginHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	
+	fmt.Println("h.store.Get(r, defenitions.SessionAuthenticationName)")
+
 	session, _ := h.store.Get(r, defenitions.SessionAuthenticationName)
-	session.Values[defenitions.UserID] = user.ID
-	session.Save(r, w)
+	session.Values[defenitions.UserID] = int64(user.ID)
+	session.Values["test"] = "test"
+	
+	err = session.Save(r, w)
+
+	fmt.Println("session.Save(r, w)")
+	fmt.Println( user.ID)
+
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	uhttp.SendSuccessfulResponse(w, []byte(`{"success": true}`))
 
