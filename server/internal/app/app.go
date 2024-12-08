@@ -71,20 +71,20 @@ func (a *App) ListenAndServe() error {
 
 	go a.hub.Run()
 
-	a.mux.Handle(a.config.path.createPoker, middleware.NewAuthMiddleware(appHttp.NewCreatePoker(a.pokerService, a.config.path.createPoker), a.store))
-	a.mux.Handle(a.config.path.getPoker,  middleware.NewAuthMiddleware(appHttp.NewGetPokerHandler(a.pokerService, a.config.path.getPoker), a.store))
-	a.mux.Handle(a.config.path.createTask, middleware.NewAuthMiddleware(appHttp.NewAddTaskHandler(a.pokerService, a.config.path.createPoker), a.store))
-	a.mux.Handle(a.config.path.getTasks, middleware.NewAuthMiddleware(appHttp.NewGetTasksHandler(a.pokerService, a.config.path.getTasks), a.store))
-	a.mux.Handle(a.config.path.getTask, middleware.NewAuthMiddleware(appHttp.NewGetTaskHandler(a.pokerService, a.config.path.getTask), a.store))
-	a.mux.Handle(a.config.path.deleteTask, middleware.NewAuthMiddleware(appHttp.NewDeleteTaskHandler(a.pokerService, a.config.path.deleteTask), a.store))
-	a.mux.Handle(a.config.path.updateTask, middleware.NewAuthMiddleware(appHttp.NewUpdateTaskHandler(a.pokerService, a.config.path.updateTask), a.store))
+	a.mux.Handle(a.config.path.createPoker, middleware.NewAuthMiddleware(appHttp.NewCreatePoker(a.pokerService, a.config.path.createPoker), a.store, a.oauthConfig))
+	a.mux.Handle(a.config.path.getPoker,  middleware.NewAuthMiddleware(appHttp.NewGetPokerHandler(a.pokerService, a.config.path.getPoker), a.store, a.oauthConfig))
+	a.mux.Handle(a.config.path.createTask, middleware.NewAuthMiddleware(appHttp.NewAddTaskHandler(a.pokerService, a.config.path.createPoker), a.store, a.oauthConfig))
+	a.mux.Handle(a.config.path.getTasks, middleware.NewAuthMiddleware(appHttp.NewGetTasksHandler(a.pokerService, a.config.path.getTasks), a.store, a.oauthConfig))
+	a.mux.Handle(a.config.path.getTask, middleware.NewAuthMiddleware(appHttp.NewGetTaskHandler(a.pokerService, a.config.path.getTask), a.store, a.oauthConfig))
+	a.mux.Handle(a.config.path.deleteTask, middleware.NewAuthMiddleware(appHttp.NewDeleteTaskHandler(a.pokerService, a.config.path.deleteTask), a.store, a.oauthConfig))
+	a.mux.Handle(a.config.path.updateTask, middleware.NewAuthMiddleware(appHttp.NewUpdateTaskHandler(a.pokerService, a.config.path.updateTask), a.store,a.oauthConfig))
 
-	a.mux.Handle(a.config.path.addComent,  middleware.NewAuthMiddleware(appHttp.NewAddCommentHandler(a.pokerService, a.config.path.addComent), a.store))
-	a.mux.Handle(a.config.path.getComents,  middleware.NewAuthMiddleware(appHttp.NewGetCommentsHandler(a.pokerService, a.config.path.getComents), a.store))
+	a.mux.Handle(a.config.path.addComent,  middleware.NewAuthMiddleware(appHttp.NewAddCommentHandler(a.pokerService, a.config.path.addComent), a.store,a.oauthConfig))
+	a.mux.Handle(a.config.path.getComents,  middleware.NewAuthMiddleware(appHttp.NewGetCommentsHandler(a.pokerService, a.config.path.getComents), a.store,a.oauthConfig))
 
-	a.mux.Handle(a.config.path.addVotingTask,  middleware.NewAuthMiddleware(appHttp.NewAddVotingTaskHandler(a.pokerService, a.config.path.addVotingTask), a.store))
-	a.mux.Handle(a.config.path.getVotingTask,  middleware.NewAuthMiddleware(appHttp.NewGetVotingTaskHandler(a.pokerService, a.config.path.getVotingTask), a.store))
-	a.mux.Handle(a.config.path.ws,  middleware.NewAuthMiddleware(appHttp.NewWSPokerHandler(a.pokerService, a.config.path.ws, a.hub), a.store))
+	a.mux.Handle(a.config.path.addVotingTask,  middleware.NewAuthMiddleware(appHttp.NewAddVotingTaskHandler(a.pokerService, a.config.path.addVotingTask), a.store,  a.oauthConfig))
+	a.mux.Handle(a.config.path.getVotingTask,  middleware.NewAuthMiddleware(appHttp.NewGetVotingTaskHandler(a.pokerService, a.config.path.getVotingTask), a.store,  a.oauthConfig))
+	a.mux.Handle(a.config.path.ws,  middleware.NewAuthMiddleware(appHttp.NewWSPokerHandler(a.pokerService, a.config.path.ws, a.hub), a.store, a.oauthConfig))
 	
 	a.mux.Handle(a.config.path.login,  appHttp.NewLoginHandler(a.pokerService, a.config.path.login, a.oauthConfig, a.store))
 	a.mux.Handle(a.config.path.session,  appHttp.NewGetSessionHandler(a.store, a.config.path.session))

@@ -92,16 +92,17 @@ func (h *LoginHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	
-	fmt.Println("h.store.Get(r, defenitions.SessionAuthenticationName)")
 
+	jsonToken, err := json.Marshal(token)
+	if err != nil {
+		uhttp.SendErrorResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	
 	session, _ := h.store.Get(r, defenitions.SessionAuthenticationName)
 	session.Values[defenitions.UserID] = int64(user.ID)
-	session.Values["test"] = "test"
-	
+	session.Values[defenitions.Token] = jsonToken
 	err = session.Save(r, w)
-
-	fmt.Println("session.Save(r, w)")
-	fmt.Println( user.ID)
 
 
 	if err != nil {
