@@ -101,7 +101,7 @@ func (h *LoginHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	
 	session, _ := h.store.Get(r, defenitions.SessionAuthenticationName)
 	session.Values[defenitions.UserID] = int64(user.ID)
-	session.Values[defenitions.Token] = jsonToken
+	session.Values[defenitions.Token] = string(jsonToken)
 	err = session.Save(r, w)
 
 

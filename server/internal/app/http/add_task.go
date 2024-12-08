@@ -11,6 +11,7 @@ import (
 )
 
 type (
+
 	serviceAddTask interface {
 		AddTask(ctx context.Context, task *model.Task) (*model.Task, error)
 	}
@@ -18,13 +19,16 @@ type (
 		name    string
 		service serviceAddTask
 	}
+
 )
 
 func NewAddTaskHandler(service serviceAddTask, name string) *AddTaskHandler {
+
 	return &AddTaskHandler{
 		name:    name,
 		service: service,
 	}
+
 }
 
 func (h *AddTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -59,15 +63,10 @@ func (h *AddTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	
 	if task.PokerID!=pokerID {
-
 		uhttp.SendErrorResponse(w, http.StatusBadRequest, "")
 		return
-
 	}
-	
-	
 	 _, err = h.service.AddTask(ctx, task)
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusInternalServerError, err.Error())

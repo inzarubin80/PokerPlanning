@@ -3,6 +3,7 @@ package middleware
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"inzarubin80/PokerPlanning/internal/app/defenitions"
 	"inzarubin80/PokerPlanning/internal/app/uhttp"
 	"net/http"
@@ -28,23 +29,26 @@ func (m *AuthMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	session, err := m.store.Get(r, defenitions.SessionAuthenticationName)
 	if err != nil {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		http.Error(w, "Unauthorized not session", http.StatusUnauthorized)
 		return
 	}
 
 	tokenByte, ok := session.Values[defenitions.Token].(string)
 	if !ok {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		http.Error(w, "Unauthorized not Token", http.StatusUnauthorized)
 		return
 	}
 
 	userID, ok := session.Values[defenitions.UserID].(int64)
 	if !ok {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		http.Error(w, "Unauthorized not userID", http.StatusUnauthorized)
 		return
 	}
 
-	var token *oauth2.Token
+	fmt.Println("Наш токен----------------------------------------------")
+	fmt.Println(tokenByte)
+
+	token := &oauth2.Token{}
 	err = json.Unmarshal([]byte(tokenByte), token)
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusInternalServerError, err.Error())
