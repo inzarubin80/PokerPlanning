@@ -2,12 +2,12 @@ package middleware
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"inzarubin80/PokerPlanning/internal/app/defenitions"
-	"inzarubin80/PokerPlanning/internal/app/uhttp"
+	"inzarubin80/PokerPlanning/internal/model"
 	"net/http"
 
+	"github.com/golang-jwt/jwt"
 	"github.com/gorilla/sessions"
 	oauth2 "golang.org/x/oauth2"
 )
@@ -16,16 +16,15 @@ type AuthMiddleware struct {
 	h           http.Handler
 	store       *sessions.CookieStore
 	oauthConfig *oauth2.Config
+	jwtSecret   string
 }
 
-func NewAuthMiddleware(h http.Handler, store *sessions.CookieStore, oauthConfig *oauth2.Config) *AuthMiddleware {
+func NewAuthMiddleware(h http.Handler, store *sessions.CookieStore, oauthConfig *oauth2.Config, jwtSecret string) *AuthMiddleware {
 
-	return &AuthMiddleware{h: h, store: store, oauthConfig: oauthConfig}
+	return &AuthMiddleware{h: h, store: store, oauthConfig: oauthConfig, jwtSecret: jwtSecret}
 }
 
 func (m *AuthMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-
-	ctx := r.Context()
 
 	session, err := m.store.Get(r, defenitions.SessionAuthenticationName)
 	if err != nil {
@@ -33,49 +32,36 @@ func (m *AuthMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tokenByte, ok := session.Values[defenitions.Token].(string)
+	tokenString, ok := session.Values[defenitions.Token].(string)
 	if !ok {
 		http.Error(w, "Unauthorized not Token", http.StatusUnauthorized)
 		return
 	}
 
-	userID, ok := session.Values[defenitions.UserID].(int64)
-	if !ok {
-		http.Error(w, "Unauthorized not userID", http.StatusUnauthorized)
-		return
-	}
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return []byte(m.jwtSecret), nil
+	})
 
-	fmt.Println("Наш токен----------------------------------------------")
-	fmt.Println(tokenByte)
-
-	token := &oauth2.Token{}
-	err = json.Unmarshal([]byte(tokenByte), token)
 	if err != nil {
-		uhttp.SendErrorResponse(w, http.StatusInternalServerError, err.Error())
+		http.Error(w, "Unauthorized not valid token", http.StatusUnauthorized)
 		return
 	}
 
-	newToken, err := m.oauthConfig.TokenSource(ctx, token).Token()
-	if err != nil || newToken == nil  {
-		uhttp.SendErrorResponse(w, http.StatusUnauthorized, err.Error())
-		return
-	}
-
-	if newToken.AccessToken != token.AccessToken {
-
-		jsonToken, err := json.Marshal(newToken)
-		if err != nil {
-			uhttp.SendErrorResponse(w, http.StatusInternalServerError, err.Error())
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+	
+		userId, ok := claims[defenitions.UserID]
+		if !ok {
+			http.Error(w, "Unauthorized not userId", http.StatusUnauthorized)
 			return
 		}
-
-		session, _ := m.store.Get(r, defenitions.SessionAuthenticationName)
-		session.Values[defenitions.UserID] = userID
-		session.Values[defenitions.Token] = jsonToken
-		err = session.Save(r, w)
+		userID := model.TaskID(userId.(float64))
+		context.WithValue(r.Context(), defenitions.UserID, userID)
+		m.h.ServeHTTP(w, r)
+	} else {
+		http.Error(w, "Unauthorized not userId", http.StatusUnauthorized)
 	}
-
-	ctx = context.WithValue(ctx, defenitions.UserID, userID)
-	m.h.ServeHTTP(w, r)
 
 }

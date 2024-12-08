@@ -8,6 +8,9 @@ import (
 	"inzarubin80/PokerPlanning/internal/app/uhttp"
 	"inzarubin80/PokerPlanning/internal/model"
 	"net/http"
+	"time"
+
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/gorilla/sessions"
 	"golang.org/x/oauth2"
 )
@@ -21,15 +24,17 @@ type (
 		service     serviceLogin
 		oauthConfig *oauth2.Config
 		store       *sessions.CookieStore
+		jwtSecret  string
 	}
 )
 
-func NewLoginHandler(service serviceLogin, name string, oauthConfig *oauth2.Config, store *sessions.CookieStore) *LoginHandler {
+func NewLoginHandler(service serviceLogin, name string, oauthConfig *oauth2.Config, store *sessions.CookieStore, jwtSecret string) *LoginHandler {
 	return &LoginHandler{
 		name:        name,
 		service:     service,
 		oauthConfig: oauthConfig,
 		store:       store,
+		jwtSecret: jwtSecret,
 	}
 }
 
@@ -91,19 +96,18 @@ func (h *LoginHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		uhttp.SendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	
 
-	jsonToken, err := json.Marshal(token)
+
+	tokenString,err := generateJWT(user, h.jwtSecret)
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 	
-	session, _ := h.store.Get(r, defenitions.SessionAuthenticationName)
-	session.Values[defenitions.UserID] = int64(user.ID)
-	session.Values[defenitions.Token] = string(jsonToken)
-	err = session.Save(r, w)
 
+	session, _ := h.store.Get(r, defenitions.SessionAuthenticationName)
+	session.Values[defenitions.Token] = string(tokenString)
+	err = session.Save(r, w)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -112,4 +116,20 @@ func (h *LoginHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	uhttp.SendSuccessfulResponse(w, []byte(`{"success": true}`))
 
+}
+
+
+func generateJWT(user *model.User, jwtSecret string) (string, error) {
+   
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+        defenitions.UserID:user.ID,
+        "exp":    time.Now().Add(time.Hour * 100).Unix(), 
+    })
+
+    tokenString, err := token.SignedString([]byte(jwtSecret))
+    if err != nil {
+        return "", err
+    }
+
+    return tokenString, nil
 }

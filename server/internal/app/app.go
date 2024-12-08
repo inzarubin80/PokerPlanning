@@ -17,11 +17,13 @@ import (
 	"golang.org/x/oauth2/yandex"		
 )
 
-
-
 const (
 	readHeaderTimeoutSeconds = 3
+	storeSecret = "415d2aa8f8e6453f92f050b937588b25"
+	jwtSecret = "415d2aa8f8e6453dddddddf92f050b937588b25"
 )
+
+
 
 type (
 	mux interface {
@@ -67,31 +69,32 @@ type (
 )
 
 func (a *App) ListenAndServe() error {
-
-
 	go a.hub.Run()
 
-	a.mux.Handle(a.config.path.createPoker, middleware.NewAuthMiddleware(appHttp.NewCreatePoker(a.pokerService, a.config.path.createPoker), a.store, a.oauthConfig))
-	a.mux.Handle(a.config.path.getPoker,  middleware.NewAuthMiddleware(appHttp.NewGetPokerHandler(a.pokerService, a.config.path.getPoker), a.store, a.oauthConfig))
-	a.mux.Handle(a.config.path.createTask, middleware.NewAuthMiddleware(appHttp.NewAddTaskHandler(a.pokerService, a.config.path.createPoker), a.store, a.oauthConfig))
-	a.mux.Handle(a.config.path.getTasks, middleware.NewAuthMiddleware(appHttp.NewGetTasksHandler(a.pokerService, a.config.path.getTasks), a.store, a.oauthConfig))
-	a.mux.Handle(a.config.path.getTask, middleware.NewAuthMiddleware(appHttp.NewGetTaskHandler(a.pokerService, a.config.path.getTask), a.store, a.oauthConfig))
-	a.mux.Handle(a.config.path.deleteTask, middleware.NewAuthMiddleware(appHttp.NewDeleteTaskHandler(a.pokerService, a.config.path.deleteTask), a.store, a.oauthConfig))
-	a.mux.Handle(a.config.path.updateTask, middleware.NewAuthMiddleware(appHttp.NewUpdateTaskHandler(a.pokerService, a.config.path.updateTask), a.store,a.oauthConfig))
+	handlers := map[string]http.Handler{
+		a.config.path.createPoker: appHttp.NewCreatePoker(a.pokerService, a.config.path.createPoker),
+		a.config.path.getPoker:    appHttp.NewGetPokerHandler(a.pokerService, a.config.path.getPoker),
+		a.config.path.createTask:  appHttp.NewAddTaskHandler(a.pokerService, a.config.path.createPoker),
+		a.config.path.getTasks:    appHttp.NewGetTasksHandler(a.pokerService, a.config.path.getTasks),
+		a.config.path.getTask:     appHttp.NewGetTaskHandler(a.pokerService, a.config.path.getTask),
+		a.config.path.deleteTask:  appHttp.NewDeleteTaskHandler(a.pokerService, a.config.path.deleteTask),
+		a.config.path.updateTask:  appHttp.NewUpdateTaskHandler(a.pokerService, a.config.path.updateTask),
+		a.config.path.addComent:   appHttp.NewAddCommentHandler(a.pokerService, a.config.path.addComent),
+		a.config.path.getComents:  appHttp.NewGetCommentsHandler(a.pokerService, a.config.path.getComents),
+		a.config.path.addVotingTask: appHttp.NewAddVotingTaskHandler(a.pokerService, a.config.path.addVotingTask),
+		a.config.path.getVotingTask: appHttp.NewGetVotingTaskHandler(a.pokerService, a.config.path.getVotingTask),
+		a.config.path.ws:          appHttp.NewWSPokerHandler(a.pokerService, a.config.path.ws, a.hub),
+	}
 
-	a.mux.Handle(a.config.path.addComent,  middleware.NewAuthMiddleware(appHttp.NewAddCommentHandler(a.pokerService, a.config.path.addComent), a.store,a.oauthConfig))
-	a.mux.Handle(a.config.path.getComents,  middleware.NewAuthMiddleware(appHttp.NewGetCommentsHandler(a.pokerService, a.config.path.getComents), a.store,a.oauthConfig))
+	for path, handler := range handlers {
+		a.mux.Handle(path, middleware.NewAuthMiddleware(handler, a.store, a.oauthConfig, jwtSecret))
+	}
 
-	a.mux.Handle(a.config.path.addVotingTask,  middleware.NewAuthMiddleware(appHttp.NewAddVotingTaskHandler(a.pokerService, a.config.path.addVotingTask), a.store,  a.oauthConfig))
-	a.mux.Handle(a.config.path.getVotingTask,  middleware.NewAuthMiddleware(appHttp.NewGetVotingTaskHandler(a.pokerService, a.config.path.getVotingTask), a.store,  a.oauthConfig))
-	a.mux.Handle(a.config.path.ws,  middleware.NewAuthMiddleware(appHttp.NewWSPokerHandler(a.pokerService, a.config.path.ws, a.hub), a.store, a.oauthConfig))
-	
-	a.mux.Handle(a.config.path.login,  appHttp.NewLoginHandler(a.pokerService, a.config.path.login, a.oauthConfig, a.store))
-	a.mux.Handle(a.config.path.session,  appHttp.NewGetSessionHandler(a.store, a.config.path.session))
+	a.mux.Handle(a.config.path.login, appHttp.NewLoginHandler(a.pokerService, a.config.path.login, a.oauthConfig, a.store, jwtSecret))
+	a.mux.Handle(a.config.path.session, appHttp.NewGetSessionHandler(a.store, a.config.path.session))
 
 	fmt.Println("start server")
 	return a.server.ListenAndServe()
-
 }
 
 func NewApp(ctx context.Context, config config) (*App, error) {
@@ -108,9 +111,10 @@ func NewApp(ctx context.Context, config config) (*App, error) {
 			RedirectURL:  "http://localhost:8000/YandexAuthCallback",
 			Scopes:       []string{"login:email", "login:info"},
 			Endpoint:     yandex.Endpoint,
+			
 		}
-		store       = sessions.NewCookieStore([]byte("415d2aa8f8e6453f92f050b937588b25")) 
-		
+
+		store       = sessions.NewCookieStore([]byte(storeSecret)) 
 	)
 
 	return &App{
@@ -124,4 +128,3 @@ func NewApp(ctx context.Context, config config) (*App, error) {
 	}, nil
 
 }
-
