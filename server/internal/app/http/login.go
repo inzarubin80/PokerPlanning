@@ -3,110 +3,65 @@ package http
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"inzarubin80/PokerPlanning/internal/app/defenitions"
 	"inzarubin80/PokerPlanning/internal/app/uhttp"
 	"inzarubin80/PokerPlanning/internal/model"
+	"io"
 	"net/http"
-	"time"
 
-	"github.com/golang-jwt/jwt/v5"
 	"github.com/gorilla/sessions"
-	"golang.org/x/oauth2"
 )
 
 type (
 	serviceLogin interface {
-		GetUserByEmail(ctx context.Context, userData *model.UserData) (*model.User, error) 
+		Login(ctx context.Context, providerKey string, authorizationCode string) (*model.AuthData, error)
 	}
 	LoginHandler struct {
-		name        string
-		service     serviceLogin
-		oauthConfig *oauth2.Config
-		store       *sessions.CookieStore
-		jwtSecret  string
+		name    string
+		service serviceLogin
+		store   *sessions.CookieStore
+	}
+
+	ResponseLoginData struct {
+		token  string
+		userID model.UserID
+	}
+
+	RequestLoginData struct {
+		authorizationCode string  `json:"authorization_code"`
+		ProviderKey string        `json:"provider_key"`
 	}
 )
 
-func NewLoginHandler(service serviceLogin, name string, oauthConfig *oauth2.Config, store *sessions.CookieStore, jwtSecret string) *LoginHandler {
+func NewLoginHandler(service serviceLogin, name string, store *sessions.CookieStore) *LoginHandler {
 	return &LoginHandler{
-		name:        name,
-		service:     service,
-		oauthConfig: oauthConfig,
-		store:       store,
-		jwtSecret: jwtSecret,
+		name:    name,
+		service: service,
+		store:   store,
 	}
 }
 
 func (h *LoginHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
-
-	fmt.Println("Зашли в обработчик Login")
 	ctx := r.Context()
-	authorizationCode := r.PathValue(defenitions.AuthorizationCode)
 
-	if authorizationCode == "" {
-		uhttp.SendErrorResponse(w, http.StatusBadRequest, "Authorization code must be filled in")
-		return
-	}
-
-	fmt.Println("authorizationCode" + authorizationCode)
-	
-
-	token, err := h.oauthConfig.Exchange(context.Background(), authorizationCode)
-	if err != nil {
-		uhttp.SendErrorResponse(w, http.StatusBadRequest, fmt.Errorf("Code exchange failed with '%s'\n", err).Error())
-		return
-	}
-
-	client := h.oauthConfig.Client(context.Background(), token)
-	response, err := client.Get("https://login.yandex.ru/info?format=json")
-	if err != nil {	
-		uhttp.SendErrorResponse(w, http.StatusInternalServerError, "Failed to get user info")
-		return
-	}
-	defer response.Body.Close()
-
-	var profile map[string]interface{}
-	if err := json.NewDecoder(response.Body).Decode(&profile); err != nil {
-		uhttp.SendErrorResponse(w, http.StatusInternalServerError, "Failed to decode user info")		
-		return
-	}
-
-	displayName, ok := profile[defenitions.DisplayName].(string)
-	if !ok {
-		uhttp.SendErrorResponse(w, http.StatusInternalServerError, "Display name not found")
-		return
-	}
-
-	default_email, ok := profile[defenitions.DefaultEmail].(string)
-	if !ok {
-		uhttp.SendErrorResponse(w, http.StatusInternalServerError, "Default email not found")
-		return
-	}
-
-	userData := &model.UserData{
-		Name: displayName,
-		Email: default_email,
-	}
-
-	user, err:= h.service.GetUserByEmail(ctx, userData)
-
+	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-
-	tokenString,err := generateJWT(user, h.jwtSecret)
+	var loginData *RequestLoginData
+	err = json.Unmarshal(body, &loginData)
 	if err != nil {
-		uhttp.SendErrorResponse(w, http.StatusInternalServerError, err.Error())
+		uhttp.SendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	
+
+	authData, err := h.service.Login(ctx, loginData.ProviderKey, loginData.authorizationCode)
 
 	session, _ := h.store.Get(r, defenitions.SessionAuthenticationName)
-	session.Values[defenitions.Token] = string(tokenString)
+	session.Values[defenitions.Token] = string(authData.RefreshToken)
 	err = session.Save(r, w)
 
 	if err != nil {
@@ -114,22 +69,16 @@ func (h *LoginHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	uhttp.SendSuccessfulResponse(w, []byte(`{"success": true}`))
+	responseLoginData := &ResponseLoginData{
+		token:  authData.AccessToken,
+		userID: authData.UserID,
+	}
 
-}
+	jsonResponseLoginData, err := json.Marshal(responseLoginData)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	uhttp.SendSuccessfulResponse(w, jsonResponseLoginData)
 
-
-func generateJWT(user *model.User, jwtSecret string) (string, error) {
-   
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-        defenitions.UserID:user.ID,
-        "exp":    time.Now().Add(time.Hour * 100).Unix(), 
-    })
-
-    tokenString, err := token.SignedString([]byte(jwtSecret))
-    if err != nil {
-        return "", err
-    }
-
-    return tokenString, nil
 }

@@ -2,83 +2,83 @@ PRODUCER ukf-test
 topic: mdm-1c-finmd
 key: 1
 {
-    "Type": "CostCenter",
-    "MDMId": "43fdf512-ac4f-43a5-8af7-0d503b15a0cc",
-    "SrcId": "123234513213214",
-    "Code1C": "0008613",
-    "Name": "LG|DL|TRP|PVZ2ParcelLocker|Kemerovo/Tsentralnaya",
-    "CodeAxapta": "LG|DL|Ownxx|COURI|r082099",
-    "Organization":
-        {"MDMId": "de1314a8-c1b2-11ee-8700-88e9a43d6cb4",
-        "name": "Интернет Решения, ООО",
-        "D365Id": "ISOL",
-        "SrcId": "8584866000"
-        "INN": "7704217370",
-        "KPP": "997750001"
-      },
-    "OwnerFirst": "Гейль Александр",
-    "BusinessSegment":       
-        {"MDMId": "fdfb2a35-1854-43c1-9751-e9ce9ad2272c",
-        "name": "Logistics",
-        "code": "LG"
-        },
-    "CostSegment":
-        {"MDMId": "fdfb2a35-1854-43c1-9751-e9ce9ad2272c",
-        "name": "Fulfillment",
-        "code": "FF"
-        },
-    "GroupOfCC": ,
-        {"MDMId": "509b0172-59a3-4b2c-a540-83063e60520b",
-        "name": "Own parcel lockers",
-        "SrcId": "11022491195090"
-        "FunctionMSFO":
-             {"MDMId": "bf442c86-9c19-4ac4-aa4d-3e8c56c5d888",
-              "name": " Fulfillment and delivery"
-             }
-        },
-    "AreaOfResponsibility":
-        {"MDMId": "509b0172-59a3-4b2c-a540-83063e60520b",
-        "name": "Kemerovo/Tsentralnaya"
-        },
-    "ObjectType":
-        {"MDMId": "cfef492a-e2ce-469e-bf41-346f0ec61264",
-        "name": "PVZ2ParcelLocker"
-        },
-    "Function":
-        {"MDMId": "cfef492a-e2ce-469e-bf41-346f0ec61264",
-        "name": "DL"
-        },
-     "UnderFunction":
-        {"MDMId": "dd2c5e45-91d0-41ff-a450-6fc439ff7bc2",
-        "name": "TRP"
-        },
-    "NotUsedAxapta": false,
-    "CostObject": true,   
-    "CostObjectId": "C780008",
-    "CostObjectName": "COURIER|Troitskiy"
-    "City": "Казань",
-    "ZupId": "GA989",
-    "ClusterCC":
-        {"MDMId": "bf442c86-9c19-4ac4-aa4d-3e8c56c5d888",
-        "name": "LG|DL|Own|COURIER|Moskva"
-        "SrcId": 11081626168340
-        "CodeAxapta": "LG|DL|Ownxx|COURI|r080398"
-        },
-    "LozonID": "15066285956000",
-    "Parent":
-        {"MDMId": "bf442c86-9c19-4ac4-aa4d-3e8c56c5d888",
-      "SrcId": "123234513213111",
-        "name": "LG|DL|Own|COURIER|Moskva"
-        },
-    "WriteOffCompensation": false,
-    "Description": "",
-    "StaffUnits": false,
-    "DynamicCeiling": false,
-    "Mass": "not mass",
-    "Allocation": false,
-    "TaxBenefits": false,
-    "Stock": " ",
-    "Polygon": " ",
-    "DateOfBlocking": "2024-04-22T00:00:00",
-    "Blocked": true
-  }
+  "Type": "CostCenter",
+  "MDMId": "7ef032f2-8b25-11ef-af7a-88e9a43daaa4",
+  "SrcId": "11061063512380",
+  "Code1C": "",
+  "Name": "LG|DL|Own|COURIER|Moskva/Skotoprogonnyy",
+  "CodeAxapta": "LG|DL|Ownxx|COURI|r081344",
+  "Organization": {
+    "MDMId": "0ae1269c-8250-11ef-af7a-88e9a43daaa4",
+    "name": "Интернет решения, ООО",
+    "D365Id": "ISOL",
+    "INN": "7704217370",
+    "KPP": "997750001",
+    "SrcId": "8584866000"
+  },
+  "OwnerFirst": "Гейль Александр",
+  "BusinessSegment": {
+    "MDMId": "3e065800-8239-11ef-af7a-88e9a43daaa4",
+    "name": "Logistic",
+    "code": "LG"
+  },
+  "CostSegment": {
+    "MDMId": "3e0657ff-8239-11ef-af7a-88e9a43daaa4",
+    "name": "Fulfillment",
+    "code": "FF"
+  },
+  "GroupOfCC": {
+    "MDMId": "cce31d28-823a-11ef-af7a-88e9a43daaa4",
+    "name": "Courier own delivery",
+    "SrcId": "",
+    "FunctionMSFO": {
+      "MDMId": "43af2565-823a-11ef-af7a-88e9a43daaa4",
+      "name": "Fulfillment and delivery expenses"
+    }
+  },
+  "AreaOfResponsibility": {
+    "MDMId": "8ba2276b-8241-11ef-af7a-88e9a43daaa4",
+    "name": "Moskva/Skotoprogonnyy"
+  },
+  "ObjectType": {
+    "MDMId": "1336f976-823c-11ef-af7a-88e9a43daaa4",
+    "name": "COURIER"
+  },
+  "Function": {
+    "MDMId": "9a1d39b7-8239-11ef-af7a-88e9a43daaa4",
+    "name": "Delivery"
+  },
+  "UnderFunction": {
+    "MDMId": "7b94e210-823b-11ef-af7a-88e9a43daaa4",
+    "name": "Own"
+  },
+  "NotUsedAxapta": false,
+  "CostObject": true,
+  "CostObjectId": "C770012",
+  "CostObjectName": "Own|COURIER|Moskva/Skotoprogonnyy",
+  "City": "",
+  "ZupId": "",
+  "ClusterCC": {
+    "MDMId": "b4bd3159-8b25-11ef-af7a-88e9a43daaa4",
+    "SrcId": "11081626168340",
+    "name": "LG|DL|Own|COURIER|Moskva",
+    "CodeAxapta": "LG|DL|Ownxx|COURI|r080398"
+  },
+  "LozonID": "16193325330000",
+  "Parent": {
+    "MDMId": "d87468b5-7f1e-11ef-af7a-88e9a43daaa4",
+    "SrcId": "11022475183910",
+    "name": "PRT_Courier own delivery"
+  },
+  "WriteOffCompensation": "C770012",
+  "Description": "",
+  "StaffUnits": true,
+  "DynamicCeiling": "NA",
+  "Mass": "NotMass",
+  "Allocation": false,
+  "TaxBenefits": false,
+  "Stock": "",
+  "Polygon": "",
+  "DateOfBlocking": "",
+  "Blocked": false
+}

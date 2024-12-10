@@ -54,6 +54,8 @@ func (h *AddTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	
+
 	err = validation.ValidateStruct(task,
 		validation.Field(&task.Title, validation.Required),
 		validation.Field(&task.Description, validation.Required))
