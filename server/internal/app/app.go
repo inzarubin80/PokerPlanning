@@ -16,7 +16,6 @@ import (
 
 	"github.com/gorilla/sessions"
 	"golang.org/x/oauth2"
-	"golang.org/x/oauth2/yandex"
 
 	authinterface "inzarubin80/PokerPlanning/internal/app/authinterface"
 	providerUserData "inzarubin80/PokerPlanning/internal/app/clients/provider_user_data"
@@ -25,9 +24,6 @@ import (
 
 const (
 	readHeaderTimeoutSeconds = 3
-	storeSecret              = "415d2aa8f8e6453f92f050b937588b25"
-	accessTokenSecret        = "415d2aa8f8e64dddddd53dddddddf92f050b937588b25"
-	refreshTokenSecret       = "415d2aa8f8e6453dddddddddeeeeeddddddf92f050b937588b25"
 )
 
 type (
@@ -69,12 +65,6 @@ type (
 		GenerateToken(userID model.UserID) (string, error)
 		ValidateToken(tokenString string) (*model.Claims, error)
 	}
-
-	ProviderUserData interface {
-		GetUserData(ctx context.Context, authorizationCode string) (*model.UserData, error)
-	}
-
-	ProvidersUserData map[string]providerUserData.ProviderUserData
 
 	App struct {
 		mux          mux
@@ -118,25 +108,23 @@ func (a *App) ListenAndServe() error {
 }
 
 func NewApp(ctx context.Context, config config) (*App, error) {
-	
+
+
 	var (
 		mux               = http.NewServeMux()
 		pokerRepository   = repository.NewPokerRepository(100)
 		hub               = ws.NewHub()
-		oauthConfigYandex = &oauth2.Config{
-			ClientID:     "415d2aa8f8e6453f92f050b937588b25",
-			ClientSecret: "1d4a98b4709146e19f138fee68b9d46f",
-			RedirectURL:  "http://localhost:8000/YandexAuthCallback",
-			Scopes:       []string{"login:email", "login:info"},
-			Endpoint:     yandex.Endpoint,
-		}
-		providers = make(authinterface.ProvidersUserData, 1)
-		store     = sessions.NewCookieStore([]byte(storeSecret))
+		store     = sessions.NewCookieStore([]byte(config.sectrets.storeSecret))
 	)
 
-	accessTokenService := tokenservice.NewtokenService([]byte(accessTokenSecret), 30*time.Minute, model.Access_Token_Type)
-	refreshTokenService := tokenservice.NewtokenService([]byte(refreshTokenSecret), 24*time.Hour, model.Refresh_Token_Type)
-	providers["yandex"] = providerUserData.NewProviderUserData("https://login.yandex.ru/info?format=json", oauthConfigYandex)
+	accessTokenService := tokenservice.NewtokenService([]byte(config.sectrets.accessTokenSecret), 30*time.Minute, model.Access_Token_Type)
+	refreshTokenService := tokenservice.NewtokenService([]byte(config.sectrets.refreshTokenSecret), 24*time.Hour, model.Refresh_Token_Type)
+
+	providers := make(authinterface.ProvidersUserData)
+	for key, value := range config.provadersConf {
+		providers[key] = providerUserData.NewProviderUserData(value.UrlUserData, value.Oauth2Config)	
+	}
+
 	pokerService := service.NewPokerService(pokerRepository, hub, accessTokenService, refreshTokenService, providers)
 
 	return &App{
