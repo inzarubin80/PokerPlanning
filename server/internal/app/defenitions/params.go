@@ -1,6 +1,7 @@
 package defenitions
 
 const (
+	
 	ParamPokerID  = "poker_id"
 	ParamTaskID  = "task_id"
 	AuthorizationCode  = "authorization_code"
@@ -8,4 +9,7 @@ const (
 	DisplayName = "display_name"
 	DefaultEmail = "default_email"
 	SessionAuthenticationName = "authentication"
+	Token = "token"
+	ProviderKey = "provider_key"
+	
 )

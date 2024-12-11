@@ -1,19 +1,21 @@
 package model
 
-import "time"
+import (
+	"time"
+
+	"github.com/golang-jwt/jwt"
+)
 
 const (
 	ADD_TASK  = "ADD_TASK"
 	REMOVE_TASK = "REMOVE_TASK"
 	UPDATE_TASK = "UPDATE_TASK"
-	
 	ADD_COMMENT  = "ADD_COMMENT"
 	REMOVE_COMMENT = "REMOVE_COMMENT"
 	UPDATE_COMMENT = "UPDATE_COMMENT"
-
 	ADD_VOTING_TASK  = "ADD_VOTING_TASK"
-
-
+	Access_Token_Type = "access_token"
+	Refresh_Token_Type = "refresh_Token"
 )
 
 type (
@@ -44,7 +46,6 @@ type (
 		Status      string  `json:"status"` 
 		Completed   bool    `json:"completed"`
 		Estimate    string  `json:"estimate"`
-
 	}
 
 	Comment struct {
@@ -69,4 +70,17 @@ type (
 		End           time.Time
 		FinalEstimate Estimate
 	}
+		
+	AuthData struct {
+		UserID UserID
+		RefreshToken string
+		AccessToken string	
+	}	
+
+	Claims struct {
+		UserID    UserID `json:"user_id"`
+		TokenType string `json:"token_type"` // Добавляем поле для типа токена
+		jwt.StandardClaims
+	}
+	
 )

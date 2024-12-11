@@ -27,15 +27,16 @@ func (h *GetSessionHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	session, err := h.store.Get(r, defenitions.SessionAuthenticationName)
     if err != nil {
-       uhttp.SendSuccessfulResponse(w, []byte("{0}"))
+	   uhttp.SendErrorResponse(w, http.StatusUnauthorized, "")
         return
     }
 
-	userID, ok := session.Values[defenitions.UserID].(string)
-    if !ok || userID == "" {
-		uhttp.SendSuccessfulResponse(w, []byte("{0}"))
+	userID, ok := session.Values[defenitions.UserID].(int64)
+    if !ok || userID == 0 {
+		uhttp.SendErrorResponse(w, http.StatusUnauthorized, "")
         return
 	}
+
 
 	jsonData, err := json.Marshal(userID)
 	if err != nil {
