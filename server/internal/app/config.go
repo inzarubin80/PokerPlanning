@@ -22,7 +22,7 @@ type (
 		index, getPoker, createPoker, createTask,
 		getTasks, getTask, updateTask, deleteTask,
 		getComents, addComent, addVotingTask,
-		getVotingTask, ws, login, session, refreshToken, logOut string
+		getVotingTask, ws, login, session, refreshToken, logOut, getProviders string
 	}
 
 	sectrets struct {
@@ -71,7 +71,8 @@ func NewConfig(opts Options) config {
 
 			index:       "",
 			createPoker: "POST /api/poker",
-
+			getProviders: "GET /api/providers",
+			
 			login:        fmt.Sprintf("POST /api/user/login"),
 			refreshToken: fmt.Sprintf("POST /api/user/refresh"),
 			session:      fmt.Sprintf("GET /api/user/session"),
