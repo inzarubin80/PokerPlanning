@@ -27,6 +27,7 @@ type (
 	MapProviderOauthConf map[string]*ProviderOauthConf
 
 	ProviderOauthConfFrontend struct{
+		Provider string
 		ClientId string
 		AuthURL string
 		RedirectUri string

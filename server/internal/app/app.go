@@ -96,13 +96,13 @@ func (a *App) ListenAndServe() error {
 	}
 
 	for path, handler := range handlers {
-		a.mux.Handle(path, middleware.NewAuthMiddleware(middleware.NewLogMux(handler), a.store))
+		a.mux.Handle(path, middleware.NewAuthMiddleware(handler, a.store))
 	}
 
-	a.mux.Handle(a.config.path.login, middleware.NewLogMux(appHttp.NewLoginHandler(a.pokerService, a.config.path.login, a.store)))
-	a.mux.Handle(a.config.path.session, middleware.NewLogMux(appHttp.NewGetSessionHandler(a.store, a.config.path.session)))
-	a.mux.Handle(a.config.path.refreshToken, middleware.NewLogMux(appHttp.NewRefreshTokenHandler(a.pokerService, a.config.path.refreshToken, a.store)))
-	a.mux.Handle(a.config.path.getProviders, middleware.NewLogMux(appHttp.NewProvadersHandler(a.providersOauthConfFrontend, a.config.path.refreshToken)))
+	a.mux.Handle(a.config.path.login, appHttp.NewLoginHandler(a.pokerService, a.config.path.login, a.store))
+	a.mux.Handle(a.config.path.session, appHttp.NewGetSessionHandler(a.store, a.config.path.session))
+	a.mux.Handle(a.config.path.refreshToken, appHttp.NewRefreshTokenHandler(a.pokerService, a.config.path.refreshToken, a.store))
+	a.mux.Handle(a.config.path.getProviders, appHttp.NewProvadersHandler(a.providersOauthConfFrontend, a.config.path.refreshToken))
 
 	fmt.Println("start server")
 	return a.server.ListenAndServe()
@@ -128,7 +128,8 @@ func NewApp(ctx context.Context, config config) (*App, error) {
 
 		providerOauthConfFrontend = append(providerOauthConfFrontend,
 			authinterface.ProviderOauthConfFrontend{
-				ClientId:    key,
+				Provider: key,
+				ClientId:    value.Oauth2Config.ClientID,
 				RedirectUri: value.Oauth2Config.RedirectURL,
 				AuthURL:     value.Oauth2Config.Endpoint.AuthURL,
 				ImageBase64: value.ImageBase64,

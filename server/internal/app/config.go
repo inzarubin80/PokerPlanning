@@ -96,8 +96,8 @@ func NewConfig(opts Options) config {
 
 		sectrets: sectrets{
 			storeSecret:        os.Getenv("STORE_SECRET"),
-			accessTokenSecret:  os.Getenv("accessTokenSecret"),
-			refreshTokenSecret: os.Getenv("refreshTokenSecret"),
+			accessTokenSecret:  os.Getenv("ACCESS_TOKEN_SECRET"),
+			refreshTokenSecret: os.Getenv("REFRESH_TOKEN_SECRET"),
 		},
 
 		provadersConf: provaders,
