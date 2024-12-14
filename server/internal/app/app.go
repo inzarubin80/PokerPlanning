@@ -5,18 +5,14 @@ import (
 	"fmt"
 	appHttp "inzarubin80/PokerPlanning/internal/app/http"
 	ws "inzarubin80/PokerPlanning/internal/app/ws"
-
 	"time"
-
 	middleware "inzarubin80/PokerPlanning/internal/app/http/middleware"
 	"inzarubin80/PokerPlanning/internal/model"
 	repository "inzarubin80/PokerPlanning/internal/repository"
 	service "inzarubin80/PokerPlanning/internal/service"
 	"net/http"
-
 	"github.com/gorilla/sessions"
 	"golang.org/x/oauth2"
-
 	authinterface "inzarubin80/PokerPlanning/internal/app/authinterface"
 	providerUserData "inzarubin80/PokerPlanning/internal/app/clients/provider_user_data"
 	tokenservice "inzarubin80/PokerPlanning/internal/app/token_service"

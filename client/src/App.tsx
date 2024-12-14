@@ -7,16 +7,16 @@ import Poker from './components/Poker/Poker';
 import TaskForm from './components/TaskForm/TaskForm';
 import Login from './components/Login/Login';
 import PrivateRoute from './components/PrivateRoute/PrivateRoute';
-import YandexAuthCallback from './components/YandexAuthCallback/YandexAuthCallback';
+import YandexAuthCallback from './components/AuthCallback/AuthCallback';
 import { AuthContext, AuthContextType } from './context/AuthContext/AuthContext';
 
 const App: React.FC = () => {
-  const { isAuthenticated } = React.useContext(AuthContext) as AuthContextType;
+  const { accessToken } = React.useContext(AuthContext) as AuthContextType;
   return (
       <Routes>
          <Route path="/login" element={<Login />} />
         <Route path="/YandexAuthCallback" element={<YandexAuthCallback />} /> 
-        <Route element={<PrivateRoute isAuthenticated={isAuthenticated}/>}>
+        <Route element={<PrivateRoute accessToken={accessToken}/>}>
           <Route path="/" element={<Home />} />
           <Route path="poker/:pokerId" element={<Poker />} />
           <Route path="poker/:pokerId/task/:taskId" element={<TaskForm />} />

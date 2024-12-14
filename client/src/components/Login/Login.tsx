@@ -1,6 +1,8 @@
 import React from 'react';
 import { Box, Container, Typography } from '@mui/material';
-import YandexAuthButton from '../YandexAuthButton/YandexAuthButton';
+import YandexAuthButton from '../AuthButton/AuthButton';
+import { Google, Facebook, GitHub, Twitter } from '@mui/icons-material';
+
 
 const Login: React.FC = () => {
   return (
@@ -23,6 +25,9 @@ const Login: React.FC = () => {
         </Typography>
         
         <YandexAuthButton />
+
+
+
       </Box>
     </Container>
   );

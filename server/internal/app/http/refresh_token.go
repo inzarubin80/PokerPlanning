@@ -61,8 +61,8 @@ func (h *RefreshTokenHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 	}
 
 	responseLoginData := &ResponseLoginData{
-		token:  authData.AccessToken,
-		userID: authData.UserID,
+		Token:  authData.AccessToken,
+		UserID: authData.UserID,
 	}
 
 	jsonResponseLoginData, err := json.Marshal(responseLoginData)

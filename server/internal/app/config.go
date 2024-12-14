@@ -73,10 +73,10 @@ func NewConfig(opts Options) config {
 			createPoker: "POST /api/poker",
 			getProviders: "GET /api/providers",
 			
-			login:        fmt.Sprintf("POST /api/user/login"),
-			refreshToken: fmt.Sprintf("POST /api/user/refresh"),
-			session:      fmt.Sprintf("GET /api/user/session"),
-			logOut:       fmt.Sprintf("GET /api/user/logout"),
+			login:        fmt.Sprintf("POST	/api/user/login"),
+			refreshToken: fmt.Sprintf("POST	/api/user/refresh"),
+			session:      fmt.Sprintf("GET	/api/user/session"),
+			logOut:       fmt.Sprintf("GET	/api/user/logout"),
 
 			createTask: fmt.Sprintf("POST /api/poker/{%s}/tasks", defenitions.ParamPokerID),
 			getTasks:   fmt.Sprintf("GET /api/poker/{%s}/tasks", defenitions.ParamPokerID),
