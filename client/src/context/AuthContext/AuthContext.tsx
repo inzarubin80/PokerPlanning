@@ -33,7 +33,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const refreshAuthLogic = (failedRequest: any = null) => {
     const options = {
       method: 'GET',
-      url: `${getApiUrl()}/?typerequest=mobilerefreshToken`,
+      url: `/api/user/refresh`,
     };
 
     return axios(options)
@@ -41,9 +41,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         if (failedRequest) {
           failedRequest.response.config.headers.Authorization = `Bearer ${tokenRefreshResponse.data.accessToken}`;
         }
-
         setAccessToken(tokenRefreshResponse.data.accessToken);
-       
         return Promise.resolve();
       })
       .catch((e) => {
