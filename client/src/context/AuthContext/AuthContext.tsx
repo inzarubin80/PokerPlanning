@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import createAuthRefreshInterceptor from 'axios-auth-refresh';
 import axios, { AxiosInstance } from 'axios';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 export interface AuthContextType {
   accessToken: string | null;
@@ -18,9 +19,11 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const [accessToken, setAccessToken] = useState<string | null>("");
+  const navigate = useNavigate();
 
   const logOut = async () => {
     setAccessToken(null);
+    navigate('/');
   };
 
   const getApiUrl = () => {
