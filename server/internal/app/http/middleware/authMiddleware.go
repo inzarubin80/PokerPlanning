@@ -42,8 +42,10 @@ func (m *AuthMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	context.WithValue(ctx, defenitions.UserID, claims.UserID)
-	m.h.ServeHTTP(w, r)
+	ctx = context.WithValue(ctx, defenitions.UserID, claims.UserID)
+	newRequest := r.WithContext(ctx)
+	m.h.ServeHTTP(w, newRequest)
+
 }
 
 func extractToken(r *http.Request) (string, error) {

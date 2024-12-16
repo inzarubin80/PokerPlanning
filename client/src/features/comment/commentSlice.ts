@@ -1,7 +1,8 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { CommentItem } from '../../model';
 
-import {publicAxios} from '../../service/http-common'
+import {authAxios} from '../../service/http-common'
+import { AxiosError } from 'axios'; 
 
 interface ErrorResponse {
   error: boolean;
@@ -30,38 +31,43 @@ const initialState: CommentState = {
   errorAddComment: null
 };
 
+
+
 export const getComments = createAsyncThunk(
   'comment/getComments',
   async (pokerID: string) => {
-    const response = await fetch(`/api/poker/${pokerID}/comments`);
-    if (!response.ok) {
-      const errorData: ErrorResponse = await response.json();
-      throw new Error(errorData.message);
+    try {
+      const response = await authAxios.get(`/poker/${pokerID}/comments`);
+      return response.data;
+    } catch (error: unknown) {
+      // Проверяем, является ли ошибка экземпляром AxiosError
+      if (error instanceof AxiosError && error.response && error.response.data) {
+        throw new Error(error.response.data.message);
+      }
+      throw error; // Если это не AxiosError, передаем ошибку дальше
     }
-    const data = await response.json();
-    return data;
   }
 );
 
-export const addComment = createAsyncThunk('comment/addComment', async (params: SaveCommentParams) => {
-
-  const { pokerID, comment, callback} = params;
-  const response = await fetch(`/api/poker/${pokerID}/comments`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(comment),
-  });
-  if (!response.ok) {
-    const errorData: ErrorResponse = await response.json();
-    throw new Error(errorData.message);
-  }  else if (callback) {
-    callback()
+export const addComment = createAsyncThunk(
+  'comment/addComment',
+  async (params: SaveCommentParams) => {
+    const { pokerID, comment, callback } = params;
+    try {
+      const response = await authAxios.post(`/poker/${pokerID}/comments`, comment);
+      if (callback) {
+        callback();
+      }
+      return response.data;
+    } catch (error: unknown) {
+      // Проверяем, является ли ошибка экземпляром AxiosError
+      if (error instanceof AxiosError && error.response && error.response.data) {
+        throw new Error(error.response.data.message);
+      }
+      throw error; // Если это не AxiosError, передаем ошибку дальше
+    }
   }
-  const data = await response.json();
-  return data;
-});
+);
 
 
 const commentSlice = createSlice({

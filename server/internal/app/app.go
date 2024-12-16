@@ -113,7 +113,7 @@ func NewApp(ctx context.Context, config config) (*App, error) {
 		store           = sessions.NewCookieStore([]byte(config.sectrets.storeSecret))
 	)
 
-	accessTokenService := tokenservice.NewtokenService([]byte(config.sectrets.accessTokenSecret), 30*time.Minute, model.Access_Token_Type)
+	accessTokenService := tokenservice.NewtokenService([]byte(config.sectrets.accessTokenSecret), 1*time.Second, model.Access_Token_Type)
 	refreshTokenService := tokenservice.NewtokenService([]byte(config.sectrets.refreshTokenSecret), 24*time.Hour, model.Refresh_Token_Type)
 
 	providerOauthConfFrontend := []authinterface.ProviderOauthConfFrontend{}

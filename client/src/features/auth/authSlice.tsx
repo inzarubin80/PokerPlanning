@@ -8,7 +8,7 @@ interface AuthState {
 
 // Начальное состояние
 const initialState: AuthState = {
-  accessToken: null,
+  accessToken: localStorage.getItem("accessToken"),
 };
 
 // Async Thunk для обновления токена
@@ -16,13 +16,15 @@ export const refreshAccessToken = createAsyncThunk(
   'auth/refreshAccessToken',
   async (_, { dispatch, getState }) => {
     const options = {
-      method: 'GET',
-      url: `/api/user/refresh`,
+      method: 'POST',
+      url: `/user/refresh`,
     };
+
+    localStorage.removeItem("accessToken"); 
 
     try {
       const response = await publicAxios(options);
-      const newAccessToken = response.data.accessToken;
+      const newAccessToken = response.data.Token;
 
       // Обновляем токен в состоянии
       dispatch(setAccessToken(newAccessToken));
@@ -38,7 +40,6 @@ export const refreshAccessToken = createAsyncThunk(
 
 // Async Thunk для логаута
 export const logout = createAsyncThunk('auth/logout', async () => {
-  // Здесь можно добавить логику очистки данных или вызова API для логаута
   return null;
 });
 
@@ -49,6 +50,11 @@ const authSlice = createSlice({
   reducers: {
     setAccessToken: (state, action: PayloadAction<string | null>) => {
       state.accessToken = action.payload;
+
+      if  (action.payload !== null)  {
+        localStorage.setItem("accessToken", action.payload); 
+      }
+      
 
       // Обновляем заголовок Authorization в authAxios
       if (state.accessToken) {
@@ -62,6 +68,7 @@ const authSlice = createSlice({
     builder
       .addCase(refreshAccessToken.fulfilled, (state, action) => {
         state.accessToken = action.payload;
+        
       })
       .addCase(logout.fulfilled, (state) => {
         state.accessToken = null;

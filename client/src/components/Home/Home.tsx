@@ -7,13 +7,9 @@ import Box from '@mui/material/Box';
 import { $CombinedState } from "@reduxjs/toolkit";
 
 function Home() {
+    
     const navigate = useNavigate();
     const handlerCreatePoker = async () => {
-      
-        
-        console.log("publicAxios.defaults.headers", authAxios.defaults.headers)
-
-
         authAxios.post("/poker")
             .then((response) => {
                 console.log(response.data)

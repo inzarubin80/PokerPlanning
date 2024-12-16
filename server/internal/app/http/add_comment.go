@@ -3,11 +3,13 @@ package http
 import (
 	"context"
 	"encoding/json"
-	validation "github.com/go-ozzo/ozzo-validation"
+	"inzarubin80/PokerPlanning/internal/app/defenitions"
 	"inzarubin80/PokerPlanning/internal/app/uhttp"
 	"inzarubin80/PokerPlanning/internal/model"
 	"io"
 	"net/http"
+
+	validation "github.com/go-ozzo/ozzo-validation"
 )
 
 type (
@@ -17,6 +19,11 @@ type (
 	AddCommentHandler struct {
 		name    string
 		service serviceAddComment
+	}
+
+	CommentFrontend struct {
+		PokerID model.PokerID `json:"poker_id"`
+		Text    string        `json:"text"`
 	}
 )
 
@@ -37,7 +44,12 @@ func (h *AddCommentHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var comment *model.Comment
+	userID, ok := ctx.Value(defenitions.UserID).(model.UserID)
+	if !ok {
+		uhttp.SendErrorResponse(w, http.StatusInternalServerError, "not user ID")
+	}
+
+	var comment *CommentFrontend
 	err = json.Unmarshal(body, &comment)
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusBadRequest, err.Error())
@@ -47,14 +59,13 @@ func (h *AddCommentHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	err = validation.ValidateStruct(comment,
 		validation.Field(&comment.PokerID, validation.Required),
 		validation.Field(&comment.Text, validation.Required))
-		validation.Field(&comment.UserID, validation.Required)
 
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	_, err = h.service.AddComment(ctx, comment)
+	_, err = h.service.AddComment(ctx, &model.Comment{ID: -1, PokerID: comment.PokerID, UserID: model.UserID(userID)})
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusInternalServerError, err.Error())
 	} else {
