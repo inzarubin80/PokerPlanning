@@ -7,7 +7,7 @@ import reportWebVitals from './reportWebVitals';
 import './index.css';
 import { BrowserRouter } from 'react-router-dom';
 
-import { AuthProvider } from './context/AuthContext/AuthContext';
+
 
 
 import '@fontsource/roboto/300.css';
@@ -23,14 +23,10 @@ const root = createRoot(container);
 
 root.render(
 <React.StrictMode>
-
     <Provider store={store}>
-    <AuthProvider>
       <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true}}>
         <App />
       </BrowserRouter>
-  
-      </AuthProvider>
     </Provider>
     </React.StrictMode>
 );

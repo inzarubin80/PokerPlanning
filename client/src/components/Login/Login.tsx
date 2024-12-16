@@ -2,9 +2,16 @@ import React from 'react';
 import { Box, Container, Typography } from '@mui/material';
 import YandexAuthButton from '../AuthButton/AuthButton';
 import { Google, Facebook, GitHub, Twitter } from '@mui/icons-material';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 
 const Login: React.FC = () => {
+
+
+    const location = useLocation();
+    console.log("Login location------------", location);
+
+
   return (
     <Container maxWidth="sm">
       <Box

@@ -92,7 +92,7 @@ func (a *App) ListenAndServe() error {
 	}
 
 	for path, handler := range handlers {
-		a.mux.Handle(path, middleware.NewAuthMiddleware(handler, a.store))
+		a.mux.Handle(path, middleware.NewAuthMiddleware(handler, a.store, a.pokerService))
 	}
 
 	a.mux.Handle(a.config.path.login, appHttp.NewLoginHandler(a.pokerService, a.config.path.login, a.store))

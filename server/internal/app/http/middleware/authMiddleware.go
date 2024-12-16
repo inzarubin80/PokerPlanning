@@ -22,9 +22,9 @@ type (
 
 )
 
-func NewAuthMiddleware(h http.Handler, store *sessions.CookieStore) *AuthMiddleware {
+func NewAuthMiddleware(h http.Handler, store *sessions.CookieStore, service serviceAuth) *AuthMiddleware {
 
-	return &AuthMiddleware{h: h, store: store}
+	return &AuthMiddleware{h: h, store: store, service:service}
 }
 
 func (m *AuthMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {

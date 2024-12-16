@@ -20,8 +20,8 @@ const YandexIcon = () => (
 
 const YandexAuthButton: React.FC = () => {
   
-  const clientId = '415d2aa8f8e6453f92f050b937588b25'; // Замените на ваш Client ID
-  const redirectUri = encodeURIComponent('http://localhost:3000/YandexAuthCallback?provaider=yandex'); // Замените на ваш Redirect URI
+  
+  const clientId = '415d2aa8f8e6453f92f050b937588b25'; 
   const authUrl = `https://oauth.yandex.ru/authorize?response_type=code&client_id=${clientId}`;
 
 

@@ -1,18 +1,21 @@
 import { useNavigate, Outlet } from "react-router-dom";
-import { PokerService } from '../../service/poker'
+import { authAxios } from '../../service/http-common'; 
 import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
-import { ConstructionOutlined } from "@mui/icons-material";
+import { $CombinedState } from "@reduxjs/toolkit";
 
 function Home() {
     const navigate = useNavigate();
     const handlerCreatePoker = async () => {
-        PokerService
-            .create()
-            .then((response) => {
+      
+        
+        console.log("publicAxios.defaults.headers", authAxios.defaults.headers)
 
+
+        authAxios.post("/poker")
+            .then((response) => {
                 console.log(response.data)
                 navigate(`/poker/${response.data}`);
             })

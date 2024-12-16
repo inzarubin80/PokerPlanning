@@ -1,14 +1,15 @@
-import React, { useEffect, useContext } from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { AuthContext, AuthContextType} from '../../context/AuthContext/AuthContext';
+import { setAccessToken } from '../../features/auth/authSlice';
+import { AppDispatch } from '../../app/store';
+import { useDispatch } from 'react-redux';
 
 const AuthCallback: React.FC = () => {
-
-  const {publicAxios, setAccessToken } = useContext(AuthContext) as AuthContextType;
+  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const location = useLocation();
   const intervalRef = React.useRef("");
-
+  
   interface PostData {
     authorization_code: string;
     provider_key: string;
@@ -18,39 +19,47 @@ const AuthCallback: React.FC = () => {
     const handleAuthCallback = async () => {
       const queryParams = new URLSearchParams(location.search);
       const code = queryParams.get('code');
-      const provider = queryParams.get('provaider');
+      const provider = queryParams.get('provider'); 
 
+      if (code && intervalRef.current !== code) {
+        intervalRef.current = code;
 
-      if ((code) && (intervalRef.current != code)) {
-      intervalRef.current = code
-      if (code && provider) {
-        const data: PostData = {
-          authorization_code: code,
-          provider_key: provider,
-        };
+        if (code && provider) {
+          const data: PostData = {
+            authorization_code: code,
+            provider_key: provider,
+          };
 
-        try {
-          const response = await fetch(`/api/user/login`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json',
-            },
-            credentials: 'include', // Отправляем куки
-            body: JSON.stringify(data),
-          });
-        const result = await response.json();
-        setAccessToken(result.Token)
-        } catch (error) {
+          try {
+            const response = await fetch(`/api/user/login`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+              },
+              credentials: 'include', // Отправляем куки
+              body: JSON.stringify(data),
+            });
+
+            const result = await response.json();
+            dispatch(setAccessToken(result.Token));
+           
+            const fromLocal = localStorage.getItem('redirectUrl');
+            localStorage.removeItem('redirectUrl')
+            const from = fromLocal || '/'; 
+            navigate(from);
+         
+          } catch (error) {
+            console.error('Error during login:', error);
+          }
+        } else {
+          console.error('Missing code or provider in query params');
         }
-      } else {
-        console.error('Missing code or provider in query params');
       }
-    }
-     navigate('/');
     };
+
     handleAuthCallback();
-  }, [location.search, navigate, setAccessToken]);
+  }, [location.search, navigate, dispatch]);
 
   return (
     <div>

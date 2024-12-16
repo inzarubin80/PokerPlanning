@@ -70,7 +70,7 @@ func NewConfig(opts Options) config {
 		path: path{
 
 			index:       "",
-			createPoker: "POST /api/poker",
+			createPoker:  "POST	/api/poker",
 			getProviders: "GET /api/providers",
 			
 			login:        fmt.Sprintf("POST	/api/user/login"),
