@@ -1,54 +1,42 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { Task } from '../../model';
+import { authAxios } from '../../service/http-common';
+import { AxiosError } from 'axios';
 
 interface ErrorResponse {
   error: boolean;
   message: string;
 }
 
-interface Comment {
-  id: number;
-  taskID: number;
-  text: string;
-}
-
-interface Message {
-  type: string;
-  task?: Task;
-}
-
 interface TaskState {
-  curentTask:Task|null
+  curentTask: Task | null;
   tasks: Task[];
-  
+
   statusFetchTasks: 'idle' | 'loading' | 'succeeded' | 'failed';
   errorFetchTasks: string | null;
-  
-  statusGetTask:'idle' | 'loading' | 'succeeded' | 'failed';
+
+  statusGetTask: 'idle' | 'loading' | 'succeeded' | 'failed';
   errorGetTask: string | null;
-  
+
   statusSaveTask: 'idle' | 'loading' | 'succeeded' | 'failed';
   errorSaveTask: string | null;
-  
+
   statusDeleteTask: 'idle' | 'loading' | 'succeeded' | 'failed';
   errorDeleteTask: string | null;
-  
 }
 
 const initialState: TaskState = {
   tasks: [],
   statusFetchTasks: 'idle',
-  statusGetTask:'idle',
-  statusSaveTask:'idle',
-  statusDeleteTask:'idle',
-  
-  errorFetchTasks: null,
-  errorGetTask:null,
-  errorSaveTask:null,
-  
-  errorDeleteTask:null,
-  curentTask:null,
+  statusGetTask: 'idle',
+  statusSaveTask: 'idle',
+  statusDeleteTask: 'idle',
 
+  errorFetchTasks: null,
+  errorGetTask: null,
+  errorSaveTask: null,
+  errorDeleteTask: null,
+  curentTask: null,
 };
 
 interface GetTaskParams {
@@ -59,7 +47,7 @@ interface GetTaskParams {
 interface SaveTaskParams {
   pokerID: string;
   task: Task;
-  callback:()=>void|null
+  callback: () => void | null;
 }
 
 interface DeleteTaskParams {
@@ -67,109 +55,105 @@ interface DeleteTaskParams {
   taskID: number;
 }
 
+// Функция для обработки ошибок Axios
+const handleAxiosError = (error: unknown): string => {
+  if (error instanceof AxiosError && error.response && error.response.data) {
+    return error.response.data.message;
+  }
+  return 'Something went wrong';
+};
 
 export const getTask = createAsyncThunk(
   'tasks/getTask',
-  async (params: GetTaskParams) => {
+  async (params: GetTaskParams, { rejectWithValue }) => {
     const { pokerID, taskID } = params;
-    const response = await fetch(`/api/poker/${pokerID}/tasks/${taskID}`);
-    if (!response.ok) {
-      const errorData: ErrorResponse = await response.json();
-      throw new Error(errorData.message);
+    try {
+      const response = await authAxios.get(`/poker/${pokerID}/tasks/${taskID}`);
+      return response.data;
+    } catch (error) {
+      const errorMessage = handleAxiosError(error);
+      return rejectWithValue(errorMessage);
     }
-    const data = await response.json();
-    return data;
   }
 );
 
-export const fetchTasks = createAsyncThunk('tasks/fetchTasks', async (pokerID: string) => {
-  const response = await fetch(`/api/poker/${pokerID}/tasks`);
-  if (!response.ok) {
-    const errorData: ErrorResponse = await response.json();
-    throw new Error(errorData.message);
+export const fetchTasks = createAsyncThunk(
+  'tasks/fetchTasks',
+  async (pokerID: string, { rejectWithValue }) => {
+    try {
+      const response = await authAxios.get(`/poker/${pokerID}/tasks`);
+      return response.data;
+    } catch (error) {
+      const errorMessage = handleAxiosError(error);
+      return rejectWithValue(errorMessage);
+    }
   }
-  const data = await response.json();
-  return data;
-});
+);
 
-
-export const addTask = createAsyncThunk('tasks/addTask', async (params: SaveTaskParams) => {
-  
-  const { pokerID, task, callback} = params;
-
-  const response = await fetch(`/api/poker/${pokerID}/tasks`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(task),
-  });
-  if (!response.ok) {
-    const errorData: ErrorResponse = await response.json();
-    throw new Error(errorData.message);
-  }  else if (callback) {
-    callback()
+export const addTask = createAsyncThunk(
+  'tasks/addTask',
+  async (params: SaveTaskParams, { rejectWithValue }) => {
+    const { pokerID, task, callback } = params;
+    try {
+      const response = await authAxios.post(`/poker/${pokerID}/tasks`, task);
+      if (callback) callback();
+      return response.data;
+    } catch (error) {
+      const errorMessage = handleAxiosError(error);
+      return rejectWithValue(errorMessage);
+    }
   }
-  const data = await response.json();
-  return data;
-});
+);
 
-export const updateTask = createAsyncThunk('tasks/updateTask', async (params: SaveTaskParams) => {
-  const { pokerID, task, callback } = params;
- 
-  const response = await fetch(`/api/poker/${pokerID}/tasks/${task.id}`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(task),
-  });
-  if (!response.ok) {
-    const errorData: ErrorResponse = await response.json();
-    throw new Error(errorData.message);
-  } else if (callback) {
-    callback()
+export const updateTask = createAsyncThunk(
+  'tasks/updateTask',
+  async (params: SaveTaskParams, { rejectWithValue }) => {
+    const { pokerID, task, callback } = params;
+    try {
+      const response = await authAxios.put(`/poker/${pokerID}/tasks/${task.id}`, task);
+      if (callback) callback();
+      return response.data;
+    } catch (error) {
+      const errorMessage = handleAxiosError(error);
+      return rejectWithValue(errorMessage);
+    }
   }
-  const data = await response.json();
-  return data;
-});
+);
 
-export const deleteTask = createAsyncThunk('tasks/deleteTask', async (params: DeleteTaskParams) => {
-  const { pokerID, taskID } = params;
-  const response = await fetch(`/api/poker/${pokerID}/tasks/${taskID}`, {
-    method: 'DELETE',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
-  if (!response.ok) {
-    const errorData: ErrorResponse = await response.json();
-    throw new Error(errorData.message);
+export const deleteTask = createAsyncThunk(
+  'tasks/deleteTask',
+  async (params: DeleteTaskParams, { rejectWithValue }) => {
+    const { pokerID, taskID } = params;
+    try {
+      await authAxios.delete(`/poker/${pokerID}/tasks/${taskID}`);
+      return taskID;
+    } catch (error) {
+      const errorMessage = handleAxiosError(error);
+      return rejectWithValue(errorMessage);
+    }
   }
-  return taskID;
-});
+);
 
 const taskSlice = createSlice({
   name: 'tasks',
   initialState,
   reducers: {
-    
     taskAdded: (state, action: PayloadAction<Task>) => {
       const updatedTask = action.payload;
       const index = state.tasks.findIndex((task) => task.id === updatedTask.id);
-        if (index !== -1) {
-          state.tasks[index] = updatedTask;
-        } else {
-          state.tasks.push(updatedTask)
-        }
+      if (index !== -1) {
+        state.tasks[index] = updatedTask;
+      } else {
+        state.tasks.push(updatedTask);
+      }
     },
 
     tasksUpdating: (state, action: PayloadAction<Task>) => {
       const updatedTask = action.payload;
-        const index = state.tasks.findIndex((task) => task.id === updatedTask.id);
-        if (index !== -1) {
-          state.tasks[index] = updatedTask;
-        }
+      const index = state.tasks.findIndex((task) => task.id === updatedTask.id);
+      if (index !== -1) {
+        state.tasks[index] = updatedTask;
+      }
     },
 
     changeCurrentTask: (state, action: PayloadAction<Task>) => {
@@ -179,16 +163,13 @@ const taskSlice = createSlice({
     taskRemoved: (state, action: PayloadAction<number>) => {
       state.tasks = state.tasks.filter((task) => task.id !== action.payload);
     },
-
-
   },
   extraReducers: (builder) => {
     builder
-    
-      //'tasks/fetchTasks'
+      // 'tasks/fetchTasks'
       .addCase(fetchTasks.pending, (state) => {
         state.statusFetchTasks = 'loading';
-        state.errorFetchTasks = ''
+        state.errorFetchTasks = '';
       })
       .addCase(fetchTasks.fulfilled, (state, action: PayloadAction<Task[]>) => {
         state.statusFetchTasks = 'succeeded';
@@ -196,60 +177,54 @@ const taskSlice = createSlice({
       })
       .addCase(fetchTasks.rejected, (state, action) => {
         state.statusFetchTasks = 'failed';
-        state.errorFetchTasks = action.error.message ?? 'Something went wrong';
+        state.errorFetchTasks = action.payload as string;
       })
 
-      //'tasks/addTask'
-      .addCase(addTask.rejected, (state, action) => {
-        console.log("addTask.rejected", action);
-        state.statusSaveTask = 'failed';
-        state.errorSaveTask  = action.error.message ?? 'Something went wrong';
-      })
+      // 'tasks/addTask'
       .addCase(addTask.pending, (state) => {
         state.statusSaveTask = 'loading';
-        state.errorSaveTask  = ''
+        state.errorSaveTask = '';
       })
       .addCase(addTask.fulfilled, (state) => {
         state.statusSaveTask = 'succeeded';
       })
-
-      //'tasks/updateTask'
-      .addCase(updateTask.rejected, (state, action) => {
+      .addCase(addTask.rejected, (state, action) => {
         state.statusSaveTask = 'failed';
-        state.errorSaveTask = action.error.message ?? 'Something went wrong';
+        state.errorSaveTask = action.payload as string;
       })
-      
+
+      // 'tasks/updateTask'
       .addCase(updateTask.pending, (state) => {
         state.statusSaveTask = 'loading';
-        state.errorSaveTask  = ''
+        state.errorSaveTask = '';
       })
-
       .addCase(updateTask.fulfilled, (state) => {
         state.statusSaveTask = 'succeeded';
       })
+      .addCase(updateTask.rejected, (state, action) => {
+        state.statusSaveTask = 'failed';
+        state.errorSaveTask = action.payload as string;
+      })
 
-      //'tasks/deleteTask'
+      // 'tasks/deleteTask'
+      .addCase(deleteTask.pending, (state) => {
+        state.statusDeleteTask = 'loading';
+        state.errorDeleteTask = '';
+      })
       .addCase(deleteTask.fulfilled, (state, action) => {
         state.statusDeleteTask = 'succeeded';
-   
+        state.tasks = state.tasks.filter((task) => task.id !== action.payload);
       })
-
-      .addCase(deleteTask.pending, (state, action) => {
-        state.statusDeleteTask = 'loading';
-        state.errorDeleteTask  = ''
-      })
-
       .addCase(deleteTask.rejected, (state, action) => {
         state.statusDeleteTask = 'failed';
-        state.errorDeleteTask  = action.error.message ?? 'Something went wrong';
+        state.errorDeleteTask = action.payload as string;
       })
 
-
-      //'tasks/getTask'
+      // 'tasks/getTask'
       .addCase(getTask.pending, (state) => {
         state.statusGetTask = 'loading';
-        state.curentTask = null
-        state.errorGetTask = ''
+        state.curentTask = null;
+        state.errorGetTask = '';
       })
       .addCase(getTask.fulfilled, (state, action: PayloadAction<Task>) => {
         state.statusGetTask = 'succeeded';
@@ -257,13 +232,10 @@ const taskSlice = createSlice({
       })
       .addCase(getTask.rejected, (state, action) => {
         state.statusGetTask = 'failed';
-        state.errorGetTask = action.error.message ?? 'Something went wrong';
-      })
-
-
-      ;
+        state.errorGetTask = action.payload as string;
+      });
   },
 });
 
-export const { taskAdded, taskRemoved, changeCurrentTask,tasksUpdating} = taskSlice.actions;
+export const { taskAdded, taskRemoved, changeCurrentTask, tasksUpdating } = taskSlice.actions;
 export default taskSlice.reducer;

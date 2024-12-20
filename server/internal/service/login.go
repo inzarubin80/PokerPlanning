@@ -27,7 +27,7 @@ func (s *PokerService) Login(ctx context.Context, providerKey string, authorizat
 
 	user, err := s.repository.GetUserByEmail(ctx, userData.Email)
 
-	if !errors.Is(err, model.ErrorNotFound) {
+	if err != nil && !errors.Is(err, model.ErrorNotFound) {
 		return nil, err
 	}
 

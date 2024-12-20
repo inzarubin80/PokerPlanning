@@ -5,18 +5,14 @@ import (
 	"fmt"
 	appHttp "inzarubin80/PokerPlanning/internal/app/http"
 	ws "inzarubin80/PokerPlanning/internal/app/ws"
-
 	"time"
-
 	middleware "inzarubin80/PokerPlanning/internal/app/http/middleware"
 	"inzarubin80/PokerPlanning/internal/model"
 	repository "inzarubin80/PokerPlanning/internal/repository"
 	service "inzarubin80/PokerPlanning/internal/service"
 	"net/http"
-
 	"github.com/gorilla/sessions"
 	"golang.org/x/oauth2"
-
 	authinterface "inzarubin80/PokerPlanning/internal/app/authinterface"
 	providerUserData "inzarubin80/PokerPlanning/internal/app/clients/provider_user_data"
 	tokenservice "inzarubin80/PokerPlanning/internal/app/token_service"
@@ -57,8 +53,7 @@ type (
 
 		Login(ctx context.Context, providerKey string, authorizationCode string) (*model.AuthData, error)
 		Authorization(context.Context, string) (*model.Claims, error)
-		RefreshToken(ctx context.Context, refreshToken string) (*model.AuthData, error) 
-
+		RefreshToken(ctx context.Context, refreshToken string) (*model.AuthData, error)
 	}
 
 	TokenService interface {
@@ -67,13 +62,14 @@ type (
 	}
 
 	App struct {
-		mux          mux
-		server       server
-		pokerService PokerService
-		config       config
-		hub          *ws.Hub
-		oauthConfig  *oauth2.Config
-		store        *sessions.CookieStore
+		mux                        mux
+		server                     server
+		pokerService               PokerService
+		config                     config
+		hub                        *ws.Hub
+		oauthConfig                *oauth2.Config
+		store                      *sessions.CookieStore
+		providersOauthConfFrontend []authinterface.ProviderOauthConfFrontend
 	}
 )
 
@@ -96,12 +92,13 @@ func (a *App) ListenAndServe() error {
 	}
 
 	for path, handler := range handlers {
-		a.mux.Handle(path, middleware.NewAuthMiddleware(handler, a.store))
+		a.mux.Handle(path, middleware.NewAuthMiddleware(handler, a.store, a.pokerService))
 	}
 
 	a.mux.Handle(a.config.path.login, appHttp.NewLoginHandler(a.pokerService, a.config.path.login, a.store))
 	a.mux.Handle(a.config.path.session, appHttp.NewGetSessionHandler(a.store, a.config.path.session))
 	a.mux.Handle(a.config.path.refreshToken, appHttp.NewRefreshTokenHandler(a.pokerService, a.config.path.refreshToken, a.store))
+	a.mux.Handle(a.config.path.getProviders, appHttp.NewProvadersHandler(a.providersOauthConfFrontend, a.config.path.refreshToken))
 
 	fmt.Println("start server")
 	return a.server.ListenAndServe()
@@ -109,31 +106,44 @@ func (a *App) ListenAndServe() error {
 
 func NewApp(ctx context.Context, config config) (*App, error) {
 
-
 	var (
-		mux               = http.NewServeMux()
-		pokerRepository   = repository.NewPokerRepository(100)
-		hub               = ws.NewHub()
-		store     = sessions.NewCookieStore([]byte(config.sectrets.storeSecret))
+		mux             = http.NewServeMux()
+		pokerRepository = repository.NewPokerRepository(100)
+		hub             = ws.NewHub()
+		store           = sessions.NewCookieStore([]byte(config.sectrets.storeSecret))
 	)
 
-	accessTokenService := tokenservice.NewtokenService([]byte(config.sectrets.accessTokenSecret), 30*time.Minute, model.Access_Token_Type)
+	accessTokenService := tokenservice.NewtokenService([]byte(config.sectrets.accessTokenSecret), 1*time.Hour, model.Access_Token_Type)
 	refreshTokenService := tokenservice.NewtokenService([]byte(config.sectrets.refreshTokenSecret), 24*time.Hour, model.Refresh_Token_Type)
 
+	providerOauthConfFrontend := []authinterface.ProviderOauthConfFrontend{}
 	providers := make(authinterface.ProvidersUserData)
 	for key, value := range config.provadersConf {
-		providers[key] = providerUserData.NewProviderUserData(value.UrlUserData, value.Oauth2Config)	
+
+		providers[key] = providerUserData.NewProviderUserData(value.UrlUserData, value.Oauth2Config)
+
+		providerOauthConfFrontend = append(providerOauthConfFrontend,
+			authinterface.ProviderOauthConfFrontend{
+				Provider: key,
+				ClientId:    value.Oauth2Config.ClientID,
+				RedirectUri: value.Oauth2Config.RedirectURL,
+				AuthURL:     value.Oauth2Config.Endpoint.AuthURL,
+				ImageBase64: value.ImageBase64,
+			},
+		)
+
 	}
 
 	pokerService := service.NewPokerService(pokerRepository, hub, accessTokenService, refreshTokenService, providers)
 
 	return &App{
-		mux:          mux,
-		server:       &http.Server{Addr: config.addr, Handler: middleware.NewLogMux(mux), ReadHeaderTimeout: readHeaderTimeoutSeconds * time.Second},
-		pokerService: pokerService,
-		config:       config,
-		hub:          hub,
-		store:        store,
+		mux:                        mux,
+		server:                     &http.Server{Addr: config.addr, Handler: middleware.NewLogMux(mux), ReadHeaderTimeout: readHeaderTimeoutSeconds * time.Second},
+		pokerService:               pokerService,
+		config:                     config,
+		hub:                        hub,
+		store:                      store,
+		providersOauthConfFrontend: providerOauthConfFrontend,
 	}, nil
 
 }

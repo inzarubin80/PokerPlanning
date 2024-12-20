@@ -1,22 +1,27 @@
 // src/App.tsx
 import React from 'react';
 import { Routes, Route, Link } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext/AuthContext';
+
 import Home from './components/Home/Home';
 import Poker from './components/Poker/Poker';
 import TaskForm from './components/TaskForm/TaskForm';
 import Login from './components/Login/Login';
 import PrivateRoute from './components/PrivateRoute/PrivateRoute';
-import YandexAuthCallback from './components/YandexAuthCallback/YandexAuthCallback';
-import { AuthContext, AuthContextType } from './context/AuthContext/AuthContext';
+import YandexAuthCallback from './components/AuthCallback/AuthCallback';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from './app/store';
+
 
 const App: React.FC = () => {
-  const { isAuthenticated } = React.useContext(AuthContext) as AuthContextType;
+  
+  
+  const accessToken = useSelector((state: RootState) => state.auth.accessToken);
+  
   return (
       <Routes>
          <Route path="/login" element={<Login />} />
         <Route path="/YandexAuthCallback" element={<YandexAuthCallback />} /> 
-        <Route element={<PrivateRoute isAuthenticated={isAuthenticated}/>}>
+        <Route element={<PrivateRoute accessToken={accessToken}/>}>
           <Route path="/" element={<Home />} />
           <Route path="poker/:pokerId" element={<Poker />} />
           <Route path="poker/:pokerId/task/:taskId" element={<TaskForm />} />

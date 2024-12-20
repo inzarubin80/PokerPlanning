@@ -1,7 +1,6 @@
 import React from 'react';
 import { Button } from '@mui/material';
 import { styled } from '@mui/system';
-//import YandexIcon from './YandexIcon'; // Предположим, что у вас есть иконка Яндекса
 
 const StyledButton = styled(Button)({
   borderRadius: '0',
@@ -21,9 +20,10 @@ const YandexIcon = () => (
 
 const YandexAuthButton: React.FC = () => {
   
-    const clientId = '415d2aa8f8e6453f92f050b937588b25'; // Замените на ваш Client ID
-  const redirectUri = encodeURIComponent('http://localhost:8000/YandexAuthCallback'); // Замените на ваш Redirect URI
-  const authUrl = `https://oauth.yandex.ru/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}`;
+  
+  const clientId = '415d2aa8f8e6453f92f050b937588b25'; 
+  const authUrl = `https://oauth.yandex.ru/authorize?response_type=code&client_id=${clientId}`;
+
 
   const handleAuth = () => {
     window.location.href = authUrl;

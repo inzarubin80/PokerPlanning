@@ -1,15 +1,20 @@
-// src/components/PrivateRoute.tsx
-import React, { useContext } from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
+import React from 'react';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
 
 interface PrivateRouteProps {
-  isAuthenticated: boolean;
+  accessToken: string | null;
 }
 
+const PrivateRoute: React.FC<PrivateRouteProps> = ({ accessToken }) => {
+  const location = useLocation();
 
-const PrivateRoute: React.FC<PrivateRouteProps> = ({isAuthenticated}) => {
-  console.log("isAuthenticated", isAuthenticated)
-  return isAuthenticated ? <Outlet /> : <Navigate to="/login" replace />;
+
+  if (!accessToken) {
+    
+    localStorage.setItem('redirectUrl', location.pathname); //
+    return <Navigate to="/login" state={{ from: location.pathname }} replace />;
+  }
+  return <Outlet />;
 };
 
 export default PrivateRoute;

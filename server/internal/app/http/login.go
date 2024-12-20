@@ -23,12 +23,12 @@ type (
 	}
 
 	ResponseLoginData struct {
-		token  string
-		userID model.UserID
+		Token  string
+		UserID model.UserID
 	}
 
 	RequestLoginData struct {
-		authorizationCode string  `json:"authorization_code"`
+		AuthorizationCode string  `json:"authorization_code"`
 		ProviderKey string        `json:"provider_key"`
 	}
 )
@@ -58,9 +58,21 @@ func (h *LoginHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	authData, err := h.service.Login(ctx, loginData.ProviderKey, loginData.authorizationCode)
-
+	authData, err := h.service.Login(ctx, loginData.ProviderKey, loginData.AuthorizationCode)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 	session, _ := h.store.Get(r, defenitions.SessionAuthenticationName)
+
+	session.Options = &sessions.Options{
+		Path:     "/",
+		MaxAge:   86400 * 7, // Время жизни сессии (7 дней)
+		HttpOnly: true,      // Запретить доступ через JavaScript
+		Secure:   true,      // Требует HTTPS
+		SameSite: http.SameSiteNoneMode, // Разрешить cross-origin
+	}
+
 	session.Values[defenitions.Token] = string(authData.RefreshToken)
 	err = session.Save(r, w)
 
@@ -70,8 +82,8 @@ func (h *LoginHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	responseLoginData := &ResponseLoginData{
-		token:  authData.AccessToken,
-		userID: authData.UserID,
+		Token:  authData.AccessToken,
+		UserID: authData.UserID,
 	}
 
 	jsonResponseLoginData, err := json.Marshal(responseLoginData)

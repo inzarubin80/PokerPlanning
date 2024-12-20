@@ -22,7 +22,7 @@ type (
 		index, getPoker, createPoker, createTask,
 		getTasks, getTask, updateTask, deleteTask,
 		getComents, addComent, addVotingTask,
-		getVotingTask, ws, login, session, refreshToken, logOut string
+		getVotingTask, ws, login, session, refreshToken, logOut, getProviders string
 	}
 
 	sectrets struct {
@@ -70,12 +70,13 @@ func NewConfig(opts Options) config {
 		path: path{
 
 			index:       "",
-			createPoker: "POST /api/poker",
-
-			login:        fmt.Sprintf("POST /api/user/login"),
-			refreshToken: fmt.Sprintf("POST /api/user/refresh"),
-			session:      fmt.Sprintf("GET /api/user/session"),
-			logOut:       fmt.Sprintf("GET /api/user/logout"),
+			createPoker:  "POST	/api/poker",
+			getProviders: "GET /api/providers",
+			
+			login:        fmt.Sprintf("POST	/api/user/login"),
+			refreshToken: fmt.Sprintf("POST	/api/user/refresh"),
+			session:      fmt.Sprintf("GET	/api/user/session"),
+			logOut:       fmt.Sprintf("GET	/api/user/logout"),
 
 			createTask: fmt.Sprintf("POST /api/poker/{%s}/tasks", defenitions.ParamPokerID),
 			getTasks:   fmt.Sprintf("GET /api/poker/{%s}/tasks", defenitions.ParamPokerID),
@@ -90,13 +91,13 @@ func NewConfig(opts Options) config {
 			getVotingTask: fmt.Sprintf("GET /api/poker/{%s}/votingtask", defenitions.ParamPokerID),
 
 			getPoker: fmt.Sprintf("GET /api/poker/{%s}", defenitions.ParamPokerID),
-			ws:       fmt.Sprintf("GET /api/ws/{%s}", defenitions.ParamPokerID),
+			ws:       fmt.Sprintf("GET /ws/{%s}", defenitions.ParamPokerID),
 		},
 
 		sectrets: sectrets{
 			storeSecret:        os.Getenv("STORE_SECRET"),
-			accessTokenSecret:  os.Getenv("accessTokenSecret"),
-			refreshTokenSecret: os.Getenv("refreshTokenSecret"),
+			accessTokenSecret:  os.Getenv("ACCESS_TOKEN_SECRET"),
+			refreshTokenSecret: os.Getenv("REFRESH_TOKEN_SECRET"),
 		},
 
 		provadersConf: provaders,

@@ -2,15 +2,18 @@ import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
 import taskReducer from '../features/task/taskSlice';
 import commentReducer from '../features/comment/commentSlice';
 import volumeTaskReducer from '../features/volumeTask/volumeTask';
+import authReducer from '../features/auth/authSlice';
 
 
 export const store = configureStore({
   reducer: {
     taskReducer: taskReducer,
     commentReducer: commentReducer,
-    volumeTaskReducer: volumeTaskReducer
+    volumeTaskReducer: volumeTaskReducer,
+    auth: authReducer,
   },
 });
+
 
 export type AppDispatch = typeof store.dispatch;
 export type RootState = ReturnType<typeof store.getState>;
