@@ -65,7 +65,7 @@ func (h *AddCommentHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = h.service.AddComment(ctx, &model.Comment{ID: -1, PokerID: comment.PokerID, UserID: model.UserID(userID)})
+	_, err = h.service.AddComment(ctx, &model.Comment{ID: -1, PokerID: comment.PokerID, UserID: model.UserID(userID), Text:comment.Text })
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusInternalServerError, err.Error())
 	} else {

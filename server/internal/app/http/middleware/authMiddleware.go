@@ -6,31 +6,36 @@ import (
 	"inzarubin80/PokerPlanning/internal/app/defenitions"
 	"inzarubin80/PokerPlanning/internal/model"
 	"net/http"
+	"net/url"
+
 	"github.com/gorilla/sessions"
 )
 
 type (
 	AuthMiddleware struct {
-		h     http.Handler
-		store *sessions.CookieStore
+		h       http.Handler
+		store   *sessions.CookieStore
 		service serviceAuth
 	}
 
 	serviceAuth interface {
 		Authorization(ctx context.Context, accessToken string) (*model.Claims, error)
 	}
-
 )
 
 func NewAuthMiddleware(h http.Handler, store *sessions.CookieStore, service serviceAuth) *AuthMiddleware {
 
-	return &AuthMiddleware{h: h, store: store, service:service}
+	return &AuthMiddleware{h: h, store: store, service: service}
 }
 
 func (m *AuthMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
-	ctx:= r.Context()
-	accessToken, err := extractToken(r)
+	ctx := r.Context()
+	var accessToken string
+	var err error
+
+	accessToken, err = m.extractTokenFromHeader(r)
+
 	if err != nil {
 		http.Error(w, "Unauthorized not access token", http.StatusUnauthorized)
 		return
@@ -48,7 +53,17 @@ func (m *AuthMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func extractToken(r *http.Request) (string, error) {
+func (m *AuthMiddleware) extractTokenFromHeader(r *http.Request) (string, error) {
+
+	token := ""
+	u, err := url.Parse(r.RequestURI)
+	if err == nil {
+		queryParams := u.Query()
+		token = queryParams.Get("accessToken")
+		if token != "" {
+			return token, nil
+		}
+	}
 
 	authHeader := r.Header.Get("Authorization")
 	if authHeader == "" {
@@ -60,6 +75,6 @@ func extractToken(r *http.Request) (string, error) {
 		return "", fmt.Errorf("неверный формат заголовка Authorization")
 	}
 
-	token := authHeader[len(prefix):]
+	token = authHeader[len(prefix):]
 	return token, nil
 }

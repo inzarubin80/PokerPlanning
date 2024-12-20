@@ -12,7 +12,7 @@ function Home() {
     const handlerCreatePoker = async () => {
         authAxios.post("/poker")
             .then((response) => {
-                console.log(response.data)
+    
                 navigate(`/poker/${response.data}`);
             })
             .catch((e) => {

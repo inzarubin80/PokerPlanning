@@ -91,7 +91,7 @@ func NewConfig(opts Options) config {
 			getVotingTask: fmt.Sprintf("GET /api/poker/{%s}/votingtask", defenitions.ParamPokerID),
 
 			getPoker: fmt.Sprintf("GET /api/poker/{%s}", defenitions.ParamPokerID),
-			ws:       fmt.Sprintf("GET /api/ws/{%s}", defenitions.ParamPokerID),
+			ws:       fmt.Sprintf("GET /ws/{%s}", defenitions.ParamPokerID),
 		},
 
 		sectrets: sectrets{

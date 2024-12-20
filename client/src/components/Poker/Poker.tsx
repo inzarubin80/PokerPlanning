@@ -26,6 +26,8 @@ const App: React.FC = () => {
   const previousPokerIdRef = useRef<WebSocketClient | null>(null);
   const dispatch = useDispatch<AppDispatch>();
 
+  const accessToken = useSelector((state: RootState) => state.auth.accessToken);
+
   const tasks = useSelector((state: RootState) => state.taskReducer.tasks);
   const status = useSelector((state: RootState) => state.taskReducer.statusFetchTasks);
   const error = useSelector((state: RootState) => state.taskReducer.errorFetchTasks);
@@ -51,7 +53,7 @@ const App: React.FC = () => {
     dispatch(fetchGetVotingTask(pokerId));
     
   
-    const url = `ws://localhost:8080/ws/${pokerId}`
+    const url = `ws://localhost:8080/ws/${pokerId}?accessToken=${accessToken}`
 
     if (!(previousPokerIdRef.current) || (previousPokerIdRef.current.getUrl() !== url) || !previousPokerIdRef.current.isOpen()) {
       previousPokerIdRef.current = new WebSocketClient(url, socketOnMessage);
@@ -59,7 +61,6 @@ const App: React.FC = () => {
 
     return () => {
       if (previousPokerIdRef.current) {
-        console.log("closeConnection --useEffect");
         previousPokerIdRef.current.closeConnection()
       }
     };

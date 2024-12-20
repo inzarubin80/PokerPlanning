@@ -16,9 +16,6 @@ const App: React.FC = () => {
   
   
   const accessToken = useSelector((state: RootState) => state.auth.accessToken);
-
-  console.log("accessToken----------------", accessToken)
-
   
   return (
       <Routes>
