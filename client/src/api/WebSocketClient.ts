@@ -4,7 +4,7 @@ class WebSocketClient {
     private url: string;
     private onMessage: (me: MessageEvent<any>) => any;
     private reconnectInterval: number = 5000; // Интервал переподключения в миллисекундах
-    private maxReconnectAttempts: number = 10; // Максимальное количество попыток переподключения
+    private maxReconnectAttempts: number = 100000; // Максимальное количество попыток переподключения
     private reconnectAttempts: number = 0; // Текущее количество попыток переподключения
     private isManualClose: boolean = false; // Флаг для определения, было ли соединение закрыто вручную
 

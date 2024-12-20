@@ -19,6 +19,7 @@ import { setVotingTask, fetchAddVotingTask, fetchGetVotingTask} from '../../feat
 
 import { AppDispatch, RootState } from '../../app/store';
 import WebSocketClient from '../../api/WebSocketClient'
+import { $CombinedState } from '@reduxjs/toolkit';
 
 
 const App: React.FC = () => {
@@ -47,22 +48,13 @@ const App: React.FC = () => {
     if (!pokerId) {
       return;
     }
-
+    
     dispatch(fetchTasks(pokerId));
     dispatch(getComments(pokerId));
     dispatch(fetchGetVotingTask(pokerId));
-    
-  
-    const url = `ws://localhost:8080/ws/${pokerId}?accessToken=${accessToken}`
-
-    if (!(previousPokerIdRef.current) || (previousPokerIdRef.current.getUrl() !== url) || !previousPokerIdRef.current.isOpen()) {
-      previousPokerIdRef.current = new WebSocketClient(url, socketOnMessage);
-    }
-
+    const wsClient= new WebSocketClient(`ws://localhost:8080/ws/${pokerId}?accessToken=${accessToken}`, socketOnMessage);
     return () => {
-      if (previousPokerIdRef.current) {
-        previousPokerIdRef.current.closeConnection()
-      }
+      wsClient.closeConnection()
     };
 
   }, [pokerId]);
