@@ -57,7 +57,7 @@ const App: React.FC = () => {
       wsClient.closeConnection()
     };
 
-  }, [pokerId]);
+  }, [pokerId, accessToken]);
 
   const socketOnMessage = (msgEvent: any) => {
     const msg = JSON.parse(msgEvent.data);

@@ -1,5 +1,8 @@
+import { authAxios } from '../service/http-common';
+
+
 class WebSocketClient {
-    
+
     private socket: WebSocket | null = null;
     private url: string;
     private onMessage: (me: MessageEvent<any>) => any;
@@ -52,13 +55,24 @@ class WebSocketClient {
             console.error('Превышено максимальное количество попыток переподключения');
             return;
         }
+    
+        authAxios.get(`/ping`)
+            .then(() => {
+                // Если запрос успешен, можно выполнить какие-то действия
+                console.log('Ping successful');
+            })
+            .catch((error) => {
+                console.error('Ping failed:', error.message);   
+            });
 
-        this.reconnectAttempts++;
-        console.log(`Следующая попытка переподключения через ${this.reconnectInterval} мс (попытка ${this.reconnectAttempts})`);
 
-        setTimeout(() => {
-            this.connect();
-        }, this.reconnectInterval);
+            this.reconnectAttempts++;
+            console.log(`Следующая попытка переподключения через ${this.reconnectInterval} мс (попытка ${this.reconnectAttempts})`);
+
+            setTimeout(() => {
+                this.connect();
+            }, this.reconnectInterval);
+
     }
 
     public sendMessage(message: string) {
