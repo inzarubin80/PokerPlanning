@@ -44,6 +44,11 @@ type (
 		//User
 		GetUserByEmail(ctx context.Context, email string) (*model.User, error)
 		AddUser(ctx context.Context, userData *model.UserData) (*model.User, error) 
+
+		//Voting
+		AddVoting(ctx context.Context, userEstimate *model.UserEstimate) error 
+		ClearVote(ctx context.Context, pokerID model.PokerID) error
+		GetVotingResults(ctx context.Context, pokerID model.PokerID) ([]*model.UserEstimate, error) 
 	}
 
 	TokenService interface {

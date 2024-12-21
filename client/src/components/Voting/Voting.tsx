@@ -8,37 +8,70 @@ import {
     Card,
     CardContent,
     CardActions,
+    dividerClasses,
 } from '@mui/material';
 import { Settings } from '@mui/icons-material';
-import { useSelector } from 'react-redux';
-import { RootState } from '../../app/store';
+import { useSelector,useDispatch } from 'react-redux';
+import { RootState, AppDispatch } from '../../app/store';
+
+import {fetchAddVote} from '../../features/volumeTask/volumeTask';
+import { useParams } from 'react-router-dom';
 
 interface VotingProps {
     handleSettingsToggle: () => void;
-    handleVote: (id: number) => void;
     averageEstimate: number;
     handleEndVoting: () => void;
     averageMethod: string;
     showSettings: boolean;
-    numberVoters: number;
 }
 
 const Voting: React.FC<VotingProps> = ({
     averageEstimate,
     averageMethod,
     showSettings,
-    numberVoters,
     handleSettingsToggle,
-    handleVote,
     handleEndVoting,
 }) => {
     const tasks = useSelector((state: RootState) => state.taskReducer.tasks);
     const votingTask = useSelector((state: RootState) => state.volumeTaskReducer.VotingTask);
+    const vote = useSelector((state: RootState) => state.volumeTaskReducer.vote);
+    
+    const voiceScale = useSelector((state: RootState) => state.volumeTaskReducer.voiceScale);
+    const numberVoters = useSelector((state: RootState) => state.volumeTaskReducer.numberVoters);
+    
+    const dispatch = useDispatch<AppDispatch>();
+      
 
+    const { pokerId } = useParams<{ pokerId: string }>();
+      
+  
     const selectedTask = useMemo(
         () => tasks.find(item => item.id === votingTask),
         [tasks, votingTask]
     );
+
+    if (!pokerId) {
+        return (<div>
+            pokerId is missing in the URL
+        </div>)
+    }
+    
+
+    const  handleAddVote = (taskID:number, estimate:string) => {
+       
+        console.log("handleAddVote")
+       
+        dispatch(fetchAddVote(
+            {
+                estimate:estimate,
+                pokerID: pokerId,
+                taskID:taskID
+            }
+        ))
+    }
+
+
+
 
     return (
         <Paper elevation={3}>
@@ -76,25 +109,27 @@ const Voting: React.FC<VotingProps> = ({
                                 </Typography>
                             </CardContent>
 
-                            <CardActions sx={{ justifyContent: 'center', gap: 2, flexWrap: 'wrap', padding: 2 }}>
-                                {/* Voting Buttons */}
-                                <Button variant="outlined" color="primary" onClick={() => handleVote(selectedTask.id)}>
-                                    XS
-                                </Button>
-                                <Button variant="outlined" color="primary" onClick={() => handleVote(selectedTask.id)}>
-                                    S
-                                </Button>
-                                <Button variant="outlined" color="primary" onClick={() => handleVote(selectedTask.id)}>
-                                    M
-                                </Button>
+                            <CardActions sx={{ justifyContent: 'center', gap: 3, flexWrap: 'wrap', padding: 2 }}>
+
+                                {voiceScale.map((estimate: string) => (
+
+                                    <Button key={estimate} 
+                                    
+                                    variant = {estimate==vote ?'contained' : 'outlined'}
+
+                                    color="primary" 
+                                    
+                                    onClick={() => handleAddVote(selectedTask.id, estimate)}>
+                                        {estimate}
+                                    </Button>))
+                                }
+
+
                             </CardActions>
                         </Card>
 
                         {/* Voting Stats */}
                         <Box mt={2}>
-                            <Typography variant="subtitle1" align="center">
-                                Средняя оценка: {averageEstimate}
-                            </Typography>
                             <Typography variant="subtitle1" align="center">
                                 Проголосовало: {numberVoters || 0}
                             </Typography>
