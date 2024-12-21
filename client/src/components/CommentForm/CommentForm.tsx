@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Box, TextField, Button } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
-import {SaveCommentParams} from '../../features/comment/commentSlice';
+import { SaveCommentParams } from '../../features/comment/commentSlice';
 import { useParams } from 'react-router-dom';
 
 interface CommentFormProps {
@@ -10,26 +10,21 @@ interface CommentFormProps {
 
 const CommentForm: React.FC<CommentFormProps> = ({ onAddComment }) => {
   const [text, setText] = useState('');
-
   const { pokerId } = useParams<{ pokerId: string }>();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (text.trim() && pokerId) {
-    
-      
-     const saveCommentParams:SaveCommentParams = {
-      callback:()=>{ setText('');},
-      comment:{
-
-        id:-1,
-        poker_id:pokerId,
-        text:text,
-        user_id:"Бран старк"
-
-      },
-      pokerID:"" 
-    }
+      const saveCommentParams: SaveCommentParams = {
+        callback: () => setText(''),
+        comment: {
+          id: -1,
+          poker_id: pokerId,
+          text: text,
+          user_id: 'Бран Старк',
+        },
+        pokerID: '',
+      };
       onAddComment(saveCommentParams);
     }
   };
@@ -42,8 +37,8 @@ const CommentForm: React.FC<CommentFormProps> = ({ onAddComment }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <Box p={2} display="flex" flexDirection="column" alignItems="flex-start">
+    <Box display="flex" flexDirection="column" alignItems="stretch">
+      <form onSubmit={handleSubmit}>
         <TextField
           label="Комментарий"
           value={text}
@@ -54,18 +49,21 @@ const CommentForm: React.FC<CommentFormProps> = ({ onAddComment }) => {
           multiline
           rows={4}
           required
+          variant="outlined"
         />
-        <Button
-          type="submit"
-          variant="contained"
-          color="primary"
-          startIcon={<SendIcon />}
-          style={{ width: '220px'}}
-        >
-          Отправить
-        </Button>
-      </Box>
-    </form>
+        <Box mt={2}>
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            startIcon={<SendIcon />}
+            fullWidth // Растягиваем кнопку на всю ширину
+          >
+            Отправить
+          </Button>
+        </Box>
+      </form>
+    </Box>
   );
 };
 
