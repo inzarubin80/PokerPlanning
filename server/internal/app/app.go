@@ -88,7 +88,8 @@ func (a *App) ListenAndServe() error {
 		a.config.path.getComents:    appHttp.NewGetCommentsHandler(a.pokerService, a.config.path.getComents),
 		a.config.path.addVotingTask: appHttp.NewAddVotingTaskHandler(a.pokerService, a.config.path.addVotingTask),
 		a.config.path.getVotingTask: appHttp.NewGetVotingTaskHandler(a.pokerService, a.config.path.getVotingTask),
-		a.config.path.ws:            appHttp.NewWSPokerHandler(a.pokerService, a.config.path.ws, a.hub),
+		a.config.path.ping: appHttp.NewPingHandlerHandler(a.config.path.getVotingTask),
+		a.config.path.ws:  appHttp.NewWSPokerHandler(a.pokerService, a.config.path.ws, a.hub),	
 	}
 
 	for path, handler := range handlers {
@@ -131,7 +132,6 @@ func NewApp(ctx context.Context, config config) (*App, error) {
 				ImageBase64: value.ImageBase64,
 			},
 		)
-
 	}
 
 	pokerService := service.NewPokerService(pokerRepository, hub, accessTokenService, refreshTokenService, providers)

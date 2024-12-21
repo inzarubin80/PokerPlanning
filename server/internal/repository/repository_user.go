@@ -32,6 +32,9 @@ func (r *Repository) AddUser(ctx context.Context, userData *model.UserData) (*mo
 	}
 
 	r.storage.users[r.storage.nextUsererID] = user
+
+	r.storage.nextUsererID++
+	
 	return user, nil
 
 }
