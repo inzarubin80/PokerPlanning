@@ -45,7 +45,7 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, handleEditTask, handleDelete
           color="primary"
           startIcon={<Add />}
           onClick={() => handleEditTask(-1)}
-          style={{ width: '220px' }}
+       
         >
           Добавить задачу
         </Button>
