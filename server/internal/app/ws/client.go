@@ -2,13 +2,16 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 package ws
+
 import (
 	"bytes"
+	"inzarubin80/PokerPlanning/internal/app/defenitions"
 	"inzarubin80/PokerPlanning/internal/app/uhttp"
 	"inzarubin80/PokerPlanning/internal/model"
 	"log"
 	"net/http"
 	"time"
+
 	"github.com/gorilla/websocket"
 )
 
@@ -42,6 +45,8 @@ type Client struct {
 	hub *Hub
 
 	pokerID model.PokerID
+
+	userID model.UserID 
 
 	conn *websocket.Conn
 
@@ -124,19 +129,28 @@ func (c *Client) writePump() {
 // serveWs handles websocket requests from the peer.
 func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	
+	ctx := r.Context();
+	
 	pokerID, err := uhttp.ValidatePatchParameterPokerID(r)
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
 	
+
+	userID, ok := ctx.Value(defenitions.UserID).(model.UserID)
+	if !ok {
+		uhttp.SendErrorResponse(w, http.StatusInternalServerError, "not user ID")
+		return
+	}
+
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println(err)
 		return
 	}
 	
-	client := &Client{hub: hub, conn: conn, send: make(chan *Message, 256), pokerID: model.PokerID(pokerID)}
+	client := &Client{hub: hub, conn: conn, send: make(chan *Message, 256), pokerID: model.PokerID(pokerID), userID: userID}
 	client.hub.register <- client
 
 	// Allow collection of memory referenced by the caller by doing all work in

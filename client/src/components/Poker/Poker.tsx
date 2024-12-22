@@ -15,10 +15,11 @@ import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchTasks, taskAdded, taskRemoved, tasksUpdating, deleteTask } from '../../features/task/taskSlice';
 import { addComment, commentAdded, getComments, SaveCommentParams } from '../../features/comment/commentSlice';
-import { setVotingTask, fetchAddVotingTask, fetchGetVotingTask, setNumberVoters } from '../../features/volumeTask/volumeTask';
+import { setVotingTask, fetchAddVotingTask, fetchGetVotingTask, setNumberVoters,setVote } from '../../features/volumeTask/volumeTask';
 
 import { AppDispatch, RootState } from '../../app/store';
 import WebSocketClient from '../../api/WebSocketClient'
+import { SettingsVoice } from '@mui/icons-material';
 
 
 
@@ -52,12 +53,24 @@ const App: React.FC = () => {
     dispatch(fetchTasks(pokerId));
     dispatch(getComments(pokerId));
     dispatch(fetchGetVotingTask(pokerId));
+ 
+
+  }, [pokerId]);
+
+
+  useEffect(() => {
+
+    if (!pokerId) {
+      return;
+    }
+
     const wsClient = new WebSocketClient(`ws://localhost:8080/ws/${pokerId}?accessToken=${accessToken}`, socketOnMessage);
     return () => {
       wsClient.closeConnection()
     };
 
-  }, [pokerId,]);
+  }, [pokerId,accessToken]);
+
 
   const socketOnMessage = (msgEvent: any) => {
     
@@ -94,7 +107,10 @@ const App: React.FC = () => {
         case 'CHANGE_NUMBER_VOTERS':
           dispatch(setNumberVoters(msg.count));
           break;
-  
+        case 'ADD_VOTING':
+            dispatch(setVote(msg.estimate));
+            break;
+
         default:
           console.warn("Unknown message type:", msg.type);
       }

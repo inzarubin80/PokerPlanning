@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"inzarubin80/PokerPlanning/internal/model"
 )
@@ -13,20 +12,30 @@ type (
 		TaskID model.TaskID `json:"task_id"`
 	}
 
-	NUMBER_VOTERS_MESSAGE struct {		
+	NUMBER_VOTERS_MESSAGE struct {
 		Action string `json:"action"`
-		Count int64   `json:"count"`
+		Count  int64  `json:"count"`
 	}
 
+	USER_ESTIMATE_MESSAGE struct {
+		Action   string         `json:"action"`
+		Estimate model.Estimate `json:"estimate"`
+	}
 )
 
-func (s *PokerService) GetVotingTask(ctx context.Context, pokerID model.PokerID) (model.TaskID, error) {
+func (s *PokerService) GetVotingTask(ctx context.Context, pokerID model.PokerID, userID model.UserID) (model.TaskID, model.Estimate, error) {
 
 	taskID, err := s.repository.GetVotingTask(ctx, pokerID)
 	if err != nil {
-		return 0, err
+		return 0, "", err
 	}
-	return taskID, nil
+
+	estimate, err := s.repository.GetVotingUser(ctx, pokerID, userID)
+	if err != nil {
+		return 0, "", err
+	}
+
+	return taskID, estimate, nil
 
 }
 
@@ -46,64 +55,48 @@ func (s *PokerService) AddVotingTask(ctx context.Context, pokerID model.PokerID,
 		return err
 	}
 
-	s.repository.ClearVote(ctx, pokerID)
+	err = s.repository.ClearVote(ctx, pokerID)
+	if err != nil {
+		return err
+	}
 
-	dataMessage := &VOTING_TASK_MESSAGE{
+	s.hub.AddMessage(task.PokerID, &VOTING_TASK_MESSAGE{
 		Action: model.ADD_VOTING_TASK,
 		TaskID: taskID,
-	}
+	})
 
-	jsonData, err := json.Marshal(dataMessage)
-
-	if err != nil {
-		return err
-	}
-
-
-	s.hub.AddMessage(task.PokerID, jsonData)
-
-
-	dataMessageNumberVoters := &NUMBER_VOTERS_MESSAGE{
-		Count: int64(0),
+	s.hub.AddMessage(task.PokerID, &NUMBER_VOTERS_MESSAGE{
+		Count:  int64(0),
 		Action: model.CHANGE_NUMBER_VOTERS,
-	}
-
-	jsonData, err = json.Marshal(dataMessageNumberVoters)
-	if err != nil {
-		return err
-	}
-	s.hub.AddMessage(task.PokerID, jsonData)
-
+	})
 
 	return nil
 }
 
 func (s *PokerService) AddVoting(ctx context.Context, userEstimate *model.UserEstimate) error {
 
-	err :=  s.repository.AddVoting(ctx, userEstimate) 
+	err := s.repository.AddVoting(ctx, userEstimate)
 
 	if err != nil {
 		return err
 	}
 
-	res, err:= s.repository.GetVotingResults(ctx, userEstimate.PokerID);
+	res, err := s.repository.GetVotingResults(ctx, userEstimate.PokerID)
 
 	if err != nil {
 		return err
 	}
-	
-	dataMessageNumberVoters := &NUMBER_VOTERS_MESSAGE{
-		Count: int64(len(res)),
+
+	s.hub.AddMessage(userEstimate.PokerID, &NUMBER_VOTERS_MESSAGE{
+		Count:  int64(len(res)),
 		Action: model.CHANGE_NUMBER_VOTERS,
-	}
+	})
 
-	jsonData, err := json.Marshal(dataMessageNumberVoters)
-	if err != nil {
-		return err
-	}
+	s.hub.AddMessageForUser(userEstimate.PokerID,userEstimate.UserID, &USER_ESTIMATE_MESSAGE{
+		Action:   model.ADD_VOTING,
+		Estimate: userEstimate.Estimate,
+	})
 
-	s.hub.AddMessage(userEstimate.PokerID, jsonData)
 	return err
 
 }
-

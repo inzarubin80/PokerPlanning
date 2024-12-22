@@ -19,6 +19,11 @@ export interface AddVoteParams {
     estimate:string
 }
 
+export interface  GetVotingTask{
+    TaskID: number;
+    Estimate:string
+}
+
 
 
 interface VotingState {
@@ -111,18 +116,18 @@ const votingTaskSlice = createSlice({
     initialState,
     reducers: {
         setVotingTask: (state, action: PayloadAction<number>) => {
-            if  (state.VotingTask !== action.payload) {
                 state.VotingTask = action.payload;
                 state.vote = ''
-            }
         },
       
         setNumberVoters: (state, action: PayloadAction<number>) => {
-                state.numberVoters = action.payload;
-             
+                state.numberVoters = action.payload;     
         },
 
-        
+        setVote: (state, action: PayloadAction<string>) => {
+            state.vote = action.payload;     
+       },
+    
 
     },
     extraReducers: (builder) => {
@@ -132,9 +137,11 @@ const votingTaskSlice = createSlice({
                 state.statusGetVotingTask = 'loading';
                 state.errorGetVotingTask = '';
             })
-            .addCase(fetchGetVotingTask.fulfilled, (state, action: PayloadAction<number>) => {
+            .addCase(fetchGetVotingTask.fulfilled, (state, action: PayloadAction<GetVotingTask>) => {
                 state.statusGetVotingTask = 'succeeded';
-                state.VotingTask = action.payload;
+                state.VotingTask = action.payload.TaskID;
+                state.vote = action.payload.Estimate;
+                
             })
             .addCase(fetchGetVotingTask.rejected, (state, action) => {
                 state.statusGetVotingTask = 'failed';
@@ -174,5 +181,5 @@ const votingTaskSlice = createSlice({
     },
 });
 
-export const { setVotingTask, setNumberVoters } = votingTaskSlice.actions;
+export const { setVotingTask, setNumberVoters, setVote } = votingTaskSlice.actions;
 export default votingTaskSlice.reducer;

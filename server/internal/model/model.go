@@ -17,6 +17,8 @@ const (
 	CHANGE_NUMBER_VOTERS  = "CHANGE_NUMBER_VOTERS"
 	Access_Token_Type = "access_token"
 	Refresh_Token_Type = "refresh_Token"
+	ADD_VOTING = "ADD_VOTING"
+
 )
 
 type (

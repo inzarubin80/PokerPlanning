@@ -46,7 +46,7 @@ type (
 		UpdateComment(ctx context.Context, comment *model.Comment) (*model.Comment, error)
 		RemoveComment(ctx context.Context, pokerID model.PokerID, commentID model.CommentID) error
 
-		GetVotingTask(ctx context.Context, pokerID model.PokerID) (model.TaskID, error)
+		GetVotingTask(ctx context.Context, pokerID model.PokerID, userID model.UserID) (model.TaskID, model.Estimate, error) 
 		AddVotingTask(ctx context.Context, pokerID model.PokerID, taskID model.TaskID) error
 
 		GetUserByEmail(ctx context.Context, userData *model.UserData) (*model.User, error)
