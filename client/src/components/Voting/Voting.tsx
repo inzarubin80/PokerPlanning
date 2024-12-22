@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import {
     Paper,
     Typography,
@@ -10,35 +10,96 @@ import {
     CardActions,
 } from '@mui/material';
 import { Settings } from '@mui/icons-material';
-import { useSelector } from 'react-redux';
-import { RootState } from '../../app/store';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState, AppDispatch } from '../../app/store';
+import { fetchAddVote } from '../../features/voting/voting';
+import { useParams } from 'react-router-dom';
+import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
+import 'react-circular-progressbar/dist/styles.css';
 
+// Тип для задачи
+interface Task {
+    id: number;
+    title: string;
+    description: string;
+}
+
+// Тип для пропсов компонента Voting
 interface VotingProps {
     handleSettingsToggle: () => void;
-    handleVote: (id: number) => void;
     averageEstimate: number;
     handleEndVoting: () => void;
     averageMethod: string;
     showSettings: boolean;
-    numberVoters: number;
 }
 
 const Voting: React.FC<VotingProps> = ({
     averageEstimate,
     averageMethod,
     showSettings,
-    numberVoters,
     handleSettingsToggle,
-    handleVote,
     handleEndVoting,
 }) => {
-    const tasks = useSelector((state: RootState) => state.taskReducer.tasks);
-    const votingTask = useSelector((state: RootState) => state.volumeTaskReducer.VotingTask);
+    // Логика таймера
+    const [progress, setProgress] = useState(100); // Начальное значение прогресса (100%)
+    const [isTimerRunning, setIsTimerRunning] = useState(false);
 
-    const selectedTask = useMemo(
+    // Получение данных из Redux
+    const tasks: Task[] = useSelector((state: RootState) => state.taskReducer.tasks);
+    const votingTask: number | null = useSelector((state: RootState) => state.volumeTaskReducer.VotingTask);
+    const vote: string | null = useSelector((state: RootState) => state.volumeTaskReducer.vote);
+    const possibleEstimates: string[] = useSelector((state: RootState) => state.volumeTaskReducer.possibleEstimates);
+    const numberVoters: number = useSelector((state: RootState) => state.volumeTaskReducer.numberVoters);
+
+    const dispatch: AppDispatch = useDispatch();
+    const { pokerId } = useParams<{ pokerId: string }>();
+
+    // Выбор текущей задачи
+    const selectedTask: Task | undefined = useMemo(
         () => tasks.find(item => item.id === votingTask),
         [tasks, votingTask]
     );
+
+    // Обработчик завершения таймера
+    const onTimerComplete = () => {
+        setIsTimerRunning(false);
+        handleEndVoting();
+    };
+
+    useEffect(() => {
+        let timer: NodeJS.Timeout | null = null;
+
+        if (isTimerRunning) {
+            timer = setInterval(() => {
+                setProgress((prevProgress) => {
+                    if (prevProgress <= 0) {
+                        clearInterval(timer!);
+                        onTimerComplete(); // Завершение голосования, когда таймер доходит до 0
+                        return 0;
+                    }
+                    return prevProgress - 1; // Уменьшаем прогресс на 1% каждую секунду
+                });
+            }, 1000);
+        }
+
+        return () => {
+            if (timer) clearInterval(timer);
+        };
+    }, [isTimerRunning, onTimerComplete]);
+
+    if (!pokerId) {
+        return <div>pokerId is missing in the URL</div>;
+    }
+
+    // Обработчик добавления голоса
+    const handleAddVote = (taskID: number, estimate: string) => {
+        console.log("handleAddVote");
+        dispatch(fetchAddVote({
+            estimate,
+            pokerID: pokerId,
+            taskID,
+        }));
+    };
 
     return (
         <Paper elevation={3}>
@@ -76,28 +137,38 @@ const Voting: React.FC<VotingProps> = ({
                                 </Typography>
                             </CardContent>
 
-                            <CardActions sx={{ justifyContent: 'center', gap: 2, flexWrap: 'wrap', padding: 2 }}>
-                                {/* Voting Buttons */}
-                                <Button variant="outlined" color="primary" onClick={() => handleVote(selectedTask.id)}>
-                                    XS
-                                </Button>
-                                <Button variant="outlined" color="primary" onClick={() => handleVote(selectedTask.id)}>
-                                    S
-                                </Button>
-                                <Button variant="outlined" color="primary" onClick={() => handleVote(selectedTask.id)}>
-                                    M
-                                </Button>
+                            <CardActions sx={{ justifyContent: 'center', gap: 3, flexWrap: 'wrap', padding: 2 }}>
+                                {possibleEstimates.map((estimate: string) => (
+                                    <Button
+                                        key={estimate}
+                                        variant={estimate === vote ? 'contained' : 'outlined'}
+                                        color="primary"
+                                        onClick={() => handleAddVote(selectedTask.id, estimate)}
+                                    >
+                                        {estimate}
+                                    </Button>
+                                ))}
                             </CardActions>
                         </Card>
 
                         {/* Voting Stats */}
                         <Box mt={2}>
                             <Typography variant="subtitle1" align="center">
-                                Средняя оценка: {averageEstimate}
-                            </Typography>
-                            <Typography variant="subtitle1" align="center">
                                 Проголосовало: {numberVoters || 0}
                             </Typography>
+
+                            {/* Timer */}
+                            <Box p={2} display="flex" flexDirection="column" justifyContent="center" alignItems="center">
+                                <CircularProgressbar
+                                    value={progress}
+                                    text={`${progress} сек.`}
+                                    styles={buildStyles({
+                                        textColor: 'black',
+                                        pathColor: 'blue',
+                                        trailColor: 'grey',
+                                    })}
+                                />
+                            </Box>
                         </Box>
                     </Box>
                 ) : (
@@ -115,10 +186,10 @@ const Voting: React.FC<VotingProps> = ({
                     </Box>
                 )}
 
-                {/* End Voting Button */}
+                {/* Start Voting Button */}
                 <Box p={2} display="flex" flexDirection="column" justifyContent="flex-start">
-                    <Button variant="contained" color="primary" onClick={handleEndVoting}>
-                        Закончить голосование
+                    <Button variant="contained" color="primary" onClick={() => setIsTimerRunning(true)}>
+                        Завершить голосование
                     </Button>
                 </Box>
             </Box>

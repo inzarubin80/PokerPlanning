@@ -44,6 +44,12 @@ type (
 		//User
 		GetUserByEmail(ctx context.Context, email string) (*model.User, error)
 		AddUser(ctx context.Context, userData *model.UserData) (*model.User, error) 
+
+		//Voting
+		AddVoting(ctx context.Context, userEstimate *model.UserEstimate) error 
+		ClearVote(ctx context.Context, pokerID model.PokerID) error
+		GetVotingResults(ctx context.Context, pokerID model.PokerID) ([]*model.UserEstimate, error) 
+		GetVotingUser(ctx context.Context, pokerID model.PokerID, userID model.UserID) (model.Estimate, error)
 	}
 
 	TokenService interface {
@@ -57,7 +63,8 @@ type (
 
 
 	Hub interface {
-		AddMessage(pokerID model.PokerID,  data []byte) 
+		AddMessage(pokerID model.PokerID,  payload any)  error
+		AddMessageForUser(pokerID model.PokerID, userID model.UserID, payload any) (error) 
 	}
 )
 

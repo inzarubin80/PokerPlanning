@@ -15,11 +15,11 @@ interface TaskListProps {
   tasks: Task[];
   handleEditTask: (id: number) => void
   handleDeleteTask: (id: number) => void
-  handleVote: (id: number) => void
+  handleSetVotingTask: (id: number) => void
   setEditingTask: (task: Task | null) => void
 }
 
-const TaskList: React.FC<TaskListProps> = ({ tasks, handleEditTask, handleDeleteTask, handleVote, setEditingTask }) => (
+const TaskList: React.FC<TaskListProps> = ({ tasks, handleEditTask, handleDeleteTask, handleSetVotingTask, setEditingTask }) => (
   <Paper elevation={3}>
     <Box position="sticky" top={0}  bgcolor="grey.200" zIndex={1} p={2} display="flex" justifyContent="center" height={"4vh"}>
       <Typography variant="h6">Задачи</Typography>
@@ -33,7 +33,7 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, handleEditTask, handleDelete
                 task={task}
                 onEdit={handleEditTask}
                 onDelete={handleDeleteTask}
-                onVote={handleVote}
+                onVote={handleSetVotingTask}
               />
             </Box>
           ))}

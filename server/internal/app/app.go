@@ -46,7 +46,7 @@ type (
 		UpdateComment(ctx context.Context, comment *model.Comment) (*model.Comment, error)
 		RemoveComment(ctx context.Context, pokerID model.PokerID, commentID model.CommentID) error
 
-		GetVotingTask(ctx context.Context, pokerID model.PokerID) (model.TaskID, error)
+		GetVotingTask(ctx context.Context, pokerID model.PokerID, userID model.UserID) (model.TaskID, model.Estimate, error) 
 		AddVotingTask(ctx context.Context, pokerID model.PokerID, taskID model.TaskID) error
 
 		GetUserByEmail(ctx context.Context, userData *model.UserData) (*model.User, error)
@@ -54,6 +54,9 @@ type (
 		Login(ctx context.Context, providerKey string, authorizationCode string) (*model.AuthData, error)
 		Authorization(context.Context, string) (*model.Claims, error)
 		RefreshToken(ctx context.Context, refreshToken string) (*model.AuthData, error)
+
+		AddVoting(ctx context.Context, userEstimate *model.UserEstimate) error 
+
 	}
 
 	TokenService interface {
@@ -89,6 +92,7 @@ func (a *App) ListenAndServe() error {
 		a.config.path.addVotingTask: appHttp.NewAddVotingTaskHandler(a.pokerService, a.config.path.addVotingTask),
 		a.config.path.getVotingTask: appHttp.NewGetVotingTaskHandler(a.pokerService, a.config.path.getVotingTask),
 		a.config.path.ping: appHttp.NewPingHandlerHandler(a.config.path.getVotingTask),
+		a.config.path.vote: appHttp.NewAddVotingHandler(a.pokerService, a.config.path.vote),	
 		a.config.path.ws:  appHttp.NewWSPokerHandler(a.pokerService, a.config.path.ws, a.hub),	
 	}
 

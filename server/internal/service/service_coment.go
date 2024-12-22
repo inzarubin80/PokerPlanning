@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"encoding/json"
 	"inzarubin80/PokerPlanning/internal/model"
 )
 
@@ -21,18 +20,11 @@ func (s *PokerService) AddComment(ctx context.Context, comment *model.Comment) (
 	if err != nil {
 		return nil, err
 	}
-	
-	dataMessage := &COMMENT_MESSAGE{
+
+	s.hub.AddMessage(comment.PokerID, &COMMENT_MESSAGE{
 		Action:  model.ADD_COMMENT,
 		Comment: commentRes,
-	}
-
-	jsonData, err := json.Marshal(dataMessage)
-	if err != nil {
-		return nil, err
-	}
-
-	s.hub.AddMessage(comment.PokerID, jsonData)
+	})
 	return commentRes, nil
 
 }
@@ -54,16 +46,10 @@ func (s *PokerService) UpdateComment(ctx context.Context, comment *model.Comment
 		return nil, err
 	}
 
-	dataMessage := &COMMENT_MESSAGE{
+	s.hub.AddMessage(comment.PokerID, &COMMENT_MESSAGE{
 		Action:  model.UPDATE_COMMENT,
 		Comment: commentRes,
-	}
-
-	jsonData, err := json.Marshal(dataMessage)
-	if err != nil {
-		return nil, err
-	}
-	s.hub.AddMessage(comment.PokerID, jsonData)
+	})
 
 	return commentRes, nil
 
@@ -77,16 +63,10 @@ func (s *PokerService) RemoveComment(ctx context.Context, pokerID model.PokerID,
 		return err
 	}
 
-	dataMessage := &COMMENT_MESSAGE{
+	s.hub.AddMessage(pokerID, &COMMENT_MESSAGE{
 		Action:    model.REMOVE_COMMENT,
 		CommentID: commentID,
-	}
-
-	jsonData, err := json.Marshal(dataMessage)
-	if err != nil {
-		return err
-	}
-	s.hub.AddMessage(pokerID, jsonData)
+	})
 
 	return nil
 }

@@ -4,6 +4,7 @@
 package ws
 
 import (
+	"encoding/json"
 	"fmt"
 	"inzarubin80/PokerPlanning/internal/model"
 )
@@ -14,6 +15,8 @@ type (
 	Message struct {
 		pokerID model.PokerID
 		data    []byte
+		userID model.UserID
+
 	}
 
 	DataMessage struct {
@@ -77,10 +80,16 @@ func (h *Hub) Run() {
 					
 				}
 			}
+
 		case message := <-h.broadcast:
 
 			if clientsPoker, ok := h.clients[message.pokerID]; ok {
 				for client := range clientsPoker {
+	
+					if message.userID != 0 && client.userID != message.userID{
+						continue
+					}
+
 					select {
 					case client.send <- message:
 					default:
@@ -95,8 +104,29 @@ func (h *Hub) Run() {
 	}
 }
 
-func (h *Hub) AddMessage(pokerID model.PokerID,  data []byte)  {
+func (h *Hub) AddMessage(pokerID model.PokerID,  payload any) (error) {
+
+	data, err := json.Marshal(payload)
+	if err != nil {
+		return  err
+	}
+
 	message := &Message{pokerID: pokerID, data: data}
 	h.broadcast<-message
+	return nil
+
+}
+
+func (h *Hub) AddMessageForUser(pokerID model.PokerID, userID model.UserID, payload any) (error) {
+
+	data, err := json.Marshal(payload)
+	if err != nil {
+		return  err
+	}
+
+	message := &Message{pokerID: pokerID, userID:userID, data: data}
+	h.broadcast<-message
+	return nil
+	
 }
 

@@ -14,15 +14,18 @@ const (
 	REMOVE_COMMENT = "REMOVE_COMMENT"
 	UPDATE_COMMENT = "UPDATE_COMMENT"
 	ADD_VOTING_TASK  = "ADD_VOTING_TASK"
+	CHANGE_NUMBER_VOTERS  = "CHANGE_NUMBER_VOTERS"
 	Access_Token_Type = "access_token"
 	Refresh_Token_Type = "refresh_Token"
+	ADD_VOTING = "ADD_VOTING"
+
 )
 
 type (
 	TaskID     int64
 	PokerID    string
 	UserID     int64
-	Estimate   int
+	Estimate   string
 	CommentID  int64
 	EstimateID int64
 
@@ -55,14 +58,10 @@ type (
 		Text   string `json:"text"`
 	}
 	
-
-	
-
 	UserEstimate struct {
 		ID       EstimateID
 		PokerID  PokerID
 		UserID   UserID
-		TaskID   TaskID
 		Estimate Estimate
 	}
 

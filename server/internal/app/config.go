@@ -22,7 +22,7 @@ type (
 		index, getPoker, createPoker, createTask,
 		getTasks, getTask, updateTask, deleteTask,
 		getComents, addComent, addVotingTask,
-		getVotingTask, ws, login, session, refreshToken, logOut, getProviders, ping string
+		getVotingTask, ws, login, session, refreshToken, logOut, getProviders, ping, vote string
 	}
 
 	sectrets struct {
@@ -79,6 +79,9 @@ func NewConfig(opts Options) config {
 			session:      fmt.Sprintf("GET	/api/user/session"),
 			logOut:       fmt.Sprintf("GET	/api/user/logout"),
 			createTask: fmt.Sprintf("POST /api/poker/{%s}/tasks", defenitions.ParamPokerID),
+			
+			vote: fmt.Sprintf("POST /api/poker/{%s}/vote", defenitions.ParamPokerID),
+			
 			getTasks:   fmt.Sprintf("GET /api/poker/{%s}/tasks", defenitions.ParamPokerID),
 			getTask:    fmt.Sprintf("GET /api/poker/{%s}/tasks/{%s}", defenitions.ParamPokerID, defenitions.ParamTaskID),
 			updateTask: fmt.Sprintf("PUT /api/poker/{%s}/tasks/{%s}", defenitions.ParamPokerID, defenitions.ParamTaskID),
@@ -90,8 +93,11 @@ func NewConfig(opts Options) config {
 			addVotingTask: fmt.Sprintf("POST /api/poker/{%s}/votingtask/{%s}", defenitions.ParamPokerID, defenitions.ParamTaskID),
 			getVotingTask: fmt.Sprintf("GET /api/poker/{%s}/votingtask", defenitions.ParamPokerID),
 
+
 			getPoker: fmt.Sprintf("GET /api/poker/{%s}", defenitions.ParamPokerID),
 			ws:       fmt.Sprintf("GET /ws/{%s}", defenitions.ParamPokerID),
+
+
 		},
 
 		sectrets: sectrets{

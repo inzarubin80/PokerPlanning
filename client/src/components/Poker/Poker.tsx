@@ -14,12 +14,13 @@ import { useNavigate } from "react-router-dom";
 import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchTasks, taskAdded, taskRemoved, tasksUpdating, deleteTask } from '../../features/task/taskSlice';
-import { addComment, commentAdded, getComments, SaveCommentParams} from '../../features/comment/commentSlice';
-import { setVotingTask, fetchAddVotingTask, fetchGetVotingTask} from '../../features/volumeTask/volumeTask';
+import { addComment, commentAdded, getComments, SaveCommentParams } from '../../features/comment/commentSlice';
+import { setVotingTask, fetchAddVotingTask, fetchGetVotingTask, setNumberVoters,setVote } from '../../features/voting/voting';
 
 import { AppDispatch, RootState } from '../../app/store';
 import WebSocketClient from '../../api/WebSocketClient'
-import { $CombinedState } from '@reduxjs/toolkit';
+import { SettingsVoice } from '@mui/icons-material';
+
 
 
 const App: React.FC = () => {
@@ -39,7 +40,7 @@ const App: React.FC = () => {
 
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [showSettings, setShowSettings] = useState(false);
-  const [participants, setParticipants] = useState(1); // Добавлено состояние для количества участников
+  const [participants, setParticipants] = useState(1);
   const navigate = useNavigate();
   const { pokerId } = useParams<{ pokerId: string }>();
 
@@ -48,39 +49,75 @@ const App: React.FC = () => {
     if (!pokerId) {
       return;
     }
-    
+
     dispatch(fetchTasks(pokerId));
     dispatch(getComments(pokerId));
     dispatch(fetchGetVotingTask(pokerId));
-    const wsClient= new WebSocketClient(`ws://localhost:8080/ws/${pokerId}?accessToken=${accessToken}`, socketOnMessage);
+ 
+
+  }, [pokerId]);
+
+
+  useEffect(() => {
+
+    if (!pokerId) {
+      return;
+    }
+
+    const wsClient = new WebSocketClient(`ws://localhost:8080/ws/${pokerId}?accessToken=${accessToken}`, socketOnMessage);
     return () => {
       wsClient.closeConnection()
     };
 
-  }, [pokerId, accessToken]);
+  }, [pokerId,accessToken]);
+
 
   const socketOnMessage = (msgEvent: any) => {
-    const msg = JSON.parse(msgEvent.data);
-    switch (msg.action) {
-      case 'ADD_TASK':
-        dispatch(taskAdded(msg.task));
-        break;
-      case 'UPDATE_TASK':
-        dispatch(tasksUpdating(msg.task));
-        break;
-      case 'REMOVE_TASK':
-        dispatch(taskRemoved(msg.task_id));
-        break;
-      case 'ADD_COMMENT':
+    
+    
+    const newMessages = msgEvent.data.split("\n").map((message:string) => {
+      try {
+        return JSON.parse(message);
+      } catch (e) {
+        console.error("Ошибка парсинга сообщения:", message, e);
+        return null; // Если не удалось, возвращаем null
+      }
+    });
+    
+
+    for (let i = 0; i < newMessages.length; i++) {
+      const msg = newMessages[i];
+      
+      switch (msg.action) {
+        case 'ADD_TASK':
+          dispatch(taskAdded(msg.task));
+          break;
+        case 'UPDATE_TASK':
+          dispatch(tasksUpdating(msg.task));
+          break;
+        case 'REMOVE_TASK':
+          dispatch(taskRemoved(msg.task_id));
+          break;
+        case 'ADD_COMMENT':
           dispatch(commentAdded(msg.comment));
           break;
-      case 'ADD_VOTING_TASK':
+        case 'ADD_VOTING_TASK':
           dispatch(setVotingTask(msg.task_id));
           break;
-      
-      default:
-        console.warn("Unknown message type:", msg.type);
+        case 'CHANGE_NUMBER_VOTERS':
+          dispatch(setNumberVoters(msg.count));
+          break;
+        case 'ADD_VOTING':
+            dispatch(setVote(msg.estimate));
+            break;
+
+        default:
+          console.warn("Unknown message type:", msg.type);
+      }
     }
+
+    
+   
   }
 
   const handleEditTask = (taskId: number) => {
@@ -94,10 +131,10 @@ const App: React.FC = () => {
     }
   };
 
-  const handleVote = (taskID:number) => {
+  const handleSetVotingTask = (taskID: number) => {
     if (pokerId) {
-      dispatch(fetchAddVotingTask({pokerID:pokerId, taskID}));
-    } 
+      dispatch(fetchAddVotingTask({ pokerID: pokerId, taskID }));
+    }
   };
 
   const handleAddComment = (saveCommentParams: SaveCommentParams) => {
@@ -136,13 +173,11 @@ const App: React.FC = () => {
 
         <Grid2 size={{ xs: 3 }} style={{ display: 'flex', flexDirection: 'column' }}>
           <Voting
-           // selectedTask={selectedTask}
+            // selectedTask={selectedTask}
             averageEstimate={1}
             averageMethod={""}
             showSettings={showSettings}
-            numberVoters={1}
             handleSettingsToggle={handleSettingsToggle}
-            handleVote= {(id: number) => {}}
             handleEndVoting={handleEndVoting} />
         </Grid2>
 
@@ -157,7 +192,7 @@ const App: React.FC = () => {
             tasks={tasks}
             handleEditTask={handleEditTask}
             handleDeleteTask={handleDeleteTask}
-            handleVote={handleVote}
+            handleSetVotingTask={handleSetVotingTask}
             setEditingTask={() => { }} />
 
         </Grid2>
