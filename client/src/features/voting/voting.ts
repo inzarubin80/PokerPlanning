@@ -37,7 +37,7 @@ interface VotingState {
     statusAddVoting: 'idle' | 'loading' | 'succeeded' | 'failed';
     errorAddVoting:  string | null;
 
-    voiceScale:  string[];
+    possibleEstimates:  string[];
     vote: string
     numberVoters: number
 }
@@ -51,7 +51,7 @@ const initialState: VotingState = {
     errorAddVotingTask: null,
     statusAddVoting: 'idle',
     errorAddVoting: null,
-    voiceScale: ['xs', 'x', 'm'],
+    possibleEstimates: ["0", "1", "2", "3", "5", "8", "13", "21", "?"],
     vote : '',
     numberVoters: 0
     

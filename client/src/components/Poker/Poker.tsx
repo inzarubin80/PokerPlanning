@@ -15,7 +15,7 @@ import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchTasks, taskAdded, taskRemoved, tasksUpdating, deleteTask } from '../../features/task/taskSlice';
 import { addComment, commentAdded, getComments, SaveCommentParams } from '../../features/comment/commentSlice';
-import { setVotingTask, fetchAddVotingTask, fetchGetVotingTask, setNumberVoters,setVote } from '../../features/volumeTask/volumeTask';
+import { setVotingTask, fetchAddVotingTask, fetchGetVotingTask, setNumberVoters,setVote } from '../../features/voting/voting';
 
 import { AppDispatch, RootState } from '../../app/store';
 import WebSocketClient from '../../api/WebSocketClient'

@@ -1,7 +1,7 @@
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
 import taskReducer from '../features/task/taskSlice';
 import commentReducer from '../features/comment/commentSlice';
-import volumeTaskReducer from '../features/volumeTask/volumeTask';
+import volumeTaskReducer from '../features/voting/voting';
 import authReducer from '../features/auth/authSlice';
 
 
