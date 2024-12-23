@@ -158,17 +158,21 @@ const Voting: React.FC<VotingProps> = ({
                             </Typography>
 
                             {/* Timer */}
+
                             <Box p={2} display="flex" flexDirection="column" justifyContent="center" alignItems="center">
-                                <CircularProgressbar
-                                    value={progress}
-                                    text={`${progress} сек.`}
-                                    styles={buildStyles({
-                                        textColor: 'black',
-                                        pathColor: 'blue',
-                                        trailColor: 'grey',
-                                    })}
-                                />
+                                <Box sx={{ width: 250, height: 250 }}>
+                                    <CircularProgressbar
+                                        value={progress}
+                                        text={`${progress} сек.`}
+                                        styles={buildStyles({
+                                            textColor: 'black',
+                                            pathColor: 'blue',
+                                            trailColor: 'grey',
+                                        })}
+                                    />
+                                </Box>
                             </Box>
+
                         </Box>
                     </Box>
                 ) : (
