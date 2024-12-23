@@ -10,29 +10,31 @@ import (
 )
 
 type (
+	
 	serviceTargetTask interface {
-		GetVotingTask(ctx context.Context, pokerID model.PokerID, userID model.UserID)  (model.TaskID, model.Estimate, error) 
+		GetVotingState(ctx context.Context, pokerID model.PokerID, userID model.UserID) (*model.VoteState, model.Estimate, error) 
 	}
-	GetVotingTaskHandler struct {
+	
+	GetVotingStateHandler struct {
 		name    string
 		service serviceTargetTask
 	}
 
-	VotingTask struct {
-		TaskID    model.TaskID `json:"TaskID"`
-		Estimate  model.Estimate `json:"Estimate"`
+	VotingState struct {
+		VoteState    *model.VoteState `json:"VoteState"`
+		Estimate  model.Estimate   `json:"Estimate"`
 	}
 
 )
 
-func NewGetVotingTaskHandler(service serviceTargetTask, name string) *GetVotingTaskHandler {
-	return &GetVotingTaskHandler{
+func NewGetVotingStateHandler(service serviceTargetTask, name string) *GetVotingStateHandler {
+	return &GetVotingStateHandler{
 		name:    name,
 		service: service,
 	}
 }
 
-func (h *GetVotingTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h *GetVotingStateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context();
 	pokerID, err := uhttp.ValidatePatchParameterPokerID(r)
@@ -47,17 +49,17 @@ func (h *GetVotingTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	taskID, estimate, err:= h.service.GetVotingTask(ctx, model.PokerID(pokerID), model.UserID(userID))
+	state, estimate, err:= h.service.GetVotingState(ctx, model.PokerID(pokerID), model.UserID(userID))
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	} 
 	
-	jsonData, err := json.Marshal(&VotingTask{TaskID: taskID, Estimate: estimate})
+	jsonData, err := json.Marshal(&VotingState{VoteState: state, Estimate: estimate})
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 	uhttp.SendSuccessfulResponse(w,  jsonData)
-	
+		
 }

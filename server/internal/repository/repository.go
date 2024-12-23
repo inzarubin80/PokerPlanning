@@ -16,7 +16,7 @@ type (
 	UserEstimates map[model.PokerID]map[model.EstimateID]*model.UserEstimate
 	Pokers        map[model.PokerID]*model.Poker
 	Participants  map[model.PokerID]map[model.UserID]bool
-	VotingTasks   map[model.PokerID]model.TaskID
+	VoteState   map[model.PokerID]*model.VoteState
 	Voting        map[model.PokerID]map[model.UserID] model.Estimate
 
 	Storage struct {
@@ -31,7 +31,7 @@ type (
 		nextEstimateID model.EstimateID
 		nextTaskID     model.TaskID
 		nextUsererID     model.UserID
-		votingTasks    VotingTasks
+		voteState       VoteState
 		voting Voting
 	}
 )
@@ -46,7 +46,7 @@ func NewPokerRepository(capacity int) *Repository {
 			userEstimates:  make(UserEstimates, capacity),
 			pokers:         make(Pokers, capacity),
 			participants:   make(Participants),
-			votingTasks:    make(VotingTasks),
+			voteState:    	make(VoteState),
 			voting: 		make(Voting),
 			nextCommentID:  1,
 			nextEstimateID: 1,

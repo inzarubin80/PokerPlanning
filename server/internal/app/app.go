@@ -46,7 +46,7 @@ type (
 		UpdateComment(ctx context.Context, comment *model.Comment) (*model.Comment, error)
 		RemoveComment(ctx context.Context, pokerID model.PokerID, commentID model.CommentID) error
 
-		GetVotingTask(ctx context.Context, pokerID model.PokerID, userID model.UserID) (model.TaskID, model.Estimate, error) 
+	    GetVotingState(ctx context.Context, pokerID model.PokerID, userID model.UserID) (*model.VoteState, model.Estimate, error) 
 		AddVotingTask(ctx context.Context, pokerID model.PokerID, taskID model.TaskID) error
 
 		GetUserByEmail(ctx context.Context, userData *model.UserData) (*model.User, error)
@@ -80,6 +80,7 @@ func (a *App) ListenAndServe() error {
 	go a.hub.Run()
 
 	handlers := map[string]http.Handler{
+	
 		a.config.path.createPoker:   appHttp.NewCreatePoker(a.pokerService, a.config.path.createPoker),
 		a.config.path.getPoker:      appHttp.NewGetPokerHandler(a.pokerService, a.config.path.getPoker),
 		a.config.path.createTask:    appHttp.NewAddTaskHandler(a.pokerService, a.config.path.createPoker),
@@ -89,9 +90,10 @@ func (a *App) ListenAndServe() error {
 		a.config.path.updateTask:    appHttp.NewUpdateTaskHandler(a.pokerService, a.config.path.updateTask),
 		a.config.path.addComent:     appHttp.NewAddCommentHandler(a.pokerService, a.config.path.addComent),
 		a.config.path.getComents:    appHttp.NewGetCommentsHandler(a.pokerService, a.config.path.getComents),
-		a.config.path.addVotingTask: appHttp.NewAddVotingTaskHandler(a.pokerService, a.config.path.addVotingTask),
-		a.config.path.getVotingTask: appHttp.NewGetVotingTaskHandler(a.pokerService, a.config.path.getVotingTask),
-		a.config.path.ping: appHttp.NewPingHandlerHandler(a.config.path.getVotingTask),
+		a.config.path.setVotingTask: appHttp.NewAddVotingTaskHandler(a.pokerService, a.config.path.setVotingTask),
+		a.config.path.getVotingState: appHttp.NewGetVotingStateHandler(a.pokerService, a.config.path.getVotingState),
+	
+		a.config.path.ping: appHttp.NewPingHandlerHandler(a.config.path.ping),
 		a.config.path.vote: appHttp.NewAddVotingHandler(a.pokerService, a.config.path.vote),	
 		a.config.path.ws:  appHttp.NewWSPokerHandler(a.pokerService, a.config.path.ws, a.hub),	
 	}
