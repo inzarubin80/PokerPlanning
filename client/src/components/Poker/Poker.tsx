@@ -15,8 +15,8 @@ import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchTasks, taskAdded, taskRemoved, tasksUpdating, deleteTask } from '../../features/task/taskSlice';
 import { addComment, commentAdded, getComments, SaveCommentParams } from '../../features/comment/commentSlice';
-import { setVotingTask, fetchAddVotingTask, fetchGetVotingTask, setNumberVoters,setVote } from '../../features/voting/voting';
-
+import { setVotingTask, fetchAddVotingTask, fetchGetVotingTask, setNumberVoters, setVote } from '../../features/voting/voting';
+import {fetchPokerDetails} from '../../features/poker/pokerSlice';
 import { AppDispatch, RootState } from '../../app/store';
 import WebSocketClient from '../../api/WebSocketClient'
 import { SettingsVoice } from '@mui/icons-material';
@@ -53,7 +53,7 @@ const App: React.FC = () => {
     dispatch(fetchTasks(pokerId));
     dispatch(getComments(pokerId));
     dispatch(fetchGetVotingTask(pokerId));
- 
+    dispatch(fetchPokerDetails(pokerId));
 
   }, [pokerId]);
 
@@ -69,13 +69,13 @@ const App: React.FC = () => {
       wsClient.closeConnection()
     };
 
-  }, [pokerId,accessToken]);
+  }, [pokerId, accessToken]);
 
 
   const socketOnMessage = (msgEvent: any) => {
-    
-    
-    const newMessages = msgEvent.data.split("\n").map((message:string) => {
+
+
+    const newMessages = msgEvent.data.split("\n").map((message: string) => {
       try {
         return JSON.parse(message);
       } catch (e) {
@@ -83,11 +83,11 @@ const App: React.FC = () => {
         return null; // Если не удалось, возвращаем null
       }
     });
-    
+
 
     for (let i = 0; i < newMessages.length; i++) {
       const msg = newMessages[i];
-      
+
       switch (msg.action) {
         case 'ADD_TASK':
           dispatch(taskAdded(msg.task));
@@ -108,16 +108,16 @@ const App: React.FC = () => {
           dispatch(setNumberVoters(msg.count));
           break;
         case 'ADD_VOTING':
-            dispatch(setVote(msg.estimate));
-            break;
+          dispatch(setVote(msg.estimate));
+          break;
 
         default:
           console.warn("Unknown message type:", msg.type);
       }
     }
 
-    
-   
+
+
   }
 
   const handleEditTask = (taskId: number) => {

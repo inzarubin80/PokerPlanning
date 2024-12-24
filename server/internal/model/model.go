@@ -67,10 +67,10 @@ type (
 
 	Poker struct {
 		ID            PokerID
-		Task  		  Task
-		Start         time.Time
-		End           time.Time
-		FinalEstimate Estimate
+		CreatedAt     time.Time
+		Name          string	
+		Autor         UserID
+
 	}
 		
 	AuthData struct {
@@ -78,14 +78,12 @@ type (
 		RefreshToken string
 		AccessToken string	
 	}	
-
 	VoteState struct {
 		TaskID         	   TaskID   
 		StartDate          time.Time 
 		Duration           time.Duration 
 		EndDate            time.Time
 	}
-
 	Claims struct {
 		UserID    UserID `json:"user_id"`
 		TokenType string `json:"token_type"` // Добавляем поле для типа токена
