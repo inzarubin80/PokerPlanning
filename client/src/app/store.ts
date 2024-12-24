@@ -3,7 +3,7 @@ import taskReducer from '../features/task/taskSlice';
 import commentReducer from '../features/comment/commentSlice';
 import volumeTaskReducer from '../features/voting/voting';
 import authReducer from '../features/auth/authSlice';
-
+import pokerReducer from '../features/poker/pokerSlice';
 
 export const store = configureStore({
   reducer: {
@@ -11,6 +11,7 @@ export const store = configureStore({
     commentReducer: commentReducer,
     volumeTaskReducer: volumeTaskReducer,
     auth: authReducer,
+    poker: pokerReducer
   },
 });
 

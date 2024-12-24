@@ -35,8 +35,8 @@ type (
 		RemoveComment(ctx context.Context, pokerID model.PokerID, commentID model.CommentID) error
 		
 		//TargetTask		
-		AddVotingTask(ctx context.Context, pokerID model.PokerID, taskID model.TaskID) error
-		GetVotingTask(ctx context.Context, pokerID model.PokerID) (model.TaskID, error)
+		SetVotingTask(ctx context.Context, pokerID model.PokerID, taskID model.TaskID) (*model.VoteState, error) 
+		GetVotingState(ctx context.Context, pokerID model.PokerID) (*model.VoteState, error) 
 		
 		GetParticipants(ctx context.Context, pokerID model.PokerID) ([]model.UserID, error)
 		GetPoker(ctx context.Context, pokerID model.PokerID) (*model.Poker, error)

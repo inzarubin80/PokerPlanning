@@ -13,7 +13,7 @@ const (
 	ADD_COMMENT  = "ADD_COMMENT"
 	REMOVE_COMMENT = "REMOVE_COMMENT"
 	UPDATE_COMMENT = "UPDATE_COMMENT"
-	ADD_VOTING_TASK  = "ADD_VOTING_TASK"
+	VOTE_STATE_CHANGE  = "VOTE_STATE_CHANGE"
 	CHANGE_NUMBER_VOTERS  = "CHANGE_NUMBER_VOTERS"
 	Access_Token_Type = "access_token"
 	Refresh_Token_Type = "refresh_Token"
@@ -67,10 +67,10 @@ type (
 
 	Poker struct {
 		ID            PokerID
-		Task  		  Task
-		Start         time.Time
-		End           time.Time
-		FinalEstimate Estimate
+		CreatedAt     time.Time
+		Name          string	
+		Autor         UserID
+
 	}
 		
 	AuthData struct {
@@ -78,7 +78,12 @@ type (
 		RefreshToken string
 		AccessToken string	
 	}	
-
+	VoteState struct {
+		TaskID         	   TaskID   
+		StartDate          time.Time 
+		Duration           time.Duration 
+		EndDate            time.Time
+	}
 	Claims struct {
 		UserID    UserID `json:"user_id"`
 		TokenType string `json:"token_type"` // Добавляем поле для типа токена
