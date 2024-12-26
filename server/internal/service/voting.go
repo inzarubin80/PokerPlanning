@@ -8,22 +8,22 @@ import (
 
 type (
 	VOTE_STATE_CHANGE struct {
-		Action string       `json:"action"`
-		State  *model.VoteState `json:"vote_state"`
+		Action string       
+		State  *model.VoteControlState 
 	}
 
 	NUMBER_VOTERS_MESSAGE struct {
-		Action string `json:"action"`
-		Count  int64  `json:"count"`
+		Action string 
+		Count  int64  
 	}
 
 	USER_ESTIMATE_MESSAGE struct {
-		Action   string         `json:"action"`
-		Estimate model.Estimate `json:"estimate"`
+		Action   string         
+		Estimate model.Estimate 
 	}
 )
 
-func (s *PokerService) GetVotingState(ctx context.Context, pokerID model.PokerID, userID model.UserID) (*model.VoteState, model.Estimate, error) {
+func (s *PokerService) GetVotingState(ctx context.Context, pokerID model.PokerID, userID model.UserID) (*model.VoteControlState, model.Estimate, error) {
 
 	state, err := s.repository.GetVotingState(ctx, pokerID)
 	if err != nil {

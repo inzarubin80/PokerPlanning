@@ -15,7 +15,7 @@ func (r *Repository) DeleteVotingState(ctx context.Context, pokerID model.PokerI
 
 }
 
-func (r *Repository) SetVotingTask(ctx context.Context, pokerID model.PokerID, taskID model.TaskID) (*model.VoteState, error) {
+func (r *Repository) SetVotingTask(ctx context.Context, pokerID model.PokerID, taskID model.TaskID) (*model.VoteControlState, error) {
 
 	r.storage.mx.Lock()
 	defer r.storage.mx.Unlock()
@@ -23,21 +23,21 @@ func (r *Repository) SetVotingTask(ctx context.Context, pokerID model.PokerID, t
 	_, ok := r.storage.voteState[pokerID]
 
 	if !ok {
-		r.storage.voteState[pokerID] = &model.VoteState{}
+		r.storage.voteState[pokerID] = &model.VoteControlState{}
 	}
 	r.storage.voteState[pokerID].TaskID = taskID
 	return r.storage.voteState[pokerID], nil
 
 }
 
-func (r *Repository) GetVotingState(ctx context.Context, pokerID model.PokerID) (*model.VoteState, error) {
+func (r *Repository) GetVotingState(ctx context.Context, pokerID model.PokerID) (*model.VoteControlState, error) {
 
 	r.storage.mx.Lock()
 	defer r.storage.mx.Unlock()
 
 	state, ok := r.storage.voteState[pokerID]
 	if !ok {
-		state = &model.VoteState{}
+		state = &model.VoteControlState{}
 	}
 	
 	return state, nil

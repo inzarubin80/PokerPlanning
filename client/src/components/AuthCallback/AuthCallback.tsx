@@ -11,8 +11,8 @@ const AuthCallback: React.FC = () => {
   const intervalRef = React.useRef("");
   
   interface PostData {
-    authorization_code: string;
-    provider_key: string;
+    AuthorizationCode: string;
+    ProviderKey: string;
   }
 
   useEffect(() => {
@@ -26,8 +26,8 @@ const AuthCallback: React.FC = () => {
 
         if (code && provider) {
           const data: PostData = {
-            authorization_code: code,
-            provider_key: provider,
+            AuthorizationCode: code,
+            ProviderKey: provider,
           };
 
           try {

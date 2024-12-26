@@ -41,21 +41,21 @@ type (
 	}
 
 	Task struct {
-		ID          TaskID  `json:"id"`
-		PokerID     PokerID `json:"poker_id"`
-		Title       string  `json:"title"`
-		Description string  `json:"description"`
-		StoryPoint  int     `json:"story_point"` 
-		Status      string  `json:"status"` 
-		Completed   bool    `json:"completed"`
-		Estimate    string  `json:"estimate"`
+		ID          TaskID  
+		PokerID     PokerID 
+		Title       string  
+		Description string  
+		StoryPoint  int     
+		Status      string  
+		Completed   bool   
+		Estimate    string 
 	}
 
 	Comment struct {
-		ID     CommentID `json:"id"`
-		PokerID PokerID  `json:"poker_id"`
-		UserID UserID `json:"user_id"`
-		Text   string `json:"text"`
+		ID     CommentID 
+		PokerID PokerID  
+		UserID UserID 
+		Text   string 
 	}
 	
 	UserEstimate struct {
@@ -78,12 +78,15 @@ type (
 		RefreshToken string
 		AccessToken string	
 	}	
-	VoteState struct {
-		TaskID         	   TaskID   
+	
+	VoteControlState struct {
+		TaskID         	   TaskID    
+		PokerID  		   PokerID
 		StartDate          time.Time 
 		Duration           time.Duration 
-		EndDate            time.Time
+		EndDate            time.Time 
 	}
+
 	Claims struct {
 		UserID    UserID `json:"user_id"`
 		TokenType string `json:"token_type"` // Добавляем поле для типа токена

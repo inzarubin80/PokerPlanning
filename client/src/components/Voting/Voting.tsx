@@ -16,13 +16,9 @@ import { fetchAddVote } from '../../features/voting/voting';
 import { useParams } from 'react-router-dom';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
+import {Task} from "../../model"
 
-// Тип для задачи
-interface Task {
-    id: number;
-    title: string;
-    description: string;
-}
+
 
 // Тип для пропсов компонента Voting
 interface VotingProps {
@@ -46,7 +42,7 @@ const Voting: React.FC<VotingProps> = ({
 
     // Получение данных из Redux
     const tasks: Task[] = useSelector((state: RootState) => state.taskReducer.tasks);
-    const votingTask: number | null = useSelector((state: RootState) => state.volumeTaskReducer.VotingTask);
+    const votingTask: number | null = useSelector((state: RootState) => state.volumeTaskReducer.taskID);
     const vote: string | null = useSelector((state: RootState) => state.volumeTaskReducer.vote);
     const possibleEstimates: string[] = useSelector((state: RootState) => state.volumeTaskReducer.possibleEstimates);
     const numberVoters: number = useSelector((state: RootState) => state.volumeTaskReducer.numberVoters);
@@ -56,7 +52,7 @@ const Voting: React.FC<VotingProps> = ({
 
     // Выбор текущей задачи
     const selectedTask: Task | undefined = useMemo(
-        () => tasks.find(item => item.id === votingTask),
+        () => tasks.find(item => item.ID === votingTask),
         [tasks, votingTask]
     );
 
@@ -130,10 +126,10 @@ const Voting: React.FC<VotingProps> = ({
                             <CardContent>
                                 {/* Task Details */}
                                 <Typography variant="h6" gutterBottom sx={{ whiteSpace: 'normal', wordWrap: 'break-word' }}>
-                                    {selectedTask.title}
+                                    {selectedTask.Title}
                                 </Typography>
                                 <Typography variant="body1" sx={{ whiteSpace: 'normal', wordWrap: 'break-word' }}>
-                                    {selectedTask.description}
+                                    {selectedTask.Description}
                                 </Typography>
                             </CardContent>
 
@@ -143,7 +139,7 @@ const Voting: React.FC<VotingProps> = ({
                                         key={estimate}
                                         variant={estimate === vote ? 'contained' : 'outlined'}
                                         color="primary"
-                                        onClick={() => handleAddVote(selectedTask.id, estimate)}
+                                        onClick={() => handleAddVote(selectedTask.ID, estimate)}
                                     >
                                         {estimate}
                                     </Button>

@@ -22,8 +22,8 @@ type (
 	}
 
 	CommentFrontend struct {
-		PokerID model.PokerID `json:"poker_id"`
-		Text    string        `json:"text"`
+		PokerID model.PokerID 
+		Text    string       
 	}
 )
 

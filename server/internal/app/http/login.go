@@ -28,8 +28,8 @@ type (
 	}
 
 	RequestLoginData struct {
-		AuthorizationCode string  `json:"authorization_code"`
-		ProviderKey string        `json:"provider_key"`
+		AuthorizationCode string 
+		ProviderKey string       
 	}
 )
 

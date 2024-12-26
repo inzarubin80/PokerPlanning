@@ -7,9 +7,9 @@ import (
 
 type (
 	COMMENT_MESSAGE struct {
-		Action    string          `json:"action"`
-		Comment   *model.Comment  `json:"comment"`
-		CommentID model.CommentID `json:"comment_id"`
+		Action    string          
+		Comment   *model.Comment  
+		CommentID model.CommentID 
 	}
 )
 

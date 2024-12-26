@@ -1,6 +1,8 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { authAxios } from '../../service/http-common'; // Убедитесь, что путь к authAxios правильный
 import { AxiosError } from 'axios';
+import {VoteControlState} from '../../model';
+
 
 interface ErrorResponse {
     error: boolean;
@@ -20,14 +22,14 @@ export interface AddVoteParams {
 }
 
 export interface  GetVotingTask{
-    TaskID: number;
+    VoteState: VoteControlState;
     Estimate:string
 }
 
 
-
 interface VotingState {
-    VotingTask: number | null;
+
+    taskID: number ;
     statusGetVotingTask: 'idle' | 'loading' | 'succeeded' | 'failed';
     errorGetVotingTask: string | null;
     statusAddVotingTask: 'idle' | 'loading' | 'succeeded' | 'failed';
@@ -38,13 +40,18 @@ interface VotingState {
     errorAddVoting:  string | null;
 
     possibleEstimates:  string[];
-    vote: string
-    numberVoters: number
+    vote: string;
+    numberVoters: number;
+
+    startDate: Date| null;
+    duration: number;
+    endDate: Date| null;
+
 }
 
 const initialState: VotingState = {
 
-    VotingTask: null,
+    taskID: 0,
     statusGetVotingTask: 'idle',
     errorGetVotingTask: null,
     statusAddVotingTask: 'idle',
@@ -53,8 +60,10 @@ const initialState: VotingState = {
     errorAddVoting: null,
     possibleEstimates: ["0", "1", "2", "3", "5", "8", "13", "21", "?"],
     vote : '',
-    numberVoters: 0
-    
+    numberVoters: 0,
+    duration:0,
+    endDate:null,
+    startDate:null    
 };
 
 // Функция для обработки ошибок Axios
@@ -69,7 +78,7 @@ export const fetchGetVotingTask = createAsyncThunk(
     'votingTask/get',
     async (pokerID: string, { rejectWithValue }) => {
         try {
-            const response = await authAxios.get(`/poker/${pokerID}/votingtask`);
+            const response = await authAxios.get(`/poker/${pokerID}/voting-control`);
             return response.data;
         } catch (error) {
             const errorMessage = handleAxiosError(error);
@@ -83,7 +92,7 @@ export const fetchAddVotingTask = createAsyncThunk(
     async (params: AddVotingTaskParams, { rejectWithValue }) => {
         const { pokerID, taskID } = params;
         try {
-            const response = await authAxios.post(`/poker/${pokerID}/votingtask/${taskID}`);
+            const response = await authAxios.post(`/poker/${pokerID}/voting-control/task/${taskID}`);
             return taskID;
         } catch (error) {
             const errorMessage = handleAxiosError(error);
@@ -115,9 +124,13 @@ const votingTaskSlice = createSlice({
     name: 'VotingTask',
     initialState,
     reducers: {
-        setVotingTask: (state, action: PayloadAction<number>) => {
-                state.VotingTask = action.payload;
-                state.vote = ''
+        setVoteChange: (state, action: PayloadAction<{TaskID:number, StartDate:Date, Duration:number, EndDate:Date}>) => {
+
+    
+            state.taskID = action.payload.TaskID;
+                state.duration = action.payload.Duration;
+                state.endDate = action.payload.EndDate;
+                state.startDate = action.payload.StartDate;
         },
       
         setNumberVoters: (state, action: PayloadAction<number>) => {
@@ -138,8 +151,12 @@ const votingTaskSlice = createSlice({
                 state.errorGetVotingTask = '';
             })
             .addCase(fetchGetVotingTask.fulfilled, (state, action: PayloadAction<GetVotingTask>) => {
+                
                 state.statusGetVotingTask = 'succeeded';
-                state.VotingTask = action.payload.TaskID;
+                state.taskID = action.payload.VoteState.TaskID;
+                state.duration = action.payload.VoteState.Duration;
+                state.endDate = action.payload.VoteState.EndDate;
+                state.startDate = action.payload.VoteState.StartDate;
                 state.vote = action.payload.Estimate;
                 
             })
@@ -181,5 +198,5 @@ const votingTaskSlice = createSlice({
     },
 });
 
-export const { setVotingTask, setNumberVoters, setVote } = votingTaskSlice.actions;
+export const { setVoteChange, setNumberVoters, setVote } = votingTaskSlice.actions;
 export default votingTaskSlice.reducer;

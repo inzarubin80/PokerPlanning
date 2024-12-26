@@ -110,7 +110,7 @@ export const updateTask = createAsyncThunk(
   async (params: SaveTaskParams, { rejectWithValue }) => {
     const { pokerID, task, callback } = params;
     try {
-      const response = await authAxios.put(`/poker/${pokerID}/tasks/${task.id}`, task);
+      const response = await authAxios.put(`/poker/${pokerID}/tasks/${task.ID}`, task);
       if (callback) callback();
       return response.data;
     } catch (error) {
@@ -140,7 +140,7 @@ const taskSlice = createSlice({
   reducers: {
     taskAdded: (state, action: PayloadAction<Task>) => {
       const updatedTask = action.payload;
-      const index = state.tasks.findIndex((task) => task.id === updatedTask.id);
+      const index = state.tasks.findIndex((task) => task.ID === updatedTask.ID);
       if (index !== -1) {
         state.tasks[index] = updatedTask;
       } else {
@@ -150,7 +150,7 @@ const taskSlice = createSlice({
 
     tasksUpdating: (state, action: PayloadAction<Task>) => {
       const updatedTask = action.payload;
-      const index = state.tasks.findIndex((task) => task.id === updatedTask.id);
+      const index = state.tasks.findIndex((task) => task.ID === updatedTask.ID);
       if (index !== -1) {
         state.tasks[index] = updatedTask;
       }
@@ -161,7 +161,7 @@ const taskSlice = createSlice({
     },
 
     taskRemoved: (state, action: PayloadAction<number>) => {
-      state.tasks = state.tasks.filter((task) => task.id !== action.payload);
+      state.tasks = state.tasks.filter((task) => task.ID !== action.payload);
     },
   },
   extraReducers: (builder) => {
@@ -213,7 +213,7 @@ const taskSlice = createSlice({
       })
       .addCase(deleteTask.fulfilled, (state, action) => {
         state.statusDeleteTask = 'succeeded';
-        state.tasks = state.tasks.filter((task) => task.id !== action.payload);
+        state.tasks = state.tasks.filter((task) => task.ID !== action.payload);
       })
       .addCase(deleteTask.rejected, (state, action) => {
         state.statusDeleteTask = 'failed';

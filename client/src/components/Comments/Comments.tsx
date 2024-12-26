@@ -49,7 +49,7 @@ const Comments: React.FC<CommentsProps> = ({ comments, handleAddComment }) => {
           <List>
             {comments.map((comment) => (
               <ListItem
-                key={comment.id}
+                key={comment.ID}
                 sx={{
                   bgcolor: 'background.paper',
                   mb: 1,
@@ -61,8 +61,8 @@ const Comments: React.FC<CommentsProps> = ({ comments, handleAddComment }) => {
                 }}
               >
                 <ListItemText
-                  primary={comment.text}
-                  secondary={`Автор: ${comment.user_id}`}
+                  primary={comment.Text}
+                  secondary={`Автор: ${comment.UserID}`}
                   primaryTypographyProps={{ variant: 'body1' }}
                   secondaryTypographyProps={{ variant: 'caption' }}
                 />

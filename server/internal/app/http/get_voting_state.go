@@ -12,7 +12,7 @@ import (
 type (
 	
 	serviceTargetTask interface {
-		GetVotingState(ctx context.Context, pokerID model.PokerID, userID model.UserID) (*model.VoteState, model.Estimate, error) 
+		GetVotingState(ctx context.Context, pokerID model.PokerID, userID model.UserID) (*model.VoteControlState, model.Estimate, error) 
 	}
 	
 	GetVotingStateHandler struct {
@@ -21,8 +21,8 @@ type (
 	}
 
 	VotingState struct {
-		VoteState    *model.VoteState `json:"VoteState"`
-		Estimate  model.Estimate   `json:"Estimate"`
+		VoteState    *model.VoteControlState 
+		Estimate  model.Estimate  
 	}
 
 )

@@ -46,7 +46,7 @@ type (
 		UpdateComment(ctx context.Context, comment *model.Comment) (*model.Comment, error)
 		RemoveComment(ctx context.Context, pokerID model.PokerID, commentID model.CommentID) error
 
-	    GetVotingState(ctx context.Context, pokerID model.PokerID, userID model.UserID) (*model.VoteState, model.Estimate, error) 
+	    GetVotingState(ctx context.Context, pokerID model.PokerID, userID model.UserID) (*model.VoteControlState, model.Estimate, error) 
 		AddVotingTask(ctx context.Context, pokerID model.PokerID, taskID model.TaskID) error
 
 		GetUserByEmail(ctx context.Context, userData *model.UserData) (*model.User, error)
@@ -90,8 +90,9 @@ func (a *App) ListenAndServe() error {
 		a.config.path.updateTask:    appHttp.NewUpdateTaskHandler(a.pokerService, a.config.path.updateTask),
 		a.config.path.addComent:     appHttp.NewAddCommentHandler(a.pokerService, a.config.path.addComent),
 		a.config.path.getComents:    appHttp.NewGetCommentsHandler(a.pokerService, a.config.path.getComents),
+		
 		a.config.path.setVotingTask: appHttp.NewAddVotingTaskHandler(a.pokerService, a.config.path.setVotingTask),
-		a.config.path.getVotingState: appHttp.NewGetVotingStateHandler(a.pokerService, a.config.path.getVotingState),
+		a.config.path.getVotingControlState: appHttp.NewGetVotingStateHandler(a.pokerService, a.config.path.getVotingControlState),
 	
 		a.config.path.ping: appHttp.NewPingHandlerHandler(a.config.path.ping),
 		a.config.path.vote: appHttp.NewAddVotingHandler(a.pokerService, a.config.path.vote),	

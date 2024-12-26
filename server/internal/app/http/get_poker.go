@@ -21,11 +21,11 @@ type (
 	}
 
 	PokerToFrontend struct {
-		ID            model.PokerID `json:"id"`
-		CreatedAt     time.Time `json:"createdAt"`
-		Name          string	`json:"name"`
-		Autor         model.UserID `json:"autor"`
-		IsAdmin       bool `json:"isAdmin"`
+		ID            model.PokerID 
+		CreatedAt     time.Time 
+		Name          string	
+		Autor         model.UserID 
+		IsAdmin       bool 
 	}
 
 )
