@@ -1,19 +1,16 @@
 package defenitions
 
 const (
-	
-	ParamPokerID  = "poker_id"
-	ParamTaskID  = "task_id"
+
+	ParamPokerID  = "pokerID"
+	ParamTaskID  = "taskID"
 	ParamVotingControlAction = "voting_control_action"
-	
 	AuthorizationCode  = "authorization_code"
-	UserID  = "user_id"
+	UserID  = "userID"
 	DisplayName = "display_name"
 	DefaultEmail = "default_email"
 	SessionAuthenticationName = "authentication"
 	Token = "token"
-	ProviderKey = "provider_key"
-	
-	
+	ProviderKey = "providerKey"
 	
 )

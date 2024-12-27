@@ -90,16 +90,16 @@ const App: React.FC = () => {
       const msg = newMessages[i];
       switch (msg.Action) {
         case 'ADD_TASK':
-          dispatch(taskAdded(msg.task));
+          dispatch(taskAdded(msg.Task));
           break;
         case 'UPDATE_TASK':
-          dispatch(tasksUpdating(msg.task));
+          dispatch(tasksUpdating(msg.Task));
           break;
         case 'REMOVE_TASK':
-          dispatch(taskRemoved(msg.task_id));
+          dispatch(taskRemoved(msg.taskID));
           break;
         case 'ADD_COMMENT':
-          dispatch(commentAdded(msg.comment));
+          dispatch(commentAdded(msg.Comment));
           break;
         case 'VOTE_STATE_CHANGE':
           dispatch(setVoteChange(msg.State));

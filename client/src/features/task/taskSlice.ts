@@ -139,6 +139,7 @@ const taskSlice = createSlice({
   initialState,
   reducers: {
     taskAdded: (state, action: PayloadAction<Task>) => {
+
       const updatedTask = action.payload;
       const index = state.tasks.findIndex((task) => task.ID === updatedTask.ID);
       if (index !== -1) {
@@ -150,6 +151,7 @@ const taskSlice = createSlice({
 
     tasksUpdating: (state, action: PayloadAction<Task>) => {
       const updatedTask = action.payload;
+
       const index = state.tasks.findIndex((task) => task.ID === updatedTask.ID);
       if (index !== -1) {
         state.tasks[index] = updatedTask;

@@ -27,22 +27,13 @@ interface VotingProps {
     showSettings: boolean;
 }
 
-
 interface Action {
     id: string;
     name: string;
 }
 
-
-const getType = (value: any) => {
-    return Object.prototype.toString.call(value).slice(8, -1);
-};
-
-
 const isZeroDate = (date: string | null): boolean => {
-
     return (date == null) || (date == "0001-01-01T00:00:00Z");
-
 };
 
 
@@ -75,7 +66,6 @@ const Voting: React.FC<VotingProps> = ({
         [tasks, votingTask]
     );
 
-
     const currentEstimate: UserEstimate | undefined = useMemo(
         () => userEstimates.find(item => item.UserID === userID),
         [userEstimates, userID]
@@ -84,18 +74,18 @@ const Voting: React.FC<VotingProps> = ({
     const possibleActions: Action | null = useMemo(() => {
         if (votingTask > 0 && isZeroDate(startDate)) {
             return {
-                id: "START_VOTING",
-                name: "Начать голосование"
+                id: 'START_VOTING',
+                name: 'Начать голосование'
             };
         } else if (votingTask > 0 && !isZeroDate(startDate) && isZeroDate(endDate)) {
             return {
-                id: "STOP_VOTING",
-                name: "Закончить голосование"
+                id: 'STOP_VOTING',
+                name: 'Закончить голосование'
             };
         } else if (votingTask > 0 && !isZeroDate(startDate) && !isZeroDate(endDate)) {
             return {
-                id: "START_VOTING",
-                name: "Перезапустить голосование"
+                id: 'START_VOTING',
+                name: 'Перезапустить голосование'
             };
         } else {
             return null;
@@ -104,22 +94,20 @@ const Voting: React.FC<VotingProps> = ({
 
 
     const onTimerComplete = () => {
-        setIsTimerRunning(false);
-        handleEndVoting();
+        handleSetStateVoting();
     };
 
     useEffect(() => {
         let timer: NodeJS.Timeout | null = null;
-
-        if (isTimerRunning) {
+        if (possibleActions?.id == 'STOP_VOTING') {
             timer = setInterval(() => {
                 setProgress((prevProgress) => {
                     if (prevProgress <= 0) {
                         clearInterval(timer!);
-                        onTimerComplete(); // Завершение голосования, когда таймер доходит до 0
+                        onTimerComplete();
                         return 0;
                     }
-                    return prevProgress - 1; // Уменьшаем прогресс на 1% каждую секунду
+                    return prevProgress - 1;
                 });
             }, 1000);
         }
@@ -127,7 +115,7 @@ const Voting: React.FC<VotingProps> = ({
         return () => {
             if (timer) clearInterval(timer);
         };
-    }, [isTimerRunning, onTimerComplete]);
+    }, [possibleActions, onTimerComplete]);
 
     if (!pokerId) {
         return <div>pokerId is missing in the URL</div>;
@@ -141,6 +129,18 @@ const Voting: React.FC<VotingProps> = ({
             pokerID: pokerId,
             taskID,
         }));
+    };
+
+    const handleSetStateVoting = () => {
+        if (possibleActions == null) {
+            return
+        }
+
+        if (possibleActions.id == 'STOP_VOTING') {
+            setProgress(100)
+        }
+
+        dispatch(setVotingState({ pokerID: pokerId, action: possibleActions.id }))
     };
 
     return (
@@ -201,7 +201,7 @@ const Voting: React.FC<VotingProps> = ({
 
                             {/* Timer */}
 
-                            <Box p={2} display="flex" flexDirection="column" justifyContent="center" alignItems="center">
+                            {possibleActions?.id == 'STOP_VOTING' && <Box p={2} display="flex" flexDirection="column" justifyContent="center" alignItems="center">
                                 <Box sx={{ width: 250, height: 250 }}>
                                     <CircularProgressbar
                                         value={progress}
@@ -213,7 +213,7 @@ const Voting: React.FC<VotingProps> = ({
                                         })}
                                     />
                                 </Box>
-                            </Box>
+                            </Box>}
 
                         </Box>
                     </Box>
@@ -234,7 +234,7 @@ const Voting: React.FC<VotingProps> = ({
 
                 {/* Start Voting Button */}
                 <Box p={2} display="flex" flexDirection="column" justifyContent="flex-start">
-                    {possibleActions && <Button variant="contained" color="primary" onClick={() => dispatch(setVotingState({ pokerID: pokerId, action: possibleActions.id }))}>
+                    {possibleActions && <Button variant="contained" color="primary" onClick={() => handleSetStateVoting()}>
                         {possibleActions.name}
                     </Button>}
                 </Box>
