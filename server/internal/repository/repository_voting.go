@@ -5,7 +5,7 @@ import (
 	"inzarubin80/PokerPlanning/internal/model"
 )
 
-func (r *Repository) AddVoting(ctx context.Context, userEstimate *model.UserEstimate) error {
+func (r *Repository) SetVoting(ctx context.Context, userEstimate *model.UserEstimate) error {
 
 	r.storage.mx.Lock()
 	defer r.storage.mx.Unlock()
@@ -37,7 +37,7 @@ func (r *Repository) ClearVote(ctx context.Context, pokerID model.PokerID) error
 
 
 
-func (r *Repository) GetVotingUser(ctx context.Context, pokerID model.PokerID, userID model.UserID) (model.Estimate, error) {
+func (r *Repository) GetUserEstimate(ctx context.Context, pokerID model.PokerID, userID model.UserID) (model.Estimate, error) {
 
 	r.storage.mx.Lock()
 	defer r.storage.mx.Unlock()
@@ -75,7 +75,7 @@ func (r *Repository) GetVotingResults(ctx context.Context, pokerID model.PokerID
 			Estimate: k,
 		})
 	}
-
+	
 	return results, nil
 
 }

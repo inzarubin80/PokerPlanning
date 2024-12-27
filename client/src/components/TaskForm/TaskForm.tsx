@@ -32,14 +32,14 @@ const TaskForm: React.FC<TaskFormProps> = ({ }) => {
   useEffect(() => {
     if (taskId == "-1" && pokerId) {
       const initialTask: Task = {
-        id: -1,
-        poker_id: pokerId,
-        title: '',
-        description: '',
-        story_point: 0,
-        status: '',
-        completed: false,
-        estimate: 'xs'
+        ID: -1,
+        PokerID: pokerId,
+        Title: '',
+        Description: '',
+        StoryPoint: 0,
+        Status: '',
+        Completed: false,
+        Estimate: 'xs'
       };
 
       dispatch(changeCurrentTask(initialTask))
@@ -66,7 +66,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ }) => {
 
     e.preventDefault();
 
-    if (curentTask.id == -1) {
+    if (curentTask.ID == -1) {
       dispatch(addTask({task:curentTask, pokerID:pokerId, callback}))
     } else {
       dispatch(updateTask({task:curentTask, pokerID:pokerId, callback}))
@@ -75,19 +75,19 @@ const TaskForm: React.FC<TaskFormProps> = ({ }) => {
 
   const handleSetTitle = (title: string) => {
     if (curentTask) {
-      dispatch(changeCurrentTask({ ...curentTask, title: title }))
+      dispatch(changeCurrentTask({ ...curentTask, Title: title }))
     }
   };
 
   const handleSetDescription = (description: string) => {
     if (curentTask) {
-      dispatch(changeCurrentTask({ ...curentTask, description: description }))
+      dispatch(changeCurrentTask({ ...curentTask, Description: description }))
     }
   };
 
   const handleSetEstimate = (estimate: string) => {
     if (curentTask) {
-      dispatch(changeCurrentTask({ ...curentTask, estimate: estimate }))
+      dispatch(changeCurrentTask({ ...curentTask, Estimate: estimate }))
     }
   };
 
@@ -110,7 +110,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ }) => {
             <Grid2 size={{ xs: 12 }}>
               <TextField
                 label="Заголовок"
-                value={curentTask?.title}
+                value={curentTask?.Title}
                 onChange={(e) => handleSetTitle(e.target.value)}
                 fullWidth
                 required
@@ -119,7 +119,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ }) => {
             <Grid2 size={{ xs: 12 }}>
               <TextField
                 label="Описание"
-                value={curentTask?.description}
+                value={curentTask?.Description}
                 onChange={(e) => handleSetDescription(e.target.value)}
                 fullWidth
                 multiline
@@ -130,8 +130,8 @@ const TaskForm: React.FC<TaskFormProps> = ({ }) => {
             <Grid2 size={{ xs: 12 }}>
               <TextField
                 label="Оценка"
-                value={curentTask?.estimate}
-                onChange={(e) => handleSetEstimate(e.target.value as Task['estimate'])}
+                value={curentTask?.Estimate}
+                onChange={(e) => handleSetEstimate(e.target.value as Task['Estimate'])}
                 fullWidth
                 select
                 SelectProps={{

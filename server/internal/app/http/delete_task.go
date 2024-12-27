@@ -29,7 +29,7 @@ func NewDeleteTaskHandler(service serviceDeleteTask, name string) *DeleteTaskHan
 func (h *DeleteTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context();
-	pokerID, err := uhttp.ValidatePatchParameterPokerID(r)
+	pokerID, err := uhttp.ValidatePatchStringParameter(r, defenitions.ParamPokerID)
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
@@ -44,7 +44,7 @@ func (h *DeleteTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	taskId, _ := parameterValues[defenitions.ParamTaskID]
 
-	err = h.service.DeleteTask(ctx, pokerID, model.TaskID(taskId))
+	err = h.service.DeleteTask(ctx, model.PokerID(pokerID), model.TaskID(taskId))
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return

@@ -28,7 +28,7 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, handleEditTask, handleDelete
       <Box p={1} overflow="auto">
         <List>
           {tasks.map((task: Task) => (
-            <Box key={task.id.toString()} mb={2}>
+            <Box key={task.ID.toString()} mb={2}>
               <TaskCard
                 task={task}
                 onEdit={handleEditTask}

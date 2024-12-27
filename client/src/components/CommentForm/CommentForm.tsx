@@ -18,10 +18,10 @@ const CommentForm: React.FC<CommentFormProps> = ({ onAddComment }) => {
       const saveCommentParams: SaveCommentParams = {
         callback: () => setText(''),
         comment: {
-          id: -1,
-          poker_id: pokerId,
-          text: text,
-          user_id: 'Бран Старк',
+          ID: -1,
+          PokerID: pokerId,
+          Text: text,
+          UserID: 'Бран Старк',
         },
         pokerID: '',
       };

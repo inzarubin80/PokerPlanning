@@ -1,14 +1,19 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { authAxios, publicAxios } from '../../service/http-common'; 
+import {LoginData} from "../../model/"
 
 // Тип для состояния авторизации
 interface AuthState {
   accessToken: string | null;
+  userID: number;
 }
 
-// Начальное состояние
 const initialState: AuthState = {
-  accessToken: localStorage.getItem("accessToken"),
+  accessToken: localStorage.getItem("accessToken") || null,
+  userID: (() => {
+    const storedUserID = localStorage.getItem("userID");
+    return storedUserID && !isNaN(Number(storedUserID)) ? parseInt(storedUserID, 10) : 0;
+  })(),
 };
 
 // Async Thunk для обновления токена
@@ -21,15 +26,16 @@ export const refreshAccessToken = createAsyncThunk(
     };
 
     localStorage.removeItem("accessToken"); 
+    localStorage.removeItem("userID"); 
 
     try {
       const response = await publicAxios(options);
-      const newAccessToken = response.data.Token;
+
 
       // Обновляем токен в состоянии
-      dispatch(setAccessToken(newAccessToken));
+      dispatch(setLoginData(response.data));
 
-      return newAccessToken;
+      return response.data.accessToken;
     } catch (error) {
       // Если обновление токена не удалось, выполняем логаут
       dispatch(logout());
@@ -48,14 +54,18 @@ const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    setAccessToken: (state, action: PayloadAction<string | null>) => {
-      state.accessToken = action.payload;
+    setLoginData: (state, action: PayloadAction<LoginData>) => {
+    
+
+      state.accessToken = action.payload.Token;
+      state.userID = action.payload.UserID;
 
       if  (action.payload !== null)  {
-        localStorage.setItem("accessToken", action.payload); 
-      }
-      
+        localStorage.setItem("accessToken", action.payload.Token); 
+        localStorage.setItem("userID", action.payload.UserID.toString()); 
 
+      }
+    
       // Обновляем заголовок Authorization в authAxios
       if (state.accessToken) {
         authAxios.defaults.headers.common['Authorization'] = `Bearer ${state.accessToken}`;
@@ -67,18 +77,21 @@ const authSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(refreshAccessToken.fulfilled, (state, action) => {
-        state.accessToken = action.payload;
-        
+        state.accessToken = action.payload.accessToken;
+        state.userID = action.payload.userID;
+         
       })
       .addCase(logout.fulfilled, (state) => {
         state.accessToken = null;
+        state.userID = 0;
+        
         delete authAxios.defaults.headers.common['Authorization'];
       });
   },
 });
 
 // Экспортируем действия
-export const { setAccessToken } = authSlice.actions;
+export const { setLoginData } = authSlice.actions;
 
 // Экспортируем редьюсер
 export default authSlice.reducer;

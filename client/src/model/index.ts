@@ -1,19 +1,36 @@
 export interface Task {
-    id: number;
-    poker_id: string;
-    title: string;
-    description: string;
-    story_point:number;
-    status: string; 
-    completed: boolean;
-    estimate: string;
-  }
+  ID: number;
+  PokerID: string;
+  Title: string;
+  Description: string;
+  StoryPoint: number;
+  Status: string;
+  Completed: boolean;
+  Estimate: string;
+}
 
-  export interface CommentItem {
-    id: number;
-    text: string;
-    user_id: string;
-    poker_id: string;  
-  }
+export interface CommentItem {
+  ID: number;
+  Text: string;
+  UserID: string;
+  PokerID: string;
+}
 
+export interface VoteControlState {
+  TaskID: number;
+  StartDate: string;
+  EndDate: string;
+  PokerID: string;
+}
 
+export interface UserEstimate {
+  ID:        number
+  PokerID:   string  
+  UserID:    number
+  Estimate:  string
+}
+
+export interface LoginData{
+  Token:  string,
+  UserID: number,
+}

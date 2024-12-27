@@ -1,59 +1,77 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { authAxios } from '../../service/http-common'; // Убедитесь, что путь к authAxios правильный
 import { AxiosError } from 'axios';
+import { VoteControlState, UserEstimate } from '../../model';
 
-interface ErrorResponse {
-    error: boolean;
-    message: string;
-}
 
-export interface AddVotingTaskParams {
+
+export interface SetVotingTaskParams {
     pokerID: string;
     taskID: number;
 }
-
 
 export interface AddVoteParams {
     pokerID: string;
     taskID: number;
-    estimate:string
+    estimate: string
 }
-
-export interface  GetVotingTask{
-    TaskID: number;
-    Estimate:string
-}
-
 
 
 interface VotingState {
-    VotingTask: number | null;
+
+    taskID: number;
     statusGetVotingTask: 'idle' | 'loading' | 'succeeded' | 'failed';
     errorGetVotingTask: string | null;
-    statusAddVotingTask: 'idle' | 'loading' | 'succeeded' | 'failed';
-    errorAddVotingTask: string | null;
+    
+    statusSetVotingTask: 'idle' | 'loading' | 'succeeded' | 'failed';
+    errorSetVotingTask: string | null;
+
+    statusUserEstimates: 'idle' | 'loading' | 'succeeded' | 'failed';
+    errorUserEstimates: string | null;
+
+    statusSetVoting: 'idle' | 'loading' | 'succeeded' | 'failed';
+    errorSetVoting: string | null;
+
+    statusSetVotingState:  'idle' | 'loading' | 'succeeded' | 'failed';
+    errorSetVotingState:    string | null;
+    possibleEstimates: string[];
+    vote: string;
+    numberVoters: number;
+    startDate: string | null;
+    duration: number;
+    endDate: string | null;
+    userEstimates: UserEstimate[]
 
 
-    statusAddVoting: 'idle' | 'loading' | 'succeeded' | 'failed';
-    errorAddVoting:  string | null;
-
-    possibleEstimates:  string[];
-    vote: string
-    numberVoters: number
 }
 
 const initialState: VotingState = {
 
-    VotingTask: null,
+    taskID: 0,
+    
     statusGetVotingTask: 'idle',
     errorGetVotingTask: null,
-    statusAddVotingTask: 'idle',
-    errorAddVotingTask: null,
-    statusAddVoting: 'idle',
-    errorAddVoting: null,
+    
+    statusSetVotingTask: 'idle',
+    errorSetVotingTask: null,
+    
+    statusSetVoting: 'idle',
+    errorSetVoting: null,
+
+    statusUserEstimates: 'idle',
+    errorUserEstimates: null,
+    
+    statusSetVotingState:  'idle',
+    errorSetVotingState:   null,
+
     possibleEstimates: ["0", "1", "2", "3", "5", "8", "13", "21", "?"],
-    vote : '',
-    numberVoters: 0
+    vote: '',
+    numberVoters: 0,
+    duration: 0,
+    endDate: null,
+    startDate: null,
+    userEstimates: [],
+
     
 };
 
@@ -65,11 +83,11 @@ const handleAxiosError = (error: unknown): string => {
     return 'Something went wrong';
 };
 
-export const fetchGetVotingTask = createAsyncThunk(
+export const fetchVotingControl = createAsyncThunk(
     'votingTask/get',
     async (pokerID: string, { rejectWithValue }) => {
         try {
-            const response = await authAxios.get(`/poker/${pokerID}/votingtask`);
+            const response = await authAxios.get(`/poker/${pokerID}/voting-control`);
             return response.data;
         } catch (error) {
             const errorMessage = handleAxiosError(error);
@@ -78,12 +96,27 @@ export const fetchGetVotingTask = createAsyncThunk(
     }
 );
 
-export const fetchAddVotingTask = createAsyncThunk(
+
+export const getUserEstimates = createAsyncThunk(
+    'userEstimates/get',
+    async (pokerID: string, { rejectWithValue }) => {
+        try {
+            const response = await authAxios.get(`/poker/${pokerID}/user-estimates`);
+            return response.data;
+        } catch (error) {
+            const errorMessage = handleAxiosError(error);
+            return rejectWithValue(errorMessage);
+        }
+    }
+);
+
+
+export const fetchSetVotingTask = createAsyncThunk(
     'votingTask/add',
-    async (params: AddVotingTaskParams, { rejectWithValue }) => {
+    async (params: SetVotingTaskParams, { rejectWithValue }) => {
         const { pokerID, taskID } = params;
         try {
-            const response = await authAxios.post(`/poker/${pokerID}/votingtask/${taskID}`);
+            const response = await authAxios.post(`/poker/${pokerID}/voting-control/task/${taskID}`);
             return taskID;
         } catch (error) {
             const errorMessage = handleAxiosError(error);
@@ -96,13 +129,26 @@ export const fetchAddVote = createAsyncThunk(
     'vote/add',
     async (params: AddVoteParams, { rejectWithValue }) => {
 
-        console.log('fetchAddVote', params)
 
-        const {pokerID, taskID, estimate} = params
+        const { pokerID, taskID, estimate } = params
 
         try {
             const response = await authAxios.post(`/poker/${pokerID}/vote`, estimate);
             return estimate;
+        } catch (error) {
+            const errorMessage = handleAxiosError(error);
+            return rejectWithValue(errorMessage);
+        }
+    }
+);
+
+export const setVotingState = createAsyncThunk(
+    'votingState/set',
+    async (params: { pokerID: string, action: string }, { rejectWithValue }) => {
+        const { pokerID, action } = params;
+        try {
+            const response = await authAxios.post(`/poker/${pokerID}/voting-control/${action}`);
+            return response;
         } catch (error) {
             const errorMessage = handleAxiosError(error);
             return rejectWithValue(errorMessage);
@@ -115,71 +161,96 @@ const votingTaskSlice = createSlice({
     name: 'VotingTask',
     initialState,
     reducers: {
-        setVotingTask: (state, action: PayloadAction<number>) => {
-                state.VotingTask = action.payload;
-                state.vote = ''
+        setVoteChange: (state, action: PayloadAction<{ TaskID: number, StartDate: string, Duration: number, EndDate: string }>) => {
+            state.taskID = action.payload.TaskID;
+            state.endDate = action.payload.EndDate;
+            state.startDate = action.payload.StartDate;
         },
-      
+
         setNumberVoters: (state, action: PayloadAction<number>) => {
-                state.numberVoters = action.payload;     
+            state.numberVoters = action.payload;
         },
 
-        setVote: (state, action: PayloadAction<string>) => {
-            state.vote = action.payload;     
-       },
-    
-
+        setUserEstimates: (state, action: PayloadAction<UserEstimate[]>) => {
+            state.userEstimates = action.payload;
+        },
     },
     extraReducers: (builder) => {
         builder
             // 'votingTask/get'
-            .addCase(fetchGetVotingTask.pending, (state) => {
+            .addCase(fetchVotingControl.pending, (state) => {
                 state.statusGetVotingTask = 'loading';
                 state.errorGetVotingTask = '';
             })
-            .addCase(fetchGetVotingTask.fulfilled, (state, action: PayloadAction<GetVotingTask>) => {
+            .addCase(fetchVotingControl.fulfilled, (state, action: PayloadAction<VoteControlState>) => {
                 state.statusGetVotingTask = 'succeeded';
-                state.VotingTask = action.payload.TaskID;
-                state.vote = action.payload.Estimate;
-                
+                state.taskID = action.payload.TaskID;
+                state.endDate = action.payload.EndDate;
+                state.startDate = action.payload.StartDate;
+
             })
-            .addCase(fetchGetVotingTask.rejected, (state, action) => {
+            .addCase(fetchVotingControl.rejected, (state, action) => {
                 state.statusGetVotingTask = 'failed';
                 state.errorGetVotingTask = action.payload as string;
             })
 
             // 'votingTask/add'
-            .addCase(fetchAddVotingTask.pending, (state) => {
-                state.statusAddVotingTask = 'loading';
-                state.errorAddVotingTask = '';
+            .addCase(fetchSetVotingTask.pending, (state) => {
+                state.statusSetVotingTask = 'loading';
+                state.errorSetVotingTask = '';
             })
-            .addCase(fetchAddVotingTask.fulfilled, (state, action: PayloadAction<number>) => {
-                state.statusAddVotingTask = 'succeeded';
+            .addCase(fetchSetVotingTask.fulfilled, (state, action: PayloadAction<number>) => {
+                state.statusSetVotingTask = 'succeeded';
             })
-            .addCase(fetchAddVotingTask.rejected, (state, action) => {
-                state.statusAddVotingTask = 'failed';
-                state.errorAddVotingTask = action.payload as string;
+            .addCase(fetchSetVotingTask.rejected, (state, action) => {
+                state.statusSetVotingTask = 'failed';
+                state.errorSetVotingTask = action.payload as string;
             })
 
 
-              // 'vote/add'
-              .addCase(fetchAddVote.pending, (state) => {
-                state.statusAddVoting = 'loading';
-                state.errorAddVoting = '';
+            // 'vote/add'
+            .addCase(fetchAddVote.pending, (state) => {
+                state.statusSetVoting = 'loading';
+                state.errorSetVoting = '';
             })
             .addCase(fetchAddVote.fulfilled, (state, action: PayloadAction<string>) => {
-                state.statusAddVoting = 'succeeded';
+                state.statusSetVoting = 'succeeded';
                 state.vote = action.payload
             })
             .addCase(fetchAddVote.rejected, (state, action) => {
-                state.statusAddVoting = 'failed';
-                state.errorAddVoting = action.payload as string;
+                state.statusSetVoting = 'failed';
+                state.errorSetVoting = action.payload as string;
+            })
+
+            // 'userEstimates/get'
+            .addCase(getUserEstimates.pending, (state) => {
+                state.statusUserEstimates = 'loading';
+                state.errorUserEstimates = '';
+            })
+            .addCase(getUserEstimates.fulfilled, (state, action: PayloadAction<UserEstimate[]>) => {
+                state.statusUserEstimates = 'succeeded';
+                state.userEstimates = action.payload
+            })
+            .addCase(getUserEstimates.rejected, (state, action) => {
+                state.statusUserEstimates = 'failed';
+                state.errorUserEstimates = action.payload as string;
+            })
+            
+            // 'votingState/set'
+            .addCase(setVotingState.pending, (state) => {
+                state.statusSetVotingState = 'loading';
+                state.errorSetVotingState = '';
+            })
+            .addCase(setVotingState.fulfilled, (state, action: any) => {
+                state.statusSetVotingState = 'succeeded';
+                state.errorSetVotingState = action.payload
+            })
+            .addCase(setVotingState.rejected, (state, action) => {
+                state.statusSetVotingState = 'failed';
+                state.errorSetVotingState = action.payload as string;
             });
-
-
-
     },
 });
 
-export const { setVotingTask, setNumberVoters, setVote } = votingTaskSlice.actions;
+export const { setVoteChange, setNumberVoters, setUserEstimates } = votingTaskSlice.actions;
 export default votingTaskSlice.reducer;

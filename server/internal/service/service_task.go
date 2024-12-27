@@ -7,9 +7,9 @@ import (
 
 type (
 	TASK_MESSAGE struct {
-		Action string       `json:"action"`
-		Task   *model.Task  `json:"task"`
-		TaskID model.TaskID `json:"task_id"`
+		Action string       
+		Task   *model.Task  
+		TaskID model.TaskID 
 	}
 )
 

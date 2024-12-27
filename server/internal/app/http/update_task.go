@@ -3,11 +3,13 @@ package http
 import (
 	"context"
 	"encoding/json"
-	validation "github.com/go-ozzo/ozzo-validation"
+	"inzarubin80/PokerPlanning/internal/app/defenitions"
 	"inzarubin80/PokerPlanning/internal/app/uhttp"
 	"inzarubin80/PokerPlanning/internal/model"
 	"io"
 	"net/http"
+
+	validation "github.com/go-ozzo/ozzo-validation"
 )
 
 type (
@@ -31,7 +33,7 @@ func (h *UpdateTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
-	pokerID, err := uhttp.ValidatePatchParameterPokerID(r)
+	pokerID, err := uhttp.ValidatePatchStringParameter(r, defenitions.ParamPokerID)
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
@@ -59,12 +61,12 @@ func (h *UpdateTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if task.PokerID!=pokerID {
+	if task.PokerID != model.PokerID(pokerID) {
 		uhttp.SendErrorResponse(w, http.StatusBadRequest, "")
 		return
 	}
 	
-	_, err = h.service.UpdateTask(ctx, pokerID, task)
+	_, err = h.service.UpdateTask(ctx, model.PokerID(pokerID), task)
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusInternalServerError, err.Error())
 	} else {

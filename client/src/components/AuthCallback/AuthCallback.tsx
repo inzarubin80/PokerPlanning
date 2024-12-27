@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { setAccessToken } from '../../features/auth/authSlice';
+import { setLoginData } from '../../features/auth/authSlice';
 import { AppDispatch } from '../../app/store';
 import { useDispatch } from 'react-redux';
 
@@ -11,8 +11,8 @@ const AuthCallback: React.FC = () => {
   const intervalRef = React.useRef("");
   
   interface PostData {
-    authorization_code: string;
-    provider_key: string;
+    AuthorizationCode: string;
+    ProviderKey: string;
   }
 
   useEffect(() => {
@@ -26,8 +26,8 @@ const AuthCallback: React.FC = () => {
 
         if (code && provider) {
           const data: PostData = {
-            authorization_code: code,
-            provider_key: provider,
+            AuthorizationCode: code,
+            ProviderKey: provider,
           };
 
           try {
@@ -42,7 +42,7 @@ const AuthCallback: React.FC = () => {
             });
 
             const result = await response.json();
-            dispatch(setAccessToken(result.Token));
+            dispatch(setLoginData(result));
            
             const fromLocal = localStorage.getItem('redirectUrl');
             localStorage.removeItem('redirectUrl')

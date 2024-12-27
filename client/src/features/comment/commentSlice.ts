@@ -77,7 +77,7 @@ const commentSlice = createSlice({
 
     commentAdded: (state, action: PayloadAction<CommentItem>) => {
       const updatedComment = action.payload;
-      const index = state.comments.findIndex((comment) => comment.id === updatedComment.id);
+      const index = state.comments.findIndex((comment) => comment.ID === updatedComment.ID);
       if (index !== -1) {
         state.comments[index] = updatedComment;
       } else {

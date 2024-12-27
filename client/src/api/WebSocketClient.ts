@@ -32,7 +32,7 @@ class WebSocketClient {
         };
 
         this.socket.onmessage = (event) => {
-            console.log('Получено сообщение:', event);
+        
             this.onMessage(event);
         };
 

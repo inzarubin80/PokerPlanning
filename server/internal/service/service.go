@@ -35,8 +35,8 @@ type (
 		RemoveComment(ctx context.Context, pokerID model.PokerID, commentID model.CommentID) error
 		
 		//TargetTask		
-		SetVotingTask(ctx context.Context, pokerID model.PokerID, taskID model.TaskID) (*model.VoteState, error) 
-		GetVotingState(ctx context.Context, pokerID model.PokerID) (*model.VoteState, error) 
+		SetVotingTask(ctx context.Context, pokerID model.PokerID, taskID model.TaskID) (*model.VoteControlState, error) 
+		GetVotingState(ctx context.Context, pokerID model.PokerID) (*model.VoteControlState, error) 
 		
 		GetParticipants(ctx context.Context, pokerID model.PokerID) ([]model.UserID, error)
 		GetPoker(ctx context.Context, pokerID model.PokerID) (*model.Poker, error)
@@ -46,10 +46,12 @@ type (
 		AddUser(ctx context.Context, userData *model.UserData) (*model.User, error) 
 
 		//Voting
-		AddVoting(ctx context.Context, userEstimate *model.UserEstimate) error 
+		SetVoting(ctx context.Context, userEstimate *model.UserEstimate) error 
 		ClearVote(ctx context.Context, pokerID model.PokerID) error
 		GetVotingResults(ctx context.Context, pokerID model.PokerID) ([]*model.UserEstimate, error) 
-		GetVotingUser(ctx context.Context, pokerID model.PokerID, userID model.UserID) (model.Estimate, error)
+		GetUserEstimate(ctx context.Context, pokerID model.PokerID, userID model.UserID) (model.Estimate, error)
+		SetVotingState(ctx context.Context, pokerID model.PokerID, state *model.VoteControlState) (*model.VoteControlState, error)
+		
 	}
 
 	TokenService interface {

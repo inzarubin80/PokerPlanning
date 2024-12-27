@@ -15,7 +15,7 @@ import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchTasks, taskAdded, taskRemoved, tasksUpdating, deleteTask } from '../../features/task/taskSlice';
 import { addComment, commentAdded, getComments, SaveCommentParams } from '../../features/comment/commentSlice';
-import { setVotingTask, fetchAddVotingTask, fetchGetVotingTask, setNumberVoters, setVote } from '../../features/voting/voting';
+import { setVoteChange, fetchSetVotingTask, fetchVotingControl, setNumberVoters, setUserEstimates, getUserEstimates} from '../../features/voting/voting';
 import {fetchPokerDetails} from '../../features/poker/pokerSlice';
 import { AppDispatch, RootState } from '../../app/store';
 import WebSocketClient from '../../api/WebSocketClient'
@@ -52,9 +52,10 @@ const App: React.FC = () => {
 
     dispatch(fetchTasks(pokerId));
     dispatch(getComments(pokerId));
-    dispatch(fetchGetVotingTask(pokerId));
+    dispatch(fetchVotingControl(pokerId));
     dispatch(fetchPokerDetails(pokerId));
-
+    dispatch(getUserEstimates(pokerId));
+    
   }, [pokerId]);
 
 
@@ -87,8 +88,7 @@ const App: React.FC = () => {
 
     for (let i = 0; i < newMessages.length; i++) {
       const msg = newMessages[i];
-
-      switch (msg.action) {
+      switch (msg.Action) {
         case 'ADD_TASK':
           dispatch(taskAdded(msg.task));
           break;
@@ -101,25 +101,23 @@ const App: React.FC = () => {
         case 'ADD_COMMENT':
           dispatch(commentAdded(msg.comment));
           break;
-        case 'ADD_VOTING_TASK':
-          dispatch(setVotingTask(msg.task_id));
+        case 'VOTE_STATE_CHANGE':
+          dispatch(setVoteChange(msg.State));
           break;
         case 'CHANGE_NUMBER_VOTERS':
-          dispatch(setNumberVoters(msg.count));
+          dispatch(setNumberVoters(msg.Count));
           break;
         case 'ADD_VOTING':
-          dispatch(setVote(msg.estimate));
+          dispatch(setUserEstimates(msg.Estimates));
           break;
 
         default:
-          console.warn("Unknown message type:", msg.type);
+          console.warn("Unknown message type:", msg);
       }
     }
-
-
-
   }
 
+  
   const handleEditTask = (taskId: number) => {
     navigate(`/poker/${pokerId}/task/${taskId}`);
   };
@@ -133,7 +131,7 @@ const App: React.FC = () => {
 
   const handleSetVotingTask = (taskID: number) => {
     if (pokerId) {
-      dispatch(fetchAddVotingTask({ pokerID: pokerId, taskID }));
+      dispatch(fetchSetVotingTask({ pokerID: pokerId, taskID }));
     }
   };
 

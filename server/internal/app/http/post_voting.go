@@ -10,26 +10,26 @@ import (
 )
 
 type (
-	serviceAddVoting interface {
-		AddVoting(ctx context.Context, userEstimate *model.UserEstimate) error 
+	serviceSetVoting interface {
+		SetVoting(ctx context.Context, userEstimate *model.UserEstimate) error 
 	}
-	AddVotingHandler struct {
+	SetVotingHandler struct {
 		name    string
-		service serviceAddVoting
+		service serviceSetVoting
 	}
 )
 
-func NewAddVotingHandler(service serviceAddVoting, name string) *AddVotingHandler {
-	return &AddVotingHandler{
+func NewSetVotingHandler(service serviceSetVoting, name string) *SetVotingHandler {
+	return &SetVotingHandler{
 		name:    name,
 		service: service,
 	}
 }
 
-func (h *AddVotingHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h *SetVotingHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context();
-	pokerID, err := uhttp.ValidatePatchParameterPokerID(r)
+	pokerID, err := uhttp.ValidatePatchStringParameter(r, defenitions.ParamPokerID)
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
@@ -55,12 +55,12 @@ func (h *AddVotingHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	userEstimate := &model.UserEstimate{
 		ID: -1,
-		PokerID: pokerID,
-		UserID: userID,
+		PokerID:  model.PokerID(pokerID),
+		UserID:   userID,
 		Estimate: model.Estimate(estimate),
 	}
 
-	err = h.service.AddVoting(ctx, userEstimate)
+	err = h.service.SetVoting(ctx, userEstimate)
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return

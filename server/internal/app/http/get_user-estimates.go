@@ -3,6 +3,7 @@ package http
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"inzarubin80/PokerPlanning/internal/app/defenitions"
 	"inzarubin80/PokerPlanning/internal/app/uhttp"
 	"inzarubin80/PokerPlanning/internal/model"
@@ -11,24 +12,24 @@ import (
 
 type (
 	
-	serviceTargetTask interface {
-		GetVotingState(ctx context.Context, pokerID model.PokerID, userID model.UserID) (*model.VoteControlState,  error) 
+	serviceGetUserEstimates interface {
+		GetVotingResults(ctx context.Context, pokerID model.PokerID) ([]*model.UserEstimate, error)
 	}
 	
-	GetVotingStateHandler struct {
+	GetUserEstimatesHandler struct {
 		name    string
-		service serviceTargetTask
+		service serviceGetUserEstimates
 	}
 )
 
-func NewGetVotingStateHandler(service serviceTargetTask, name string) *GetVotingStateHandler {
-	return &GetVotingStateHandler{
+func NewGetUserEstimatesHandler(service serviceGetUserEstimates, name string) *GetUserEstimatesHandler {
+	return &GetUserEstimatesHandler{
 		name:    name,
 		service: service,
 	}
 }
 
-func (h *GetVotingStateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h *GetUserEstimatesHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context();
 	pokerID, err := uhttp.ValidatePatchStringParameter(r, defenitions.ParamPokerID)
@@ -43,13 +44,15 @@ func (h *GetVotingStateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	state, err:= h.service.GetVotingState(ctx, model.PokerID(pokerID), model.UserID(userID))
+	fmt.Println(userID)
+
+	votingResults, err:= h.service.GetVotingResults(ctx, model.PokerID(pokerID))
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	} 
 	
-	jsonData, err := json.Marshal( state)
+	jsonData, err := json.Marshal( votingResults)
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return

@@ -10,26 +10,26 @@ import (
 )
 
 type (
-	serviceAddVotingTask interface {
-		AddVotingTask(ctx context.Context, pokerID model.PokerID, taskID model.TaskID) (error) 
+	serviceSetVotingTask interface {
+		SetVotingTask(ctx context.Context, pokerID model.PokerID, taskID model.TaskID) (error) 
 	}
-	AddVotingTaskHandler struct {
+	SetVotingTaskHandler struct {
 		name    string
-		service serviceAddVotingTask
+		service serviceSetVotingTask
 	}
 )
 
-func NewAddVotingTaskHandler(service serviceAddVotingTask, name string) *AddVotingTaskHandler {
-	return &AddVotingTaskHandler{
+func NewSetVotingTaskHandler(service serviceSetVotingTask, name string) *SetVotingTaskHandler {
+	return &SetVotingTaskHandler{
 		name:    name,
 		service: service,
 	}
 }
 
-func (h *AddVotingTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h *SetVotingTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context();
-	pokerID, err := uhttp.ValidatePatchParameterPokerID(r)
+	pokerID, err := uhttp.ValidatePatchStringParameter(r, defenitions.ParamPokerID)
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
@@ -44,7 +44,7 @@ func (h *AddVotingTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 	
 	taskId, _ := parameterValues[defenitions.ParamTaskID]
 	
-	err = h.service.AddVotingTask(ctx, pokerID, model.TaskID(taskId))
+	err = h.service.SetVotingTask(ctx, model.PokerID(pokerID), model.TaskID(taskId))
 
 	if err!=nil {
 		uhttp.SendErrorResponse(w, http.StatusInternalServerError, err.Error())

@@ -16,7 +16,7 @@ type (
 	UserEstimates map[model.PokerID]map[model.EstimateID]*model.UserEstimate
 	Pokers        map[model.PokerID]*model.Poker
 	Participants  map[model.PokerID]map[model.UserID]bool
-	VoteState   map[model.PokerID]*model.VoteState
+	VoteState   map[model.PokerID]*model.VoteControlState
 	Voting        map[model.PokerID]map[model.UserID] model.Estimate
 
 	Storage struct {

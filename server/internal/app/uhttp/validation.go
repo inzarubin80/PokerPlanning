@@ -2,7 +2,6 @@ package uhttp
 
 import (
 	"fmt"
-	"inzarubin80/PokerPlanning/internal/app/defenitions"
 	"inzarubin80/PokerPlanning/internal/model"
 	"net/http"
 	"strconv"
@@ -16,12 +15,12 @@ type ValidateParameter struct {
 	Max  int64
 }
 
-func ValidatePatchParameterPokerID(r *http.Request) (model.PokerID, error) {
-	pokerID := r.PathValue(defenitions.ParamPokerID)
-	if pokerID == "" {
-		return "", fmt.Errorf("%w: %s is missing", model.ErrInvalidParameter, defenitions.ParamPokerID)
+func ValidatePatchStringParameter(r *http.Request, param string) (string, error) {
+	stringValue := r.PathValue(param)
+	if stringValue == "" {
+		return "", fmt.Errorf("%w: %s is missing", param, model.ErrInvalidParameter)
 	}
-	return model.PokerID(pokerID), nil
+	return stringValue, nil
 }
 
 
