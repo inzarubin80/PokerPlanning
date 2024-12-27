@@ -32,7 +32,7 @@ func NewGetUserEstimatesHandler(service serviceGetUserEstimates, name string) *G
 func (h *GetUserEstimatesHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context();
-	pokerID, err := uhttp.ValidatePatchParameterPokerID(r)
+	pokerID, err := uhttp.ValidatePatchStringParameter(r, defenitions.ParamPokerID)
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return

@@ -11,7 +11,7 @@ import (
 
 type (
 	serviceSetVotingState interface {
-		GetVotingState(ctx context.Context, pokerID model.PokerID, userID model.UserID) (*model.VoteControlState, error)
+		SetVotingState(ctx context.Context, pokerID model.PokerID, actionVotingState string) (*model.VoteControlState, error)
 	}
 
 	SetVotingStateHandler struct {
@@ -20,7 +20,7 @@ type (
 	}
 )
 
-func NewSetVotingStateHandler(service serviceTargetTask, name string) *SetVotingStateHandler {
+func NewSetVotingStateHandler(service serviceSetVotingState, name string) *SetVotingStateHandler {
 	return &SetVotingStateHandler{
 		name:    name,
 		service: service,
@@ -30,19 +30,19 @@ func NewSetVotingStateHandler(service serviceTargetTask, name string) *SetVoting
 func (h *SetVotingStateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
-	pokerID, err := uhttp.ValidatePatchParameterPokerID(r)
+	pokerID, err := uhttp.ValidatePatchStringParameter(r, defenitions.ParamPokerID)
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	userID, ok := ctx.Value(defenitions.UserID).(model.UserID)
-	if !ok {
-		uhttp.SendErrorResponse(w, http.StatusInternalServerError, "not user ID")
+	votingControlAction, err := uhttp.ValidatePatchStringParameter(r, defenitions.ParamVotingControlAction)
+	if err != nil {
+		uhttp.SendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	state, err := h.service.GetVotingState(ctx, model.PokerID(pokerID), model.UserID(userID))
+	state, err := h.service.SetVotingState(ctx, model.PokerID(pokerID), votingControlAction)
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return

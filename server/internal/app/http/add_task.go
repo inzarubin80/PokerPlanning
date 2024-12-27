@@ -3,15 +3,15 @@ package http
 import (
 	"context"
 	"encoding/json"
-	validation "github.com/go-ozzo/ozzo-validation"
+	"inzarubin80/PokerPlanning/internal/app/defenitions"
 	"inzarubin80/PokerPlanning/internal/app/uhttp"
 	"inzarubin80/PokerPlanning/internal/model"
 	"io"
 	"net/http"
+	validation "github.com/go-ozzo/ozzo-validation"
 )
 
 type (
-
 	serviceAddTask interface {
 		AddTask(ctx context.Context, task *model.Task) (*model.Task, error)
 	}
@@ -19,7 +19,6 @@ type (
 		name    string
 		service serviceAddTask
 	}
-
 )
 
 func NewAddTaskHandler(service serviceAddTask, name string) *AddTaskHandler {
@@ -35,7 +34,7 @@ func (h *AddTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
-	pokerID, err := uhttp.ValidatePatchParameterPokerID(r)
+	pokerID, err := uhttp.ValidatePatchStringParameter(r, defenitions.ParamPokerID)
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
@@ -54,8 +53,6 @@ func (h *AddTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	
-
 	err = validation.ValidateStruct(task,
 		validation.Field(&task.Title, validation.Required),
 		validation.Field(&task.Description, validation.Required))
@@ -65,11 +62,11 @@ func (h *AddTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if task.PokerID!=pokerID {
+	if task.PokerID != model.PokerID(pokerID) {
 		uhttp.SendErrorResponse(w, http.StatusBadRequest, "")
 		return
 	}
-	 _, err = h.service.AddTask(ctx, task)
+	_, err = h.service.AddTask(ctx, task)
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusInternalServerError, err.Error())
 	} else {

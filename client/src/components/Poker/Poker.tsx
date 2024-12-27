@@ -56,7 +56,6 @@ const App: React.FC = () => {
     dispatch(fetchPokerDetails(pokerId));
     dispatch(getUserEstimates(pokerId));
     
-
   }, [pokerId]);
 
 
@@ -116,11 +115,9 @@ const App: React.FC = () => {
           console.warn("Unknown message type:", msg);
       }
     }
-
-
-
   }
 
+  
   const handleEditTask = (taskId: number) => {
     navigate(`/poker/${pokerId}/task/${taskId}`);
   };

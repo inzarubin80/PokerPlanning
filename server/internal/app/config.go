@@ -77,7 +77,7 @@ func NewConfig(opts Options) config {
 			vote:                  fmt.Sprintf("POST 	/api/poker/{%s}/vote", defenitions.ParamPokerID),
 			setVotingTask:         fmt.Sprintf("POST 	/api/poker/{%s}/voting-control/task/{%s}", defenitions.ParamPokerID, defenitions.ParamTaskID),
 			getVotingControlState: fmt.Sprintf("GET  	/api/poker/{%s}/voting-control", defenitions.ParamPokerID),
-			setVotingControlState: fmt.Sprintf("POST 	/api/poker/{%s}/voting-control/{%s}", defenitions.ParamPokerID, defenitions.VotingControlAction),
+			setVotingControlState: fmt.Sprintf("POST 	/api/poker/{%s}/voting-control/{%s}", defenitions.ParamPokerID, defenitions.ParamVotingControlAction),
 			getUserEstimates:      fmt.Sprintf("GET		/api/poker/{%s}/user-estimates", defenitions.ParamPokerID),
 
 			createTask:            fmt.Sprintf("POST	/api/poker/{%s}/tasks", defenitions.ParamPokerID),
@@ -85,6 +85,7 @@ func NewConfig(opts Options) config {
 			getTask:               fmt.Sprintf("GET		/api/poker/{%s}/tasks/{%s}", defenitions.ParamPokerID, defenitions.ParamTaskID),
 			updateTask:            fmt.Sprintf("PUT 	/api/poker/{%s}/tasks/{%s}", defenitions.ParamPokerID, defenitions.ParamTaskID),
 			deleteTask:            fmt.Sprintf("DELETE 	/api/poker/{%s}/tasks/{%s}", defenitions.ParamPokerID, defenitions.ParamTaskID),
+			
 			getComents:            fmt.Sprintf("GET 	/api/poker/{%s}/comments", defenitions.ParamPokerID),
 			addComent:             fmt.Sprintf("POST 	/api/poker/{%s}/comments", defenitions.ParamPokerID),
 			getPoker:              fmt.Sprintf("GET 	/api/poker/{%s}", defenitions.ParamPokerID),

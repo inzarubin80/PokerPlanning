@@ -3,6 +3,7 @@ package http
 import (
 	"context"
 	"encoding/json"
+	"inzarubin80/PokerPlanning/internal/app/defenitions"
 	"inzarubin80/PokerPlanning/internal/app/uhttp"
 	"inzarubin80/PokerPlanning/internal/model"
 	"net/http"
@@ -28,13 +29,13 @@ func NewGetCommentsHandler(service serviceGetComments, name string) *GetComments
 func (h *GetCommentsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context();
-	pokerID, err := uhttp.ValidatePatchParameterPokerID(r)
+	pokerID, err := uhttp.ValidatePatchStringParameter(r, defenitions.ParamPokerID)
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	comments, err := h.service.GetComments(ctx, pokerID)
+	comments, err := h.service.GetComments(ctx, model.PokerID(pokerID))
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return

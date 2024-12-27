@@ -22,24 +22,24 @@ interface VotingState {
     taskID: number;
     statusGetVotingTask: 'idle' | 'loading' | 'succeeded' | 'failed';
     errorGetVotingTask: string | null;
+    
     statusSetVotingTask: 'idle' | 'loading' | 'succeeded' | 'failed';
     errorSetVotingTask: string | null;
 
-    statusUserEstimates:  'idle' | 'loading' | 'succeeded' | 'failed';
-    errorUserEstimates:  string | null;
-
+    statusUserEstimates: 'idle' | 'loading' | 'succeeded' | 'failed';
+    errorUserEstimates: string | null;
 
     statusSetVoting: 'idle' | 'loading' | 'succeeded' | 'failed';
     errorSetVoting: string | null;
 
+    statusSetVotingState:  'idle' | 'loading' | 'succeeded' | 'failed';
+    errorSetVotingState:    string | null;
     possibleEstimates: string[];
     vote: string;
     numberVoters: number;
-
     startDate: string | null;
     duration: number;
     endDate: string | null;
-
     userEstimates: UserEstimate[]
 
 
@@ -48,12 +48,22 @@ interface VotingState {
 const initialState: VotingState = {
 
     taskID: 0,
+    
     statusGetVotingTask: 'idle',
     errorGetVotingTask: null,
+    
     statusSetVotingTask: 'idle',
     errorSetVotingTask: null,
+    
     statusSetVoting: 'idle',
     errorSetVoting: null,
+
+    statusUserEstimates: 'idle',
+    errorUserEstimates: null,
+    
+    statusSetVotingState:  'idle',
+    errorSetVotingState:   null,
+
     possibleEstimates: ["0", "1", "2", "3", "5", "8", "13", "21", "?"],
     vote: '',
     numberVoters: 0,
@@ -62,9 +72,7 @@ const initialState: VotingState = {
     startDate: null,
     userEstimates: [],
 
-    statusUserEstimates:  'idle',
-    errorUserEstimates:  null,
-
+    
 };
 
 // Функция для обработки ошибок Axios
@@ -134,15 +142,28 @@ export const fetchAddVote = createAsyncThunk(
     }
 );
 
+export const setVotingState = createAsyncThunk(
+    'votingState/set',
+    async (params: { pokerID: string, action: string }, { rejectWithValue }) => {
+        const { pokerID, action } = params;
+        try {
+            const response = await authAxios.post(`/poker/${pokerID}/voting-control/${action}`);
+            return response;
+        } catch (error) {
+            const errorMessage = handleAxiosError(error);
+            return rejectWithValue(errorMessage);
+        }
+    }
+);
+
 
 const votingTaskSlice = createSlice({
     name: 'VotingTask',
     initialState,
     reducers: {
         setVoteChange: (state, action: PayloadAction<{ TaskID: number, StartDate: string, Duration: number, EndDate: string }>) => {
-            
             state.taskID = action.payload.TaskID;
-            state.endDate =action.payload.EndDate;
+            state.endDate = action.payload.EndDate;
             state.startDate = action.payload.StartDate;
         },
 
@@ -153,8 +174,6 @@ const votingTaskSlice = createSlice({
         setUserEstimates: (state, action: PayloadAction<UserEstimate[]>) => {
             state.userEstimates = action.payload;
         },
-
-
     },
     extraReducers: (builder) => {
         builder
@@ -203,8 +222,8 @@ const votingTaskSlice = createSlice({
                 state.errorSetVoting = action.payload as string;
             })
 
-             // 'userEstimates/get'
-             .addCase(getUserEstimates.pending, (state) => {
+            // 'userEstimates/get'
+            .addCase(getUserEstimates.pending, (state) => {
                 state.statusUserEstimates = 'loading';
                 state.errorUserEstimates = '';
             })
@@ -214,7 +233,21 @@ const votingTaskSlice = createSlice({
             })
             .addCase(getUserEstimates.rejected, (state, action) => {
                 state.statusUserEstimates = 'failed';
-                state.errorUserEstimates  = action.payload as string;
+                state.errorUserEstimates = action.payload as string;
+            })
+            
+            // 'votingState/set'
+            .addCase(setVotingState.pending, (state) => {
+                state.statusSetVotingState = 'loading';
+                state.errorSetVotingState = '';
+            })
+            .addCase(setVotingState.fulfilled, (state, action: any) => {
+                state.statusSetVotingState = 'succeeded';
+                state.errorSetVotingState = action.payload
+            })
+            .addCase(setVotingState.rejected, (state, action) => {
+                state.statusSetVotingState = 'failed';
+                state.errorSetVotingState = action.payload as string;
             });
     },
 });

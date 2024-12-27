@@ -29,7 +29,7 @@ func NewSetVotingHandler(service serviceSetVoting, name string) *SetVotingHandle
 func (h *SetVotingHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context();
-	pokerID, err := uhttp.ValidatePatchParameterPokerID(r)
+	pokerID, err := uhttp.ValidatePatchStringParameter(r, defenitions.ParamPokerID)
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
@@ -55,7 +55,7 @@ func (h *SetVotingHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	userEstimate := &model.UserEstimate{
 		ID: -1,
-		PokerID:  pokerID,
+		PokerID:  model.PokerID(pokerID),
 		UserID:   userID,
 		Estimate: model.Estimate(estimate),
 	}

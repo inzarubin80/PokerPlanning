@@ -12,13 +12,11 @@ import {
 import { Settings } from '@mui/icons-material';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '../../app/store';
-import { fetchAddVote } from '../../features/voting/voting';
+import { fetchAddVote, setVotingState } from '../../features/voting/voting';
 import { useParams } from 'react-router-dom';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import { Task, UserEstimate } from "../../model"
-
-
 
 // Тип для пропсов компонента Voting
 interface VotingProps {
@@ -64,6 +62,7 @@ const Voting: React.FC<VotingProps> = ({
     const userID: number = useSelector((state: RootState) => state.auth.userID);
     const possibleEstimates: string[] = useSelector((state: RootState) => state.volumeTaskReducer.possibleEstimates);
     const isAdmin: boolean = useSelector((state: RootState) => state.poker.isAdmin);
+
     const startDate: string | null = useSelector((state: RootState) => state.volumeTaskReducer.startDate);
     const endDate: string | null = useSelector((state: RootState) => state.volumeTaskReducer.endDate);
 
@@ -84,14 +83,20 @@ const Voting: React.FC<VotingProps> = ({
 
     const possibleActions: Action | null = useMemo(() => {
         if (votingTask > 0 && isZeroDate(startDate)) {
-            return { id: "START_VOTING", 
-                     name: "Начать голосование" };
+            return {
+                id: "START_VOTING",
+                name: "Начать голосование"
+            };
         } else if (votingTask > 0 && !isZeroDate(startDate) && isZeroDate(endDate)) {
-            return { id: "STOP_VOTING", 
-                    name: "Закончить голосование" };
+            return {
+                id: "STOP_VOTING",
+                name: "Закончить голосование"
+            };
         } else if (votingTask > 0 && !isZeroDate(startDate) && !isZeroDate(endDate)) {
-            return { id: "START_VOTING", 
-                     name: "Перезапустить голосование" };
+            return {
+                id: "START_VOTING",
+                name: "Перезапустить голосование"
+            };
         } else {
             return null;
         }
@@ -229,7 +234,7 @@ const Voting: React.FC<VotingProps> = ({
 
                 {/* Start Voting Button */}
                 <Box p={2} display="flex" flexDirection="column" justifyContent="flex-start">
-                    {possibleActions && <Button variant="contained" color="primary" onClick={() => setIsTimerRunning(true)}>
+                    {possibleActions && <Button variant="contained" color="primary" onClick={() => dispatch(setVotingState({ pokerID: pokerId, action: possibleActions.id }))}>
                         {possibleActions.name}
                     </Button>}
                 </Box>

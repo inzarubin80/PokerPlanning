@@ -30,7 +30,7 @@ func NewGetTaskHandler(service serviceGetTask, name string) *GetTaskHandler {
 func (h *GetTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context();
-	pokerID, err := uhttp.ValidatePatchParameterPokerID(r)
+	pokerID, err := uhttp.ValidatePatchStringParameter(r, defenitions.ParamPokerID)
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
@@ -45,7 +45,7 @@ func (h *GetTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	
 	taskId, _ := parameterValues[defenitions.ParamTaskID]
 
-	task, err := h.service.GetTask(ctx, pokerID, model.TaskID(taskId))
+	task, err := h.service.GetTask(ctx, model.PokerID(pokerID), model.TaskID(taskId))
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
