@@ -12,7 +12,6 @@ export interface SetVotingTaskParams {
 
 export interface AddVoteParams {
     pokerID: string;
-    taskID: number;
     estimate: string
 }
 
@@ -130,7 +129,7 @@ export const fetchAddVote = createAsyncThunk(
     async (params: AddVoteParams, { rejectWithValue }) => {
 
 
-        const { pokerID, taskID, estimate } = params
+        const { pokerID, estimate } = params
 
         try {
             const response = await authAxios.post(`/poker/${pokerID}/vote`, estimate);

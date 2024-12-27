@@ -126,8 +126,7 @@ const Voting: React.FC<VotingProps> = ({
 
         dispatch(fetchAddVote({
             estimate,
-            pokerID: pokerId,
-            taskID,
+            pokerID: pokerId
         }));
     };
 
