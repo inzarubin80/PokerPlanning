@@ -10,27 +10,26 @@ import (
 )
 
 type (
-	
-	serviceTargetTask interface {
-		GetVotingState(ctx context.Context, pokerID model.PokerID, userID model.UserID) (*model.VoteControlState,  error) 
+	serviceSetVotingState interface {
+		GetVotingState(ctx context.Context, pokerID model.PokerID, userID model.UserID) (*model.VoteControlState, error)
 	}
-	
-	GetVotingStateHandler struct {
+
+	SetVotingStateHandler struct {
 		name    string
-		service serviceTargetTask
+		service serviceSetVotingState
 	}
 )
 
-func NewGetVotingStateHandler(service serviceTargetTask, name string) *GetVotingStateHandler {
-	return &GetVotingStateHandler{
+func NewSetVotingStateHandler(service serviceTargetTask, name string) *SetVotingStateHandler {
+	return &SetVotingStateHandler{
 		name:    name,
 		service: service,
 	}
 }
 
-func (h *GetVotingStateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h *SetVotingStateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
-	ctx := r.Context();
+	ctx := r.Context()
 	pokerID, err := uhttp.ValidatePatchParameterPokerID(r)
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusBadRequest, err.Error())
@@ -43,17 +42,17 @@ func (h *GetVotingStateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	state, err:= h.service.GetVotingState(ctx, model.PokerID(pokerID), model.UserID(userID))
-	if err != nil {
-		uhttp.SendErrorResponse(w, http.StatusInternalServerError, err.Error())
-		return
-	} 
-	
-	jsonData, err := json.Marshal( state)
+	state, err := h.service.GetVotingState(ctx, model.PokerID(pokerID), model.UserID(userID))
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	uhttp.SendSuccessfulResponse(w,  jsonData)
-		
+
+	jsonData, err := json.Marshal(state)
+	if err != nil {
+		uhttp.SendErrorResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	uhttp.SendSuccessfulResponse(w, jsonData)
+
 }

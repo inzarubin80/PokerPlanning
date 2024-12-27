@@ -11,5 +11,7 @@ const (
 	SessionAuthenticationName = "authentication"
 	Token = "token"
 	ProviderKey = "provider_key"
+	VotingControlAction = "voting_control_action"
+	
 	
 )

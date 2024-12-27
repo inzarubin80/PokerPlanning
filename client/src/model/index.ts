@@ -17,10 +17,20 @@ export interface CommentItem {
 }
 
 export interface VoteControlState {
-
   TaskID: number;
-  StartDate: Date;
-  Duration: number;
-  EndDate: Date;
+  StartDate: string;
+  EndDate: string;
+  PokerID: string;
+}
 
+export interface UserEstimate {
+  ID:        number
+  PokerID:   string  
+  UserID:    number
+  Estimate:  string
+}
+
+export interface LoginData{
+  Token:  string,
+  UserID: number,
 }

@@ -4,42 +4,32 @@ import (
 	"context"
 	"fmt"
 	"inzarubin80/PokerPlanning/internal/model"
+	"time"
 )
 
 type (
 	VOTE_STATE_CHANGE struct {
-		Action string       
-		State  *model.VoteControlState 
-	}
-
-	NUMBER_VOTERS_MESSAGE struct {
-		Action string 
-		Count  int64  
+		Action string
+		State  *model.VoteControlState
 	}
 
 	USER_ESTIMATE_MESSAGE struct {
-		Action   string         
-		Estimate model.Estimate 
+		Action    string
+		Estimates []*model.UserEstimate
 	}
 )
 
-func (s *PokerService) GetVotingState(ctx context.Context, pokerID model.PokerID, userID model.UserID) (*model.VoteControlState, model.Estimate, error) {
+func (s *PokerService) GetVotingState(ctx context.Context, pokerID model.PokerID, userID model.UserID) (*model.VoteControlState, error) {
 
 	state, err := s.repository.GetVotingState(ctx, pokerID)
 	if err != nil {
-		return nil, "", err
+		return nil, err
 	}
-
-	estimate, err := s.repository.GetVotingUser(ctx, pokerID, userID)
-	if err != nil {
-		return nil, "", err
-	}
-
-	return state, estimate, nil
+	return state, nil
 
 }
 
-func (s *PokerService) AddVotingTask(ctx context.Context, pokerID model.PokerID, taskID model.TaskID) error {
+func (s *PokerService) SetVotingTask(ctx context.Context, pokerID model.PokerID, taskID model.TaskID) error {
 
 	task, err := s.repository.GetTask(ctx, pokerID, taskID)
 	if err != nil {
@@ -62,41 +52,93 @@ func (s *PokerService) AddVotingTask(ctx context.Context, pokerID model.PokerID,
 
 	s.hub.AddMessage(task.PokerID, &VOTE_STATE_CHANGE{
 		Action: model.VOTE_STATE_CHANGE,
-		State: state,
+		State:  state,
 	})
 
-	s.hub.AddMessage(task.PokerID, &NUMBER_VOTERS_MESSAGE{
-		Count:  int64(0),
-		Action: model.CHANGE_NUMBER_VOTERS,
+	s.hub.AddMessage(pokerID, &USER_ESTIMATE_MESSAGE{
+		Action:    model.ADD_VOTING,
+		Estimates: make([]*model.UserEstimate, 0),
 	})
 
 	return nil
 }
 
-func (s *PokerService) AddVoting(ctx context.Context, userEstimate *model.UserEstimate) error {
+func (s *PokerService) SetVoting(ctx context.Context, userEstimate *model.UserEstimate) error {
 
-	err := s.repository.AddVoting(ctx, userEstimate)
-
-	if err != nil {
-		return err
-	}
-
-	res, err := s.repository.GetVotingResults(ctx, userEstimate.PokerID)
+	err := s.repository.SetVoting(ctx, userEstimate)
 
 	if err != nil {
 		return err
 	}
 
-	s.hub.AddMessage(userEstimate.PokerID, &NUMBER_VOTERS_MESSAGE{
-		Count:  int64(len(res)),
-		Action: model.CHANGE_NUMBER_VOTERS,
-	})
+	userEstimates, err := s.repository.GetVotingResults(ctx, userEstimate.PokerID)
 
-	s.hub.AddMessageForUser(userEstimate.PokerID,userEstimate.UserID, &USER_ESTIMATE_MESSAGE{
-		Action:   model.ADD_VOTING,
-		Estimate: userEstimate.Estimate,
+	if err != nil {
+		return err
+	}
+
+	s.hub.AddMessageForUser(userEstimate.PokerID, userEstimate.UserID, &USER_ESTIMATE_MESSAGE{
+		Action:    model.ADD_VOTING,
+		Estimates: userEstimates,
 	})
 
 	return err
 
+}
+
+func (s *PokerService) GetVotingResults(ctx context.Context, pokerID model.PokerID) ([]*model.UserEstimate, error) {
+
+	userEstimates, err := s.repository.GetVotingResults(ctx, pokerID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return userEstimates, nil
+
+}
+
+func (s *PokerService) SetVotingState(ctx context.Context, pokerID model.PokerID, actionVotingState string) (*model.VoteControlState, error) {
+
+	state, err := s.repository.GetVotingState(ctx, pokerID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if state.TaskID <= 0 {
+		return nil, fmt.Errorf("TaskID is empty")
+	}
+
+	if actionVotingState == model.START_VOTING {
+
+		state.StartDate = time.Now()
+		state.EndDate = time.Time{}
+
+	} else if actionVotingState == model.STOP_VOTING {
+
+		if (state.StartDate == time.Time{}) {
+			return nil, fmt.Errorf("StartDate is empty")
+		}
+		state.EndDate = time.Now()
+	} else {
+		return nil, fmt.Errorf("action %s %w", actionVotingState, model.ErrorNotFound)
+	}
+
+	newState, err := s.repository.SetVotingState(ctx, pokerID, state)
+
+	if err != nil {
+		return nil, err
+	}
+
+	err = s.hub.AddMessage(pokerID, &VOTE_STATE_CHANGE{
+		Action: model.VOTE_STATE_CHANGE,
+		State:  state,
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return newState, err
 }

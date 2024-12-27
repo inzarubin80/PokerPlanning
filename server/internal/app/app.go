@@ -3,19 +3,19 @@ package app
 import (
 	"context"
 	"fmt"
-	appHttp "inzarubin80/PokerPlanning/internal/app/http"
-	ws "inzarubin80/PokerPlanning/internal/app/ws"
-	"time"
-	middleware "inzarubin80/PokerPlanning/internal/app/http/middleware"
-	"inzarubin80/PokerPlanning/internal/model"
-	repository "inzarubin80/PokerPlanning/internal/repository"
-	service "inzarubin80/PokerPlanning/internal/service"
-	"net/http"
 	"github.com/gorilla/sessions"
 	"golang.org/x/oauth2"
 	authinterface "inzarubin80/PokerPlanning/internal/app/authinterface"
 	providerUserData "inzarubin80/PokerPlanning/internal/app/clients/provider_user_data"
+	appHttp "inzarubin80/PokerPlanning/internal/app/http"
+	middleware "inzarubin80/PokerPlanning/internal/app/http/middleware"
 	tokenservice "inzarubin80/PokerPlanning/internal/app/token_service"
+	ws "inzarubin80/PokerPlanning/internal/app/ws"
+	"inzarubin80/PokerPlanning/internal/model"
+	repository "inzarubin80/PokerPlanning/internal/repository"
+	service "inzarubin80/PokerPlanning/internal/service"
+	"net/http"
+	"time"
 )
 
 const (
@@ -46,8 +46,9 @@ type (
 		UpdateComment(ctx context.Context, comment *model.Comment) (*model.Comment, error)
 		RemoveComment(ctx context.Context, pokerID model.PokerID, commentID model.CommentID) error
 
-	    GetVotingState(ctx context.Context, pokerID model.PokerID, userID model.UserID) (*model.VoteControlState, model.Estimate, error) 
-		AddVotingTask(ctx context.Context, pokerID model.PokerID, taskID model.TaskID) error
+		GetVotingState(ctx context.Context, pokerID model.PokerID, userID model.UserID) (*model.VoteControlState, error)
+		SetVotingTask(ctx context.Context, pokerID model.PokerID, taskID model.TaskID) error
+		SetVotingState(ctx context.Context, pokerID model.PokerID, actionVotingState string) (*model.VoteControlState, error)
 
 		GetUserByEmail(ctx context.Context, userData *model.UserData) (*model.User, error)
 
@@ -55,8 +56,8 @@ type (
 		Authorization(context.Context, string) (*model.Claims, error)
 		RefreshToken(ctx context.Context, refreshToken string) (*model.AuthData, error)
 
-		AddVoting(ctx context.Context, userEstimate *model.UserEstimate) error 
-
+		SetVoting(ctx context.Context, userEstimate *model.UserEstimate) error
+		GetVotingResults(ctx context.Context, pokerID model.PokerID) ([]*model.UserEstimate, error)
 	}
 
 	TokenService interface {
@@ -80,23 +81,25 @@ func (a *App) ListenAndServe() error {
 	go a.hub.Run()
 
 	handlers := map[string]http.Handler{
-	
-		a.config.path.createPoker:   appHttp.NewCreatePoker(a.pokerService, a.config.path.createPoker),
-		a.config.path.getPoker:      appHttp.NewGetPokerHandler(a.pokerService, a.config.path.getPoker),
-		a.config.path.createTask:    appHttp.NewAddTaskHandler(a.pokerService, a.config.path.createPoker),
-		a.config.path.getTasks:      appHttp.NewGetTasksHandler(a.pokerService, a.config.path.getTasks),
-		a.config.path.getTask:       appHttp.NewGetTaskHandler(a.pokerService, a.config.path.getTask),
-		a.config.path.deleteTask:    appHttp.NewDeleteTaskHandler(a.pokerService, a.config.path.deleteTask),
-		a.config.path.updateTask:    appHttp.NewUpdateTaskHandler(a.pokerService, a.config.path.updateTask),
-		a.config.path.addComent:     appHttp.NewAddCommentHandler(a.pokerService, a.config.path.addComent),
-		a.config.path.getComents:    appHttp.NewGetCommentsHandler(a.pokerService, a.config.path.getComents),
-		
-		a.config.path.setVotingTask: appHttp.NewAddVotingTaskHandler(a.pokerService, a.config.path.setVotingTask),
+
+		a.config.path.createPoker: appHttp.NewCreatePoker(a.pokerService, a.config.path.createPoker),
+		a.config.path.getPoker:    appHttp.NewGetPokerHandler(a.pokerService, a.config.path.getPoker),
+		a.config.path.createTask:  appHttp.NewAddTaskHandler(a.pokerService, a.config.path.createPoker),
+		a.config.path.getTasks:    appHttp.NewGetTasksHandler(a.pokerService, a.config.path.getTasks),
+		a.config.path.getTask:     appHttp.NewGetTaskHandler(a.pokerService, a.config.path.getTask),
+		a.config.path.deleteTask:  appHttp.NewDeleteTaskHandler(a.pokerService, a.config.path.deleteTask),
+		a.config.path.updateTask:  appHttp.NewUpdateTaskHandler(a.pokerService, a.config.path.updateTask),
+		a.config.path.addComent:   appHttp.NewAddCommentHandler(a.pokerService, a.config.path.addComent),
+		a.config.path.getComents:  appHttp.NewGetCommentsHandler(a.pokerService, a.config.path.getComents),
+
+		a.config.path.setVotingTask:         appHttp.NewSetVotingTaskHandler(a.pokerService, a.config.path.setVotingTask),
 		a.config.path.getVotingControlState: appHttp.NewGetVotingStateHandler(a.pokerService, a.config.path.getVotingControlState),
-	
+		a.config.path.getUserEstimates:      appHttp.NewGetUserEstimatesHandler(a.pokerService, a.config.path.getUserEstimates),
+		a.config.path.setVotingControlState: appHttp.NewSetVotingStateHandler(a.pokerService, a.config.path.setVotingControlState),
+
 		a.config.path.ping: appHttp.NewPingHandlerHandler(a.config.path.ping),
-		a.config.path.vote: appHttp.NewAddVotingHandler(a.pokerService, a.config.path.vote),	
-		a.config.path.ws:  appHttp.NewWSPokerHandler(a.pokerService, a.config.path.ws, a.hub),	
+		a.config.path.vote: appHttp.NewSetVotingHandler(a.pokerService, a.config.path.vote),
+		a.config.path.ws:   appHttp.NewWSPokerHandler(a.pokerService, a.config.path.ws, a.hub),
 	}
 
 	for path, handler := range handlers {
@@ -132,7 +135,7 @@ func NewApp(ctx context.Context, config config) (*App, error) {
 
 		providerOauthConfFrontend = append(providerOauthConfFrontend,
 			authinterface.ProviderOauthConfFrontend{
-				Provider: key,
+				Provider:    key,
 				ClientId:    value.Oauth2Config.ClientID,
 				RedirectUri: value.Oauth2Config.RedirectURL,
 				AuthURL:     value.Oauth2Config.Endpoint.AuthURL,

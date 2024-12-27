@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"inzarubin80/PokerPlanning/internal/model"
 )
 
@@ -30,6 +31,21 @@ func (r *Repository) SetVotingTask(ctx context.Context, pokerID model.PokerID, t
 
 }
 
+func (r *Repository) SetVotingState(ctx context.Context, pokerID model.PokerID, state *model.VoteControlState) (*model.VoteControlState, error) {
+
+	r.storage.mx.Lock()
+	defer r.storage.mx.Unlock()
+
+	_, ok := r.storage.voteState[pokerID]
+
+	if !ok {
+		return nil, fmt.Errorf("pokerID state %s %w",pokerID,model.ErrorNotFound)
+	}
+	r.storage.voteState[pokerID] = state
+	return r.storage.voteState[pokerID], nil
+
+}
+
 func (r *Repository) GetVotingState(ctx context.Context, pokerID model.PokerID) (*model.VoteControlState, error) {
 
 	r.storage.mx.Lock()
@@ -39,7 +55,7 @@ func (r *Repository) GetVotingState(ctx context.Context, pokerID model.PokerID) 
 	if !ok {
 		state = &model.VoteControlState{}
 	}
-	
+
 	return state, nil
 
 }

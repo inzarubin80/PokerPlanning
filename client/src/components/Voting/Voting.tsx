@@ -16,7 +16,7 @@ import { fetchAddVote } from '../../features/voting/voting';
 import { useParams } from 'react-router-dom';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
-import {Task} from "../../model"
+import { Task, UserEstimate } from "../../model"
 
 
 
@@ -29,10 +29,27 @@ interface VotingProps {
     showSettings: boolean;
 }
 
+
+interface Action {
+    id: string;
+    name: string;
+}
+
+
+const getType = (value: any) => {
+    return Object.prototype.toString.call(value).slice(8, -1);
+};
+
+
+const isZeroDate = (date: string | null): boolean => {
+
+    return (date == null) || (date == "0001-01-01T00:00:00Z");
+
+};
+
+
+
 const Voting: React.FC<VotingProps> = ({
-    averageEstimate,
-    averageMethod,
-    showSettings,
     handleSettingsToggle,
     handleEndVoting,
 }) => {
@@ -43,9 +60,12 @@ const Voting: React.FC<VotingProps> = ({
     // Получение данных из Redux
     const tasks: Task[] = useSelector((state: RootState) => state.taskReducer.tasks);
     const votingTask: number | null = useSelector((state: RootState) => state.volumeTaskReducer.taskID);
-    const vote: string | null = useSelector((state: RootState) => state.volumeTaskReducer.vote);
+    const userEstimates: UserEstimate[] = useSelector((state: RootState) => state.volumeTaskReducer.userEstimates);
+    const userID: number = useSelector((state: RootState) => state.auth.userID);
     const possibleEstimates: string[] = useSelector((state: RootState) => state.volumeTaskReducer.possibleEstimates);
-    const numberVoters: number = useSelector((state: RootState) => state.volumeTaskReducer.numberVoters);
+    const isAdmin: boolean = useSelector((state: RootState) => state.poker.isAdmin);
+    const startDate: string | null = useSelector((state: RootState) => state.volumeTaskReducer.startDate);
+    const endDate: string | null = useSelector((state: RootState) => state.volumeTaskReducer.endDate);
 
     const dispatch: AppDispatch = useDispatch();
     const { pokerId } = useParams<{ pokerId: string }>();
@@ -56,7 +76,28 @@ const Voting: React.FC<VotingProps> = ({
         [tasks, votingTask]
     );
 
-    // Обработчик завершения таймера
+
+    const currentEstimate: UserEstimate | undefined = useMemo(
+        () => userEstimates.find(item => item.UserID === userID),
+        [userEstimates, userID]
+    );
+
+    const possibleActions: Action | null = useMemo(() => {
+        if (votingTask > 0 && isZeroDate(startDate)) {
+            return { id: "START_VOTING", 
+                     name: "Начать голосование" };
+        } else if (votingTask > 0 && !isZeroDate(startDate) && isZeroDate(endDate)) {
+            return { id: "STOP_VOTING", 
+                    name: "Закончить голосование" };
+        } else if (votingTask > 0 && !isZeroDate(startDate) && !isZeroDate(endDate)) {
+            return { id: "START_VOTING", 
+                     name: "Перезапустить голосование" };
+        } else {
+            return null;
+        }
+    }, [votingTask, startDate, endDate]);
+
+
     const onTimerComplete = () => {
         setIsTimerRunning(false);
         handleEndVoting();
@@ -89,7 +130,7 @@ const Voting: React.FC<VotingProps> = ({
 
     // Обработчик добавления голоса
     const handleAddVote = (taskID: number, estimate: string) => {
-        console.log("handleAddVote");
+
         dispatch(fetchAddVote({
             estimate,
             pokerID: pokerId,
@@ -137,7 +178,7 @@ const Voting: React.FC<VotingProps> = ({
                                 {possibleEstimates.map((estimate: string) => (
                                     <Button
                                         key={estimate}
-                                        variant={estimate === vote ? 'contained' : 'outlined'}
+                                        variant={currentEstimate && estimate === currentEstimate?.Estimate ? 'contained' : 'outlined'}
                                         color="primary"
                                         onClick={() => handleAddVote(selectedTask.ID, estimate)}
                                     >
@@ -150,7 +191,7 @@ const Voting: React.FC<VotingProps> = ({
                         {/* Voting Stats */}
                         <Box mt={2}>
                             <Typography variant="subtitle1" align="center">
-                                Проголосовало: {numberVoters || 0}
+                                Проголосовало: {userEstimates.length || 0}
                             </Typography>
 
                             {/* Timer */}
@@ -188,9 +229,9 @@ const Voting: React.FC<VotingProps> = ({
 
                 {/* Start Voting Button */}
                 <Box p={2} display="flex" flexDirection="column" justifyContent="flex-start">
-                    <Button variant="contained" color="primary" onClick={() => setIsTimerRunning(true)}>
-                        Завершить голосование
-                    </Button>
+                    {possibleActions && <Button variant="contained" color="primary" onClick={() => setIsTimerRunning(true)}>
+                        {possibleActions.name}
+                    </Button>}
                 </Box>
             </Box>
         </Paper>

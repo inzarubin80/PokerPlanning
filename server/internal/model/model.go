@@ -18,6 +18,8 @@ const (
 	Access_Token_Type = "access_token"
 	Refresh_Token_Type = "refresh_Token"
 	ADD_VOTING = "ADD_VOTING"
+	START_VOTING = "START_VOTING"
+	STOP_VOTING = "STOP_VOTING"
 
 )
 

@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { setAccessToken } from '../../features/auth/authSlice';
+import { setLoginData } from '../../features/auth/authSlice';
 import { AppDispatch } from '../../app/store';
 import { useDispatch } from 'react-redux';
 
@@ -42,7 +42,7 @@ const AuthCallback: React.FC = () => {
             });
 
             const result = await response.json();
-            dispatch(setAccessToken(result.Token));
+            dispatch(setLoginData(result));
            
             const fromLocal = localStorage.getItem('redirectUrl');
             localStorage.removeItem('redirectUrl')
