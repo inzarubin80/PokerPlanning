@@ -31,11 +31,9 @@ export const refreshAccessToken = createAsyncThunk(
     try {
       const response = await publicAxios(options);
 
-
-      // Обновляем токен в состоянии
       dispatch(setLoginData(response.data));
+      return response.data;
 
-      return response.data.accessToken;
     } catch (error) {
       // Если обновление токена не удалось, выполняем логаут
       dispatch(logout());
@@ -74,13 +72,10 @@ const authSlice = createSlice({
       }
     },
   },
+  
   extraReducers: (builder) => {
     builder
-      .addCase(refreshAccessToken.fulfilled, (state, action) => {
-        state.accessToken = action.payload.accessToken;
-        state.userID = action.payload.userID;
-         
-      })
+    
       .addCase(logout.fulfilled, (state) => {
         state.accessToken = null;
         state.userID = 0;

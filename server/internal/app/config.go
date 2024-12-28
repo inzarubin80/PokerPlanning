@@ -13,8 +13,6 @@ import (
 
 type (
 
-	//ProvidersUserData map[string]authinterface.ProviderUserData
-
 	Options struct {
 		Addr string
 	}

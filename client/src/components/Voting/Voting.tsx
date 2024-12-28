@@ -8,11 +8,17 @@ import {
     Card,
     CardContent,
     CardActions,
+    Accordion,
+    AccordionSummary,
+    AccordionDetails,
+    List,
+    ListItem,
+    ListItemText,
 } from '@mui/material';
-import { Settings } from '@mui/icons-material';
+import { Settings, ExpandMore } from '@mui/icons-material';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '../../app/store';
-import { fetchAddVote, setVotingState } from '../../features/voting/voting';
+import { fetchAddVote, setVotingState, tickProgress } from '../../features/voting/voting';
 import { useParams } from 'react-router-dom';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
@@ -36,15 +42,13 @@ const isZeroDate = (date: string | null): boolean => {
     return (date == null) || (date == "0001-01-01T00:00:00Z");
 };
 
-
-
 const Voting: React.FC<VotingProps> = ({
     handleSettingsToggle,
     handleEndVoting,
 }) => {
     // Логика таймера
-    const [progress, setProgress] = useState(100); // Начальное значение прогресса (100%)
-    const [isTimerRunning, setIsTimerRunning] = useState(false);
+    //const [progress, setProgress] = useState(100); // Начальное значение прогресса (100%)
+    //const [isTimerRunning, setIsTimerRunning] = useState(false);
 
     // Получение данных из Redux
     const tasks: Task[] = useSelector((state: RootState) => state.taskReducer.tasks);
@@ -56,6 +60,9 @@ const Voting: React.FC<VotingProps> = ({
 
     const startDate: string | null = useSelector((state: RootState) => state.volumeTaskReducer.startDate);
     const endDate: string | null = useSelector((state: RootState) => state.volumeTaskReducer.endDate);
+
+    const progress: number = useSelector((state: RootState) => state.volumeTaskReducer.progress);
+    const remainingSec: number = useSelector((state: RootState) => state.volumeTaskReducer.remainingSec);
 
     const dispatch: AppDispatch = useDispatch();
     const { pokerId } = useParams<{ pokerId: string }>();
@@ -99,23 +106,22 @@ const Voting: React.FC<VotingProps> = ({
 
     useEffect(() => {
         let timer: NodeJS.Timeout | null = null;
-        if (possibleActions?.id == 'STOP_VOTING') {
+
+        if (possibleActions?.id === 'STOP_VOTING') {
             timer = setInterval(() => {
-                setProgress((prevProgress) => {
-                    if (prevProgress <= 0) {
-                        clearInterval(timer!);
-                        onTimerComplete();
-                        return 0;
-                    }
-                    return prevProgress - 1;
-                });
-            }, 1000);
+                if (progress <= 0) {
+                    clearInterval(timer!); // Очищаем интервал
+                    onTimerComplete(); // Вызываем завершение таймера
+                } else {
+                    dispatch(tickProgress()); // Обновляем прогресс
+                }
+            }, 10); // Интервал в 1 секунду
         }
 
         return () => {
-            if (timer) clearInterval(timer);
+            if (timer) clearInterval(timer); // Очищаем интервал при размонтировании
         };
-    }, [possibleActions, onTimerComplete]);
+    }, [possibleActions?.id, progress, onTimerComplete, tickProgress]); // Зависимости
 
     if (!pokerId) {
         return <div>pokerId is missing in the URL</div>;
@@ -123,7 +129,6 @@ const Voting: React.FC<VotingProps> = ({
 
     // Обработчик добавления голоса
     const handleAddVote = (taskID: number, estimate: string) => {
-
         dispatch(fetchAddVote({
             estimate,
             pokerID: pokerId
@@ -133,10 +138,6 @@ const Voting: React.FC<VotingProps> = ({
     const handleSetStateVoting = () => {
         if (possibleActions == null) {
             return
-        }
-
-        if (possibleActions.id == 'STOP_VOTING') {
-            setProgress(100)
         }
 
         dispatch(setVotingState({ pokerID: pokerId, action: possibleActions.id }))
@@ -194,17 +195,36 @@ const Voting: React.FC<VotingProps> = ({
 
                         {/* Voting Stats */}
                         <Box mt={2}>
-                            <Typography variant="subtitle1" align="center">
-                                Проголосовало: {userEstimates.length || 0}
-                            </Typography>
+                            <Accordion>
+                                <AccordionSummary
+                                    expandIcon={<ExpandMore />}
+                                    aria-controls="panel1a-content"
+                                    id="panel1a-header"
+                                    disabled={isZeroDate(endDate)} // Отключаем раскрытие, если endDate не заполнено
+                                >
+                                    <Typography variant="subtitle1">
+                                        Проголосовало: {userEstimates.length || 0}
+                                    </Typography>
+                                </AccordionSummary>
+                                {!isZeroDate(endDate) && ( // Показываем детали только если endDate заполнено
+                                    <AccordionDetails>
+                                        <List>
+                                            {userEstimates.map((userEstimate: UserEstimate) => (
+                                                <ListItem key={userEstimate.UserID.toString()}>
+                                                    <ListItemText primary={`UserID: ${userEstimate.UserID}, Estimate: ${userEstimate.Estimate}`} />
+                                                </ListItem>
+                                            ))}
+                                        </List>
+                                    </AccordionDetails>
+                                )}
+                            </Accordion>
 
                             {/* Timer */}
-
                             {possibleActions?.id == 'STOP_VOTING' && <Box p={2} display="flex" flexDirection="column" justifyContent="center" alignItems="center">
                                 <Box sx={{ width: 250, height: 250 }}>
                                     <CircularProgressbar
-                                        value={progress}
-                                        text={`${progress} сек.`}
+                                        value={Math.round(progress)}
+                                        text={`${Math.round(remainingSec)} сек.`}
                                         styles={buildStyles({
                                             textColor: 'black',
                                             pathColor: 'blue',

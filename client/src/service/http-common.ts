@@ -9,7 +9,7 @@ const publicAxios: AxiosInstance = axios.create({ baseURL: '/api' , timeout: 300
 createAuthRefreshInterceptor(authAxios, (failedRequest) => {
   return store.dispatch(refreshAccessToken()).then((response: any) => {
     if (failedRequest) {
-      failedRequest.response.config.headers.Authorization = `Bearer ${response.payload}`;
+      failedRequest.response.config.headers.Authorization = `Bearer ${response.payload.Token}`;
     }
     return Promise.resolve();
   }).catch(() => {
