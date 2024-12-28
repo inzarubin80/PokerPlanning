@@ -14,7 +14,11 @@ import {
     List,
     ListItem,
     ListItemText,
+    ListItemAvatar,
+    Avatar,
+    LinearProgress,
 } from '@mui/material';
+
 import { Settings, ExpandMore } from '@mui/icons-material';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '../../app/store';
@@ -46,11 +50,7 @@ const Voting: React.FC<VotingProps> = ({
     handleSettingsToggle,
     handleEndVoting,
 }) => {
-    // Логика таймера
-    //const [progress, setProgress] = useState(100); // Начальное значение прогресса (100%)
-    //const [isTimerRunning, setIsTimerRunning] = useState(false);
 
-    // Получение данных из Redux
     const tasks: Task[] = useSelector((state: RootState) => state.taskReducer.tasks);
     const votingTask: number | null = useSelector((state: RootState) => state.volumeTaskReducer.taskID);
     const userEstimates: UserEstimate[] = useSelector((state: RootState) => state.volumeTaskReducer.userEstimates);
@@ -64,10 +64,13 @@ const Voting: React.FC<VotingProps> = ({
     const progress: number = useSelector((state: RootState) => state.volumeTaskReducer.progress);
     const remainingSec: number = useSelector((state: RootState) => state.volumeTaskReducer.remainingSec);
 
+    const action: string = useSelector((state: RootState) => state.volumeTaskReducer.action);
+    const actionName: string = useSelector((state: RootState) => state.volumeTaskReducer.actionName);
+
+
     const dispatch: AppDispatch = useDispatch();
     const { pokerId } = useParams<{ pokerId: string }>();
 
-    // Выбор текущей задачи
     const selectedTask: Task | undefined = useMemo(
         () => tasks.find(item => item.ID === votingTask),
         [tasks, votingTask]
@@ -78,28 +81,6 @@ const Voting: React.FC<VotingProps> = ({
         [userEstimates, userID]
     );
 
-    const possibleActions: Action | null = useMemo(() => {
-        if (votingTask > 0 && isZeroDate(startDate)) {
-            return {
-                id: 'START_VOTING',
-                name: 'Начать голосование'
-            };
-        } else if (votingTask > 0 && !isZeroDate(startDate) && isZeroDate(endDate)) {
-            return {
-                id: 'STOP_VOTING',
-                name: 'Закончить голосование'
-            };
-        } else if (votingTask > 0 && !isZeroDate(startDate) && !isZeroDate(endDate)) {
-            return {
-                id: 'START_VOTING',
-                name: 'Перезапустить голосование'
-            };
-        } else {
-            return null;
-        }
-    }, [votingTask, startDate, endDate]);
-
-
     const onTimerComplete = () => {
         handleSetStateVoting();
     };
@@ -107,9 +88,9 @@ const Voting: React.FC<VotingProps> = ({
     useEffect(() => {
         let timer: NodeJS.Timeout | null = null;
 
-        if (possibleActions?.id === 'STOP_VOTING') {
+        if (action === 'stop') {
             timer = setInterval(() => {
-                if (progress <= 0) {
+                if (progress >= 100) {
                     clearInterval(timer!); // Очищаем интервал
                     onTimerComplete(); // Вызываем завершение таймера
                 } else {
@@ -121,7 +102,7 @@ const Voting: React.FC<VotingProps> = ({
         return () => {
             if (timer) clearInterval(timer); // Очищаем интервал при размонтировании
         };
-    }, [possibleActions?.id, progress, onTimerComplete, tickProgress]); // Зависимости
+    }, [action, progress, onTimerComplete, tickProgress]); // Зависимости
 
     if (!pokerId) {
         return <div>pokerId is missing in the URL</div>;
@@ -136,16 +117,16 @@ const Voting: React.FC<VotingProps> = ({
     };
 
     const handleSetStateVoting = () => {
-        if (possibleActions == null) {
+        if (action == '') {
             return
         }
 
-        dispatch(setVotingState({ pokerID: pokerId, action: possibleActions.id }))
+        dispatch(setVotingState({ pokerID: pokerId, action: action }))
     };
 
     return (
         <Paper elevation={3}>
-            {/* Header */}
+
             <Box
                 position="sticky"
                 top={0}
@@ -157,7 +138,7 @@ const Voting: React.FC<VotingProps> = ({
                 alignItems="center"
                 height={"4vh"}
             >
-                <Typography variant="h6">Голосование</Typography>
+            <Typography variant="h6">Голосование</Typography>
                 <IconButton onClick={handleSettingsToggle}>
                     <Settings />
                 </IconButton>
@@ -174,13 +155,21 @@ const Voting: React.FC<VotingProps> = ({
                                 <Typography variant="h6" gutterBottom sx={{ whiteSpace: 'normal', wordWrap: 'break-word' }}>
                                     {selectedTask.Title}
                                 </Typography>
-                                <Typography variant="body1" sx={{ whiteSpace: 'normal', wordWrap: 'break-word' }}>
+                                <Typography
+                                    variant="body1"
+                                    sx={{
+                                        whiteSpace: 'normal',
+                                        wordWrap: 'break-word',
+                                        maxHeight: '70vh', // Фиксированная высота
+                                        overflowY: 'auto', // Включение вертикальной прокрутки
+                                    }}
+                                >
                                     {selectedTask.Description}
                                 </Typography>
                             </CardContent>
 
                             <CardActions sx={{ justifyContent: 'center', gap: 3, flexWrap: 'wrap', padding: 2 }}>
-                                {possibleEstimates.map((estimate: string) => (
+                                {action == 'stop' && possibleEstimates.map((estimate: string) => (
                                     <Button
                                         key={estimate}
                                         variant={currentEstimate && estimate === currentEstimate?.Estimate ? 'contained' : 'outlined'}
@@ -193,48 +182,60 @@ const Voting: React.FC<VotingProps> = ({
                             </CardActions>
                         </Card>
 
-                        {/* Voting Stats */}
+
                         <Box mt={2}>
-                            <Accordion>
-                                <AccordionSummary
-                                    expandIcon={<ExpandMore />}
-                                    aria-controls="panel1a-content"
-                                    id="panel1a-header"
-                                    disabled={isZeroDate(endDate)} // Отключаем раскрытие, если endDate не заполнено
+                            <Card variant="outlined">
+                                {/* Шапка карточки */}
+                                <Box
+                                    display="flex"
+                                    alignItems="center"
+                                    justifyContent="space-between"
+                                    p={2}
+                                    borderBottom="1px solid rgba(0, 0, 0, 0.12)"
+                                    flexDirection="column"
+                                    rowGap={2}
+
                                 >
                                     <Typography variant="subtitle1">
                                         Проголосовало: {userEstimates.length || 0}
                                     </Typography>
-                                </AccordionSummary>
-                                {!isZeroDate(endDate) && ( // Показываем детали только если endDate заполнено
-                                    <AccordionDetails>
-                                        <List>
-                                            {userEstimates.map((userEstimate: UserEstimate) => (
-                                                <ListItem key={userEstimate.UserID.toString()}>
-                                                    <ListItemText primary={`UserID: ${userEstimate.UserID}, Estimate: ${userEstimate.Estimate}`} />
-                                                </ListItem>
-                                            ))}
-                                        </List>
-                                    </AccordionDetails>
-                                )}
-                            </Accordion>
 
-                            {/* Timer */}
-                            {possibleActions?.id == 'STOP_VOTING' && <Box p={2} display="flex" flexDirection="column" justifyContent="center" alignItems="center">
-                                <Box sx={{ width: 250, height: 250 }}>
-                                    <CircularProgressbar
-                                        value={Math.round(progress)}
-                                        text={`${Math.round(remainingSec)} сек.`}
-                                        styles={buildStyles({
-                                            textColor: 'black',
-                                            pathColor: 'blue',
-                                            trailColor: 'grey',
-                                        })}
-                                    />
+                                    {action === 'stop' && (
+                                        <Box sx={{ width: '100%' }}>
+                                            <LinearProgress variant="determinate" value={progress} />
+                                        </Box>
+                                    )}
                                 </Box>
-                            </Box>}
 
+                                {/* Основная часть карточки с прокручиваемым списком */}
+                                <Box
+                                    p={0}
+                                    sx={{
+                                        //  maxHeight: 100, // Ограничение высоты списка
+                                        overflowY: 'auto', // Включение вертикальной прокрутки
+                                    }}
+                                >
+                                    <List dense> {/* Список более компактный благодаря dense */}
+                                        {userEstimates.map((userEstimate: UserEstimate) => (
+                                            <ListItem key={userEstimate.UserID.toString()} sx={{ py: 0.5 }}> {/* Уменьшаем отступы */}
+                                                <ListItemAvatar>
+                                                    <Avatar src="/path/to/user-icon.png" /> {/* Картинка пользователя */}
+                                                </ListItemAvatar>
+                                                <ListItemText
+                                                    primary={`User ${userEstimate.UserID}`} // Упрощенный текст
+                                                    secondary={`Оценка: ${userEstimate.Estimate}`} // Дополнительная информация
+                                                    primaryTypographyProps={{ variant: 'body2' }} // Меньший размер текста
+                                                    secondaryTypographyProps={{ variant: 'body2', color: 'text.secondary' }}
+                                                />
+                                            </ListItem>
+                                        ))}
+                                    </List>
+                                </Box>
+                            </Card>
                         </Box>
+
+
+
                     </Box>
                 ) : (
                     <Box
@@ -253,8 +254,8 @@ const Voting: React.FC<VotingProps> = ({
 
                 {/* Start Voting Button */}
                 <Box p={2} display="flex" flexDirection="column" justifyContent="flex-start">
-                    {possibleActions && <Button variant="contained" color="primary" onClick={() => handleSetStateVoting()}>
-                        {possibleActions.name}
+                    {action !== '' && <Button variant="contained" color="primary" onClick={() => handleSetStateVoting()}>
+                        {actionName}
                     </Button>}
                 </Box>
             </Box>

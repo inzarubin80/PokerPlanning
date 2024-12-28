@@ -49,6 +49,14 @@ interface VotingState {
     remainingSec: number
 
 
+    action: 'start' | 'stop' | '';
+    actionName: 'Начать голосование' | 'Закончить голосование' | 'Перезапустить голосование' | '';
+
+}
+
+interface Action {
+    id: string;
+    name: string;
 }
 
 const initialState: VotingState = {
@@ -78,9 +86,13 @@ const initialState: VotingState = {
     startDate: null,
     userEstimates: [],
 
-    progress: 100,
+    progress: 0,
     durationVoiceSec: 30,
-    remainingSec: 0
+    remainingSec: 0,
+
+    action: '',
+    actionName: ''
+
 };
 
 // Функция для обработки ошибок Axios
@@ -174,7 +186,7 @@ const calculateProgress = (startDate: string | null, durationVoiceSec: number) =
     const timeStartDate = new Date(new Date(startDate).toISOString())
     const progresSec = (new Date(new Date().toISOString()).getTime() - timeStartDate.getTime()) / 1000;
     const remainingSec = durationVoiceSec - progresSec;
-    const progress = (1 - progresSec / durationVoiceSec) * 100;
+    const progress = (progresSec / durationVoiceSec) * 100;
 
     return { remainingSec, progress }; // Возвращаем объект
 
@@ -187,6 +199,7 @@ const updateVoteState = (state: VotingState, payload: VoteControlState) => {
     state.startDate = payload.StartDate;
 
     if (!isZeroDate(payload.StartDate) && isZeroDate(payload.EndDate)) {
+
         const calculate = calculateProgress(payload.StartDate, state.durationVoiceSec)
         state.remainingSec = calculate.remainingSec;
         state.progress = calculate.progress
@@ -194,6 +207,26 @@ const updateVoteState = (state: VotingState, payload: VoteControlState) => {
     } else {
         state.remainingSec = 0;
         state.progress = 0;
+    }
+
+    if (state.taskID > 0 && isZeroDate(state.startDate)) {
+
+        state.action = 'start'
+        state.actionName = 'Начать голосование'
+
+    } else if (state.taskID > 0 && !isZeroDate(state.startDate) && isZeroDate(state.endDate)) {
+
+        state.action = 'stop'
+        state.actionName = 'Закончить голосование'
+
+    } else if (state.taskID > 0 && !isZeroDate(state.startDate) && !isZeroDate(state.endDate)) {
+
+        state.action = 'start'
+        state.actionName = 'Перезапустить голосование'
+
+    } else {
+        state.action = ''
+        state.actionName = ''
     }
 };
 
@@ -208,6 +241,7 @@ const votingTaskSlice = createSlice({
 
         tickProgress: (state, action: PayloadAction<void>) => {
             const calculate = calculateProgress(state.startDate, state.durationVoiceSec)
+
             state.remainingSec = calculate.remainingSec;
             state.progress = calculate.progress
         },

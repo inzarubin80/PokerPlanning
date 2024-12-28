@@ -169,7 +169,7 @@ const App: React.FC = () => {
       </Box>
       <Grid2 container spacing={1} style={{ height: 'calc(100vh - 120px)', display: 'flex' }}>
 
-        <Grid2 size={{ xs: 3 }} style={{ display: 'flex', flexDirection: 'column' }}>
+        <Grid2 size={{ xs: 5 }} style={{ display: 'flex', flexDirection: 'column' }}>
           <Voting
             // selectedTask={selectedTask}
             averageEstimate={1}
@@ -179,13 +179,13 @@ const App: React.FC = () => {
             handleEndVoting={handleEndVoting} />
         </Grid2>
 
-        <Grid2 size={{ xs: 5 }} style={{ display: 'flex', flexDirection: 'column' }}>
+        <Grid2 size={{ xs: 3.5 }} style={{ display: 'flex', flexDirection: 'column' }}>
           <Comments
             comments={comments}
             handleAddComment={handleAddComment} />
         </Grid2>
 
-        <Grid2 size={{ xs: 4 }} style={{ display: 'flex', flexDirection: 'column' }}>
+        <Grid2 size={{ xs: 3.5 }} style={{ display: 'flex', flexDirection: 'column' }}>
           <TaskList
             tasks={tasks}
             handleEditTask={handleEditTask}
