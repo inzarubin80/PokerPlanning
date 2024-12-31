@@ -44,6 +44,9 @@ type (
 		//User
 		GetUserByEmail(ctx context.Context, email string) (*model.User, error)
 		AddUser(ctx context.Context, userData *model.UserData) (*model.User, error) 
+		GetUsersByIDs(ctx context.Context, userIDs []model.UserID) ([]*model.User, error)
+		GetUserIDsByPokerID(ctx context.Context, pokerID model.PokerID) ([] model.UserID, error) 
+		AddPokerUser(ctx context.Context, pokerID model.PokerID, userID model.UserID) (error)
 
 		//Voting
 		SetVoting(ctx context.Context, userEstimate *model.UserEstimate) error 
@@ -63,10 +66,10 @@ type (
 		GetUserData(ctx context.Context, authorizationCode string) (*model.UserData, error)
 	}
 
-
 	Hub interface {
 		AddMessage(pokerID model.PokerID,  payload any)  error
 		AddMessageForUser(pokerID model.PokerID, userID model.UserID, payload any) (error) 
+		GetActiveUsersID(pokerID model.PokerID) ([] model.UserID, error) 
 	}
 )
 
@@ -81,17 +84,5 @@ func NewPokerService(repository Repository, hub Hub, accessTokenService TokenSer
 	}
 }
 
-func (s *PokerService) GetPoker(ctx context.Context, pokerID model.PokerID) (*model.Poker, error) {	
-	poker, err := s.repository.GetPoker(ctx, pokerID)
-	if err != nil {
-		return nil, model.ErrorNotFound
-	}	
-	return poker, nil
-}
-
-
-func (s *PokerService) CreatePoker(ctx context.Context, userID model.UserID) (model.PokerID, error) {
-	return s.repository.CreatePoker(ctx, userID)
-}
 
 

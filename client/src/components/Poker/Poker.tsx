@@ -16,7 +16,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchTasks, taskAdded, taskRemoved, tasksUpdating, deleteTask } from '../../features/task/taskSlice';
 import { addComment, commentAdded, getComments, SaveCommentParams } from '../../features/comment/commentSlice';
 import { setVoteChange, fetchSetVotingTask, fetchVotingControl, setNumberVoters, setUserEstimates, getUserEstimates} from '../../features/voting/voting';
-import {fetchPokerDetails} from '../../features/poker/pokerSlice';
+import {fetchPokerDetails, setActiveUsers} from '../../features/poker/pokerSlice';
 import { AppDispatch, RootState } from '../../app/store';
 import WebSocketClient from '../../api/WebSocketClient'
 import { SettingsVoice } from '@mui/icons-material';
@@ -37,6 +37,9 @@ const App: React.FC = () => {
   const comments = useSelector((state: RootState) => state.commentReducer.comments);
   const statusFetchComments = useSelector((state: RootState) => state.commentReducer.statusFetchComments);
   const errorFetchComments = useSelector((state: RootState) => state.commentReducer.errorFetchComments);
+
+  const activeUsersID = useSelector((state: RootState) => state.poker.activeUsersID);
+
 
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [showSettings, setShowSettings] = useState(false);
@@ -110,14 +113,22 @@ const App: React.FC = () => {
         case 'ADD_VOTING':
           dispatch(setUserEstimates(msg.Estimates));
           break;
+       
+       case 'CHANGE_ACTIVE_USERS_POKER':
 
+
+       
+            dispatch(setActiveUsers(msg.Users));
+            break;
+  
         default:
           console.warn("Unknown message type:", msg);
       }
     }
   }
 
-  
+  //setActiveUsers
+
   const handleEditTask = (taskId: number) => {
     navigate(`/poker/${pokerId}/task/${taskId}`);
   };
@@ -162,14 +173,25 @@ const App: React.FC = () => {
           </Typography>
           <Box ml={2}>
             <Typography variant="subtitle1" color="textSecondary">
-              Участники: {participants}
+              Участники: {activeUsersID.length}
             </Typography>
           </Box>
         </Box>
       </Box>
       <Grid2 container spacing={1} style={{ height: 'calc(100vh - 120px)', display: 'flex' }}>
 
-        <Grid2 size={{ xs: 5 }} style={{ display: 'flex', flexDirection: 'column' }}>
+
+      <Grid2 size={{ xs: 5 }} style={{ display: 'flex', flexDirection: 'column' }}>
+          <TaskList
+            tasks={tasks}
+            handleEditTask={handleEditTask}
+            handleDeleteTask={handleDeleteTask}
+            handleSetVotingTask={handleSetVotingTask}
+            setEditingTask={() => { }} />
+
+        </Grid2>
+        
+        <Grid2 size={{ xs: 4 }} style={{ display: 'flex', flexDirection: 'column' }}>
           <Voting
             // selectedTask={selectedTask}
             averageEstimate={1}
@@ -179,21 +201,15 @@ const App: React.FC = () => {
             handleEndVoting={handleEndVoting} />
         </Grid2>
 
-        <Grid2 size={{ xs: 3.5 }} style={{ display: 'flex', flexDirection: 'column' }}>
+       
+
+        <Grid2 size={{ xs: 3 }} style={{ display: 'flex', flexDirection: 'column' }}>
           <Comments
             comments={comments}
             handleAddComment={handleAddComment} />
         </Grid2>
 
-        <Grid2 size={{ xs: 3.5 }} style={{ display: 'flex', flexDirection: 'column' }}>
-          <TaskList
-            tasks={tasks}
-            handleEditTask={handleEditTask}
-            handleDeleteTask={handleDeleteTask}
-            handleSetVotingTask={handleSetVotingTask}
-            setEditingTask={() => { }} />
 
-        </Grid2>
       </Grid2>
 
 

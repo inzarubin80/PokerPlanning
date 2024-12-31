@@ -23,8 +23,6 @@ interface TaskState {
 
   statusDeleteTask: 'idle' | 'loading' | 'succeeded' | 'failed';
   errorDeleteTask: string | null;
-
-
   
 }
 

@@ -77,7 +77,7 @@ func (s *PokerService) SetVoting(ctx context.Context, userEstimate *model.UserEs
 		return err
 	}
 
-	s.hub.AddMessageForUser(userEstimate.PokerID, userEstimate.UserID, &USER_ESTIMATE_MESSAGE{
+	s.hub.AddMessage(userEstimate.PokerID,  &USER_ESTIMATE_MESSAGE{
 		Action:    model.ADD_VOTING,
 		Estimates: userEstimates,
 	})

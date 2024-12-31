@@ -24,13 +24,34 @@ export interface VoteControlState {
 }
 
 export interface UserEstimate {
-  ID:        number
-  PokerID:   string  
-  UserID:    number
-  Estimate:  string
+  ID: number
+  PokerID: string
+  UserID: number
+  Estimate: string
 }
 
-export interface LoginData{
-  Token:  string,
+export interface LoginData {
+  Token: string,
   UserID: number,
 }
+
+
+
+export interface User{
+  ID:   number,
+  Name: string,
+  Email: string,		
+}
+
+
+export interface Poker{
+  ID:        string,
+  CreatedAt: string,
+  Name:      string,
+  Autor:     number,
+  IsAdmin:   boolean,
+  ActiveUsersID: number[],
+  Users:         User [],
+}
+
+

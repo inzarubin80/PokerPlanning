@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { authAxios } from '../../service/http-common';
+import { User, Poker } from '../../model'
 
 // Тип для состояния
 interface PokerState {
@@ -8,15 +9,19 @@ interface PokerState {
   createdAt: string | null; // Добавлено поле для даты создания
   loading: boolean;
   error: string | null;
+  users: User[]
+  activeUsersID: number[]
 }
 
 // Начальное состояние
 const initialState: PokerState = {
   pokerId: "",
-  isAdmin: false, 
-  createdAt: null, 
+  isAdmin: false,
+  createdAt: null,
   loading: false,
   error: null,
+  users: [],
+  activeUsersID: []
 };
 
 // Функция для обработки ошибок Axios
@@ -47,12 +52,12 @@ export const createPoker = createAsyncThunk<
 
 // Асинхронное действие для получения данных покера
 export const fetchPokerDetails = createAsyncThunk<
-  { isAdmin: boolean; createdAt: string; id:string}, // Тип возвращаемого значения
+Poker, // Тип возвращаемого значения
   string, // Тип параметра (pokerId)
   { rejectValue: string } // Тип ошибки
 >('poker/fetchDetails', async (pokerId, { rejectWithValue }) => {
   try {
-    const response = await authAxios.get<{ isAdmin: boolean; createdAt: string; id:string }>(
+    const response = await authAxios.get<Poker>(
       `/poker/${pokerId}`
     );
     return response.data; // Возвращаем данные покера
@@ -62,11 +67,31 @@ export const fetchPokerDetails = createAsyncThunk<
   }
 });
 
+
+export const getPokerUsers = createAsyncThunk(
+  'pokerUsers/get',
+  async (params: { pokerID: string, action: string }, { rejectWithValue }) => {
+    const { pokerID, action } = params;
+    try {
+      const response = await authAxios.post(`/poker/${pokerID}/voting-control/${action}`);
+      return response.data;
+    } catch (error) {
+      const errorMessage = handleAxiosError(error);
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
+
 // Создаем slice
 const pokerSlice = createSlice({
   name: 'poker',
   initialState,
-  reducers: {},
+  reducers: {
+    setActiveUsers: (state, action: PayloadAction<number[]>) => {
+      state.activeUsersID = action.payload
+    }
+  },
   extraReducers: (builder) => {
     // Обработка состояния для createPoker
     builder
@@ -85,17 +110,23 @@ const pokerSlice = createSlice({
 
     // Обработка состояния для fetchPokerDetails
     builder
+
       .addCase(fetchPokerDetails.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
+
       .addCase(fetchPokerDetails.fulfilled, (state, action) => {
         state.loading = false;
-        state.isAdmin = action.payload.isAdmin; // Сохраняем isAdmin
-        state.createdAt = action.payload.createdAt; // Сохраняем дату создания
-        state.pokerId = action.payload.id;   
+        state.isAdmin = action.payload.IsAdmin; // Сохраняем isAdmin
+        state.createdAt = action.payload.CreatedAt; // Сохраняем дату создания
+        state.pokerId = action.payload.ID;
+        state.activeUsersID = action.payload.ActiveUsersID;
+        state.users = action.payload.Users;
+        
+
       })
-      
+
       .addCase(fetchPokerDetails.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string; // Сохраняем ошибку
@@ -103,5 +134,5 @@ const pokerSlice = createSlice({
   },
 });
 
-// Экспортируем редьюсер
+export const { setActiveUsers } = pokerSlice.actions;
 export default pokerSlice.reducer;

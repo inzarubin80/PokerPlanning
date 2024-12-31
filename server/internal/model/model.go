@@ -20,6 +20,7 @@ const (
 	ADD_VOTING = "ADD_VOTING"
 	START_VOTING = "start"
 	STOP_VOTING = "stop"
+	CHANGE_ACTIVE_USERS_POKER = "CHANGE_ACTIVE_USERS_POKER"
 
 )
 
@@ -72,7 +73,8 @@ type (
 		CreatedAt     time.Time
 		Name          string	
 		Autor         UserID
-
+		ActiveUsersID []UserID
+		Users         []*User
 	}
 		
 	AuthData struct {

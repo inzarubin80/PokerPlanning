@@ -34,6 +34,14 @@ type (
 		// Unregister requests from clients.
 		unregister chan *Client
 	}
+
+	
+	USERS_MESSAGE struct {
+		Action string
+		Users []model.UserID
+	}
+
+
 )
 
 func NewHub() *Hub {
@@ -64,6 +72,8 @@ func (h *Hub) Run() {
 			}
 			clientsPoker[client] = true
 
+			go h.SendActiveUsers(client.pokerID) 
+
 		case client := <-h.unregister:
 
 			if clientsPoker, ok := h.clients[client.pokerID]; ok {
@@ -80,6 +90,8 @@ func (h *Hub) Run() {
 					
 				}
 			}
+
+			go h.SendActiveUsers(client.pokerID) 
 
 		case message := <-h.broadcast:
 
@@ -130,3 +142,38 @@ func (h *Hub) AddMessageForUser(pokerID model.PokerID, userID model.UserID, payl
 	
 }
 
+func (h *Hub) GetActiveUsersID(pokerID model.PokerID) ([] model.UserID, error) {
+	
+	usersID := make([]model.UserID, 0)
+	
+	IDs:= make(map[model.UserID]bool)
+	clients, ok := h.clients[pokerID]
+
+	if !ok {
+		return usersID, nil
+	}
+	
+	for k,_ := range clients {
+		_,ok:= IDs[ k.userID]
+		if !ok {
+			usersID = append(usersID, k.userID)	
+			IDs[ k.userID] = true
+		}
+	}
+
+	return usersID, nil
+}
+
+func (h *Hub) SendActiveUsers(pokerID model.PokerID) {
+
+	usersID, err := h.GetActiveUsersID(pokerID)
+	if err != nil {
+		return
+	}
+
+
+	h.AddMessage(pokerID, &USERS_MESSAGE{
+		Action: model.CHANGE_ACTIVE_USERS_POKER,
+		Users : usersID})
+
+}

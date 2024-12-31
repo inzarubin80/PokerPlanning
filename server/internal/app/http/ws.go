@@ -12,7 +12,7 @@ import (
 
 type (
 	servicePoker interface {
-		GetPoker(ctx context.Context, pokerID model.PokerID) (*model.Poker, error) 
+		GetPoker(ctx context.Context, pokerID model.PokerID, userID model.UserID) (*model.Poker, error) 
 	}
 	WSPokerHandler struct {
 		name    string

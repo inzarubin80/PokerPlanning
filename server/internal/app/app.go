@@ -33,7 +33,7 @@ type (
 
 	PokerService interface {
 		CreatePoker(ctx context.Context, userID model.UserID) (model.PokerID, error)
-		GetPoker(ctx context.Context, pokerID model.PokerID) (*model.Poker, error)
+		GetPoker(ctx context.Context, pokerID model.PokerID, userID model.UserID) (*model.Poker, error)
 
 		AddTask(ctx context.Context, task *model.Task) (*model.Task, error)
 		GetTasks(ctx context.Context, pokerID model.PokerID) ([]*model.Task, error)
@@ -56,6 +56,8 @@ type (
 		Authorization(context.Context, string) (*model.Claims, error)
 		RefreshToken(ctx context.Context, refreshToken string) (*model.AuthData, error)
 
+		GetPokerUsers(ctx context.Context, pokerID model.PokerID) ([]*model.User, error) 
+		
 		SetVoting(ctx context.Context, userEstimate *model.UserEstimate) error
 		GetVotingResults(ctx context.Context, pokerID model.PokerID) ([]*model.UserEstimate, error)
 	}

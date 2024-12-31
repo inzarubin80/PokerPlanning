@@ -138,7 +138,7 @@ const Voting: React.FC<VotingProps> = ({
                 alignItems="center"
                 height={"4vh"}
             >
-            <Typography variant="h6">Голосование</Typography>
+                <Typography variant="h6">Голосование</Typography>
                 <IconButton onClick={handleSettingsToggle}>
                     <Settings />
                 </IconButton>
@@ -148,24 +148,9 @@ const Voting: React.FC<VotingProps> = ({
             <Box display="flex" height="80vh" flexDirection="column" justifyContent="space-between">
                 {selectedTask ? (
                     <Box p={1} overflow="auto">
-                        {/* Task and Voting Buttons in a Card */}
-                        <Card variant="outlined" sx={{ mb: 2 }}>
+                        <Card variant="outlined">
                             <CardContent>
-                                {/* Task Details */}
-                                <Typography variant="h6" gutterBottom sx={{ whiteSpace: 'normal', wordWrap: 'break-word' }}>
-                                    {selectedTask.Title}
-                                </Typography>
-                                <Typography
-                                    variant="body1"
-                                    sx={{
-                                        whiteSpace: 'normal',
-                                        wordWrap: 'break-word',
-                                        maxHeight: '70vh', // Фиксированная высота
-                                        overflowY: 'auto', // Включение вертикальной прокрутки
-                                    }}
-                                >
-                                    {selectedTask.Description}
-                                </Typography>
+                                <Typography variant="h6"> ID {selectedTask.ID} {selectedTask.Title}</Typography>
                             </CardContent>
 
                             <CardActions sx={{ justifyContent: 'center', gap: 3, flexWrap: 'wrap', padding: 2 }}>

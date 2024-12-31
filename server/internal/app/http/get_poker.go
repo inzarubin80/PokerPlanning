@@ -12,7 +12,7 @@ import (
 
 type (
 	serviceGetPoker interface {
-		GetPoker(ctx context.Context, pokerID model.PokerID) (*model.Poker, error)
+		GetPoker(ctx context.Context, pokerID model.PokerID, userID model.UserID) (*model.Poker, error)
 	}
 
 	GetPokerHandler struct {
@@ -26,6 +26,9 @@ type (
 		Name      string
 		Autor     model.UserID
 		IsAdmin   bool
+		ActiveUsersID []model.UserID
+		Users         []*model.User
+		
 	}
 )
 
@@ -40,8 +43,18 @@ func (h *GetPokerHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	poker_id := r.PathValue("poker_id")
 
+
 	ctx := r.Context()
-	poker, err := h.service.GetPoker(ctx, model.PokerID(poker_id))
+	
+	
+	
+	userID, ok := ctx.Value(defenitions.UserID).(model.UserID)
+	if !ok {
+		http.Error(w, "not user ID", http.StatusInternalServerError)
+		return
+	}
+	
+	poker, err := h.service.GetPoker(ctx, model.PokerID(poker_id), userID)
 
 	if err != nil {
 		if errors.Is(err, model.ErrorNotFound) {
@@ -52,20 +65,17 @@ func (h *GetPokerHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-
-	userID, ok := ctx.Value(defenitions.UserID).(model.UserID)
-	if !ok {
-		http.Error(w, "not user ID", http.StatusInternalServerError)
-		return
-	}
-
+	
 	jsonContent, err := json.Marshal(&PokerToFrontend{
 		ID:        model.PokerID(poker_id),
 		CreatedAt: poker.CreatedAt,
 		Name:      poker.Name,
 		Autor:     poker.Autor,
 		IsAdmin:   userID == poker.Autor,
+		ActiveUsersID: poker.ActiveUsersID,
+		Users: poker.Users,
 	})
+
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
