@@ -12,7 +12,7 @@ export interface Task {
 export interface CommentItem {
   ID: number;
   Text: string;
-  UserID: string;
+  UserID: number;
   PokerID: string;
 }
 
@@ -27,7 +27,7 @@ export interface UserEstimate {
   ID: number
   PokerID: string
   UserID: number
-  Estimate: string
+  Estimate: number
 }
 
 export interface LoginData {
@@ -51,7 +51,7 @@ export interface Poker{
   Autor:     number,
   IsAdmin:   boolean,
   ActiveUsersID: number[],
-  Users:         User [],
+  Users: Map<number, User>,
 }
 
 

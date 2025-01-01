@@ -34,7 +34,6 @@ const App: React.FC = () => {
   const status = useSelector((state: RootState) => state.taskReducer.statusFetchTasks);
   const error = useSelector((state: RootState) => state.taskReducer.errorFetchTasks);
 
-  const comments = useSelector((state: RootState) => state.commentReducer.comments);
   const statusFetchComments = useSelector((state: RootState) => state.commentReducer.statusFetchComments);
   const errorFetchComments = useSelector((state: RootState) => state.commentReducer.errorFetchComments);
 
@@ -205,7 +204,7 @@ const App: React.FC = () => {
 
         <Grid2 size={{ xs: 3 }} style={{ display: 'flex', flexDirection: 'column' }}>
           <Comments
-            comments={comments}
+         
             handleAddComment={handleAddComment} />
         </Grid2>
 

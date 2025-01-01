@@ -28,7 +28,7 @@ type (
 	TaskID     int64
 	PokerID    string
 	UserID     int64
-	Estimate   string
+	Estimate   int64
 	CommentID  int64
 	EstimateID int64
 

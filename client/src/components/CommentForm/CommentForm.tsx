@@ -21,7 +21,7 @@ const CommentForm: React.FC<CommentFormProps> = ({ onAddComment }) => {
           ID: -1,
           PokerID: pokerId,
           Text: text,
-          UserID: 'Бран Старк',
+          UserID:-1,
         },
         pokerID: '',
       };

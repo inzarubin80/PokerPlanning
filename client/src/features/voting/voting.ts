@@ -11,7 +11,7 @@ export interface SetVotingTaskParams {
 
 export interface AddVoteParams {
     pokerID: string;
-    estimate: string
+    estimate: number
 }
 
 const isZeroDate = (date: string | null): boolean => {
@@ -36,8 +36,8 @@ interface VotingState {
 
     statusSetVotingState: 'idle' | 'loading' | 'succeeded' | 'failed';
     errorSetVotingState: string | null;
-    possibleEstimates: string[];
-    vote: string;
+    possibleEstimates: number[];
+    vote: number;
     numberVoters: number;
     startDate: string | null;
     duration: number;
@@ -47,7 +47,6 @@ interface VotingState {
     progress: number;
     durationVoiceSec: number;
     remainingSec: number
-
 
     action: 'start' | 'stop' | '';
     actionName: 'Начать голосование' | 'Закончить голосование' | 'Перезапустить голосование' | '';
@@ -78,8 +77,8 @@ const initialState: VotingState = {
     statusSetVotingState: 'idle',
     errorSetVotingState: null,
 
-    possibleEstimates: ["0", "1", "2", "3", "5", "8", "13", "21", "?"],
-    vote: '',
+    possibleEstimates: [0,1,2,3,5,8,13,21],
+    vote: 0,
     numberVoters: 0,
     duration: 0,
     endDate: null,
@@ -293,7 +292,7 @@ const votingTaskSlice = createSlice({
                 state.statusSetVoting = 'loading';
                 state.errorSetVoting = '';
             })
-            .addCase(fetchAddVote.fulfilled, (state, action: PayloadAction<string>) => {
+            .addCase(fetchAddVote.fulfilled, (state, action: PayloadAction<number>) => {
                 state.statusSetVoting = 'succeeded';
                 state.vote = action.payload
             })

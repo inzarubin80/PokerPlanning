@@ -10,14 +10,20 @@ import {
 import { CommentItem } from '../../model';
 import CommentForm from '../CommentForm/CommentForm';
 import { SaveCommentParams } from '../../features/comment/commentSlice';
+import { AppDispatch, RootState } from '../../app/store';
+
+import { useDispatch, useSelector } from 'react-redux';
 
 interface CommentsProps {
-  comments: CommentItem[];
   handleAddComment: (saveCommentParams: SaveCommentParams) => void;
 }
 
-const Comments: React.FC<CommentsProps> = ({ comments, handleAddComment }) => {
+const Comments: React.FC<CommentsProps> = ({ handleAddComment }) => {
   const commentsEndRef = useRef<HTMLDivElement>(null);
+
+    const comments = useSelector((state: RootState) => state.commentReducer.comments);
+    const users = useSelector((state: RootState) => state.poker.users);
+
 
   useEffect(() => {
     if (commentsEndRef.current) {
@@ -62,7 +68,7 @@ const Comments: React.FC<CommentsProps> = ({ comments, handleAddComment }) => {
               >
                 <ListItemText
                   primary={comment.Text}
-                  secondary={`Автор: ${comment.UserID}`}
+                  secondary={`Автор: ${users.get(comment.UserID)?.Name}`}
                   primaryTypographyProps={{ variant: 'body1' }}
                   secondaryTypographyProps={{ variant: 'caption' }}
                 />

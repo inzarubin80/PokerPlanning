@@ -9,8 +9,8 @@ interface PokerState {
   createdAt: string | null; // Добавлено поле для даты создания
   loading: boolean;
   error: string | null;
-  users: User[]
-  activeUsersID: number[]
+  users:  Map<number, User>; 
+  activeUsersID: number[];
 }
 
 // Начальное состояние
@@ -20,7 +20,7 @@ const initialState: PokerState = {
   createdAt: null,
   loading: false,
   error: null,
-  users: [],
+  users: new Map(),
   activeUsersID: []
 };
 
@@ -116,21 +116,20 @@ const pokerSlice = createSlice({
         state.error = null;
       })
 
-      .addCase(fetchPokerDetails.fulfilled, (state, action) => {
+      .addCase(fetchPokerDetails.fulfilled, (state, action) => {       
         state.loading = false;
-        state.isAdmin = action.payload.IsAdmin; // Сохраняем isAdmin
-        state.createdAt = action.payload.CreatedAt; // Сохраняем дату создания
+        state.isAdmin = action.payload.IsAdmin; 
+        state.createdAt = action.payload.CreatedAt; 
         state.pokerId = action.payload.ID;
         state.activeUsersID = action.payload.ActiveUsersID;
-        state.users = action.payload.Users;
-        
-
+        state.users = new Map(Object.entries(action.payload.Users).map(([key, user]) => [Number(key), user]));
       })
-
+      
       .addCase(fetchPokerDetails.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string; // Сохраняем ошибку
       });
+
   },
 });
 

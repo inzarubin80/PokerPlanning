@@ -7,6 +7,7 @@ import (
 	"inzarubin80/PokerPlanning/internal/model"
 	"io"
 	"net/http"
+	"strconv"
 )
 
 type (
@@ -53,11 +54,19 @@ func (h *SetVotingHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	num, err := strconv.ParseInt(estimate, 10, 64)
+
+	if err !=nil {
+		uhttp.SendErrorResponse(w, http.StatusBadRequest, "not  estimate")
+		return 
+	}
+
+
 	userEstimate := &model.UserEstimate{
 		ID: -1,
 		PokerID:  model.PokerID(pokerID),
 		UserID:   userID,
-		Estimate: model.Estimate(estimate),
+		Estimate: model.Estimate(num),
 	}
 
 	err = h.service.SetVoting(ctx, userEstimate)

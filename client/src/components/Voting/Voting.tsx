@@ -55,7 +55,7 @@ const Voting: React.FC<VotingProps> = ({
     const votingTask: number | null = useSelector((state: RootState) => state.volumeTaskReducer.taskID);
     const userEstimates: UserEstimate[] = useSelector((state: RootState) => state.volumeTaskReducer.userEstimates);
     const userID: number = useSelector((state: RootState) => state.auth.userID);
-    const possibleEstimates: string[] = useSelector((state: RootState) => state.volumeTaskReducer.possibleEstimates);
+    const possibleEstimates: number[] = useSelector((state: RootState) => state.volumeTaskReducer.possibleEstimates);
     const isAdmin: boolean = useSelector((state: RootState) => state.poker.isAdmin);
 
     const startDate: string | null = useSelector((state: RootState) => state.volumeTaskReducer.startDate);
@@ -109,7 +109,7 @@ const Voting: React.FC<VotingProps> = ({
     }
 
     // Обработчик добавления голоса
-    const handleAddVote = (taskID: number, estimate: string) => {
+    const handleAddVote = (taskID: number, estimate: number) => {
         dispatch(fetchAddVote({
             estimate,
             pokerID: pokerId
@@ -154,9 +154,9 @@ const Voting: React.FC<VotingProps> = ({
                             </CardContent>
 
                             <CardActions sx={{ justifyContent: 'center', gap: 3, flexWrap: 'wrap', padding: 2 }}>
-                                {action == 'stop' && possibleEstimates.map((estimate: string) => (
+                                {action == 'stop' && possibleEstimates.map((estimate: number) => (
                                     <Button
-                                        key={estimate}
+                                        key={estimate.toString()}
                                         variant={currentEstimate && estimate === currentEstimate?.Estimate ? 'contained' : 'outlined'}
                                         color="primary"
                                         onClick={() => handleAddVote(selectedTask.ID, estimate)}

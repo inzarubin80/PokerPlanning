@@ -27,7 +27,7 @@ type (
 		Autor     model.UserID
 		IsAdmin   bool
 		ActiveUsersID []model.UserID
-		Users         []*model.User
+		Users         map[model.UserID]*model.User
 		
 	}
 )
@@ -66,6 +66,11 @@ func (h *GetPokerHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	
+	usersMap := make(map[model.UserID]*model.User)
+	for _,v:=range poker.Users {
+		usersMap[v.ID] = v
+	}
+	
 	jsonContent, err := json.Marshal(&PokerToFrontend{
 		ID:        model.PokerID(poker_id),
 		CreatedAt: poker.CreatedAt,
@@ -73,7 +78,7 @@ func (h *GetPokerHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		Autor:     poker.Autor,
 		IsAdmin:   userID == poker.Autor,
 		ActiveUsersID: poker.ActiveUsersID,
-		Users: poker.Users,
+		Users: usersMap,
 	})
 
 	if err != nil {
