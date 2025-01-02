@@ -16,10 +16,12 @@ type (
 	}
 
 	Repository interface {
-	
+		
 		//Poker
 		CreatePoker(ctx context.Context, userID model.UserID) (model.PokerID, error)
-	
+		AddPokerAdmin(ctx context.Context, pokerID model.PokerID, userID model.UserID) (error)
+		GetPokerAdmins(ctx context.Context, pokerID model.PokerID) ([] model.UserID, error)
+
 		//Task
 		AddTask(ctx context.Context,  task *model.Task) (*model.Task, error)
 		GetTasks(ctx context.Context, pokerID model.PokerID) ([]*model.Task, error)
@@ -75,6 +77,7 @@ type (
 
 
 func NewPokerService(repository Repository, hub Hub, accessTokenService TokenService, refreshTokenService TokenService, providersUserData authinterface.ProvidersUserData) *PokerService {
+	
 	return &PokerService{
 		repository: repository,
 		hub: hub,
@@ -82,6 +85,7 @@ func NewPokerService(repository Repository, hub Hub, accessTokenService TokenSer
 		refreshTokenService: refreshTokenService,
 		providersUserData: providersUserData,
 	}
+
 }
 
 

@@ -60,6 +60,8 @@ type (
 		
 		SetVoting(ctx context.Context, userEstimate *model.UserEstimate) error
 		GetVotingResults(ctx context.Context, pokerID model.PokerID) ([]*model.UserEstimate, error)
+	
+		UserIsAdmin(ctx context.Context, pokerID model.PokerID, userID model.UserID) (bool, error) 
 	}
 
 	TokenService interface {
@@ -84,22 +86,25 @@ type (
 func (a *App) ListenAndServe() error {
 	go a.hub.Run()
 
-	handlers := map[string]http.Handler{
+    	handlers := map[string]http.Handler{
 
 		a.config.path.createPoker: appHttp.NewCreatePoker(a.pokerService, a.config.path.createPoker),
 		a.config.path.getPoker:    appHttp.NewGetPokerHandler(a.pokerService, a.config.path.getPoker),
-		a.config.path.createTask:  appHttp.NewAddTaskHandler(a.pokerService, a.config.path.createPoker),
+		a.config.path.createTask:  middleware.NewAdminMiddleware(appHttp.NewAddTaskHandler(a.pokerService, a.config.path.createPoker), a.pokerService),
 		a.config.path.getTasks:    appHttp.NewGetTasksHandler(a.pokerService, a.config.path.getTasks),
 		a.config.path.getTask:     appHttp.NewGetTaskHandler(a.pokerService, a.config.path.getTask),
-		a.config.path.deleteTask:  appHttp.NewDeleteTaskHandler(a.pokerService, a.config.path.deleteTask),
-		a.config.path.updateTask:  appHttp.NewUpdateTaskHandler(a.pokerService, a.config.path.updateTask),
+		a.config.path.deleteTask:  middleware.NewAdminMiddleware(appHttp.NewDeleteTaskHandler(a.pokerService, a.config.path.deleteTask),a.pokerService),
+	
+		a.config.path.updateTask:  middleware.NewAdminMiddleware(appHttp.NewUpdateTaskHandler(a.pokerService, a.config.path.updateTask),a.pokerService),
+	
 		a.config.path.addComent:   appHttp.NewAddCommentHandler(a.pokerService, a.config.path.addComent),
 		a.config.path.getComents:  appHttp.NewGetCommentsHandler(a.pokerService, a.config.path.getComents),
 
-		a.config.path.setVotingTask:         appHttp.NewSetVotingTaskHandler(a.pokerService, a.config.path.setVotingTask),
+		a.config.path.setVotingTask:         middleware.NewAdminMiddleware(appHttp.NewSetVotingTaskHandler(a.pokerService, a.config.path.setVotingTask),a.pokerService),
+	
 		a.config.path.getVotingControlState: appHttp.NewGetVotingStateHandler(a.pokerService, a.config.path.getVotingControlState),
 		a.config.path.getUserEstimates:      appHttp.NewGetUserEstimatesHandler(a.pokerService, a.config.path.getUserEstimates),
-		a.config.path.setVotingControlState: appHttp.NewSetVotingStateHandler(a.pokerService, a.config.path.setVotingControlState),
+		a.config.path.setVotingControlState: middleware.NewAdminMiddleware(appHttp.NewSetVotingStateHandler(a.pokerService, a.config.path.setVotingControlState),a.pokerService),
 
 		a.config.path.ping: appHttp.NewPingHandlerHandler(a.config.path.ping),
 		a.config.path.vote: appHttp.NewSetVotingHandler(a.pokerService, a.config.path.vote),

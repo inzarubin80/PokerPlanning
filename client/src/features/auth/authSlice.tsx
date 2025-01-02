@@ -75,12 +75,14 @@ const authSlice = createSlice({
   
   extraReducers: (builder) => {
     builder
-    
+  
       .addCase(logout.fulfilled, (state) => {
         state.accessToken = null;
         state.userID = 0;
-        
+        localStorage.removeItem("accessToken"); 
+        localStorage.removeItem("userID"); 
         delete authAxios.defaults.headers.common['Authorization'];
+        
       });
   },
 });

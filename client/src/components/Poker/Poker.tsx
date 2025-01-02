@@ -16,7 +16,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchTasks, taskAdded, taskRemoved, tasksUpdating, deleteTask } from '../../features/task/taskSlice';
 import { addComment, commentAdded, getComments, SaveCommentParams } from '../../features/comment/commentSlice';
 import { setVoteChange, fetchSetVotingTask, fetchVotingControl, setNumberVoters, setUserEstimates, getUserEstimates} from '../../features/voting/voting';
-import {fetchPokerDetails, setActiveUsers} from '../../features/poker/pokerSlice';
+import {fetchPokerDetails, setActiveUsers, setUsers} from '../../features/poker/pokerSlice';
 import { AppDispatch, RootState } from '../../app/store';
 import WebSocketClient from '../../api/WebSocketClient'
 import { SettingsVoice } from '@mui/icons-material';
@@ -31,6 +31,9 @@ const App: React.FC = () => {
   const accessToken = useSelector((state: RootState) => state.auth.accessToken);
 
   const tasks = useSelector((state: RootState) => state.taskReducer.tasks);
+
+  const taskID = useSelector((state: RootState) => state.volumeTaskReducer.taskID);
+
   const status = useSelector((state: RootState) => state.taskReducer.statusFetchTasks);
   const error = useSelector((state: RootState) => state.taskReducer.errorFetchTasks);
 
@@ -114,12 +117,13 @@ const App: React.FC = () => {
           break;
        
        case 'CHANGE_ACTIVE_USERS_POKER':
-
-
-       
             dispatch(setActiveUsers(msg.Users));
             break;
-  
+
+      case 'ADD_POKER_USER':
+              dispatch(setUsers(msg.Users));
+              break;
+
         default:
           console.warn("Unknown message type:", msg);
       }
@@ -180,7 +184,7 @@ const App: React.FC = () => {
       <Grid2 container spacing={1} style={{ height: 'calc(100vh - 120px)', display: 'flex' }}>
 
 
-      <Grid2 size={{ xs: 5 }} style={{ display: 'flex', flexDirection: 'column' }}>
+      <Grid2 size={taskID > 0 ?{ xs: 5 }: { xs: 6 }} style={{ display: 'flex', flexDirection: 'column' }}>
           <TaskList
             tasks={tasks}
             handleEditTask={handleEditTask}
@@ -190,7 +194,7 @@ const App: React.FC = () => {
 
         </Grid2>
         
-        <Grid2 size={{ xs: 4 }} style={{ display: 'flex', flexDirection: 'column' }}>
+        <Grid2 size={taskID > 0 ?{ xs: 4 }:{ xs: 6 }} style={{ display: 'flex', flexDirection: 'column' }}>
           <Voting
             // selectedTask={selectedTask}
             averageEstimate={1}
@@ -202,12 +206,11 @@ const App: React.FC = () => {
 
        
 
-        <Grid2 size={{ xs: 3 }} style={{ display: 'flex', flexDirection: 'column' }}>
+        {taskID > 0 && <Grid2 size={{ xs: 3 }} style={{ display: 'flex', flexDirection: 'column' }}>
           <Comments
          
             handleAddComment={handleAddComment} />
-        </Grid2>
-
+        </Grid2>}
 
       </Grid2>
 

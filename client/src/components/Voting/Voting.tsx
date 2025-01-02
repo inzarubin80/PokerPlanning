@@ -8,25 +8,35 @@ import {
     Card,
     CardContent,
     CardActions,
-    Accordion,
-    AccordionSummary,
-    AccordionDetails,
     List,
     ListItem,
     ListItemText,
-    ListItemAvatar,
-    Avatar,
     LinearProgress,
+    Rating
 } from '@mui/material';
 
+import { styled } from '@mui/material/styles';
 import { Settings, ExpandMore } from '@mui/icons-material';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '../../app/store';
 import { fetchAddVote, setVotingState, tickProgress } from '../../features/voting/voting';
 import { useParams } from 'react-router-dom';
-import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import { Task, UserEstimate } from "../../model"
+
+import FavoriteIcon from '@mui/icons-material/AccessTime';
+import FavoriteBorderIcon from '@mui/icons-material/AccessTime';
+
+
+const StyledRating = styled(Rating)({
+    '& .MuiRating-iconFilled': {
+      color: '#ff6d75',
+    },
+    '& .MuiRating-iconHover': {
+      color: '#ff3d47',
+    },
+  });
+  
 
 // Тип для пропсов компонента Voting
 interface VotingProps {
@@ -56,24 +66,45 @@ const Voting: React.FC<VotingProps> = ({
     const userEstimates: UserEstimate[] = useSelector((state: RootState) => state.volumeTaskReducer.userEstimates);
     const userID: number = useSelector((state: RootState) => state.auth.userID);
     const possibleEstimates: number[] = useSelector((state: RootState) => state.volumeTaskReducer.possibleEstimates);
-    const isAdmin: boolean = useSelector((state: RootState) => state.poker.isAdmin);
-
-    const startDate: string | null = useSelector((state: RootState) => state.volumeTaskReducer.startDate);
-    const endDate: string | null = useSelector((state: RootState) => state.volumeTaskReducer.endDate);
-
     const progress: number = useSelector((state: RootState) => state.volumeTaskReducer.progress);
-    const remainingSec: number = useSelector((state: RootState) => state.volumeTaskReducer.remainingSec);
-
     const action: string = useSelector((state: RootState) => state.volumeTaskReducer.action);
     const actionName: string = useSelector((state: RootState) => state.volumeTaskReducer.actionName);
-
-
+    const activeUsersID = useSelector((state: RootState) => state.poker.activeUsersID);
+    const users = useSelector((state: RootState) => state.poker.users);
+   
     const dispatch: AppDispatch = useDispatch();
     const { pokerId } = useParams<{ pokerId: string }>();
 
     const selectedTask: Task | undefined = useMemo(
         () => tasks.find(item => item.ID === votingTask),
         [tasks, votingTask]
+    );
+
+
+    const userEstimatesRes: UserEstimate[] = useMemo(
+
+        () => {
+            let userEstimatesRes = [...userEstimates]
+            for (let i = 0; i < activeUsersID.length; i++) {
+                if (!userEstimatesRes.find(item => item.UserID == activeUsersID[i])) {
+                    userEstimatesRes.push(
+                        {
+                            Estimate: -1,
+                            UserID: activeUsersID[i],
+                            PokerID: "",
+                            ID: -1
+                        }
+
+                    )
+
+                }
+            }
+
+            return [...userEstimatesRes].sort((a, b) => a.Estimate - b.Estimate);
+        }
+        ,
+
+        [activeUsersID, users, userEstimates]
     );
 
     const currentEstimate: UserEstimate | undefined = useMemo(
@@ -201,17 +232,30 @@ const Voting: React.FC<VotingProps> = ({
                                     }}
                                 >
                                     <List dense> {/* Список более компактный благодаря dense */}
-                                        {userEstimates.map((userEstimate: UserEstimate) => (
+                                        {userEstimatesRes.map((userEstimate: UserEstimate) => (
                                             <ListItem key={userEstimate.UserID.toString()} sx={{ py: 0.5 }}> {/* Уменьшаем отступы */}
-                                                <ListItemAvatar>
-                                                    <Avatar src="/path/to/user-icon.png" /> {/* Картинка пользователя */}
-                                                </ListItemAvatar>
+
                                                 <ListItemText
-                                                    primary={`User ${userEstimate.UserID}`} // Упрощенный текст
+                                                    primary={`${users.get(userEstimate.UserID)?.Name}`} // Упрощенный текст
                                                     secondary={`Оценка: ${userEstimate.Estimate}`} // Дополнительная информация
                                                     primaryTypographyProps={{ variant: 'body2' }} // Меньший размер текста
                                                     secondaryTypographyProps={{ variant: 'body2', color: 'text.secondary' }}
                                                 />
+
+
+                                                <StyledRating
+                                                    
+                                                    name="customized-color"
+                                                    getLabelText={(value: number) => `${value} Heart${value !== 1 ? 's' : ''}`}
+                                                    precision={1}
+                                                    icon={<FavoriteIcon fontSize="inherit" />}
+                                                    emptyIcon={<FavoriteBorderIcon fontSize="inherit" />}
+                                                    max={possibleEstimates.length}
+                                                    value={possibleEstimates.findIndex(item=>item==userEstimate.Estimate)+1}
+
+                                                />
+
+
                                             </ListItem>
                                         ))}
                                     </List>

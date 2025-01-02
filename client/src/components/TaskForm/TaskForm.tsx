@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Task } from '../../model';
 import {
   Button,
@@ -28,6 +28,12 @@ const TaskForm: React.FC<TaskFormProps> = ({ }) => {
   const status = useSelector((state: RootState) => state.taskReducer.statusSaveTask);
   const error = useSelector((state: RootState) => state.taskReducer.errorSaveTask);
   const { pokerId, taskId } = useParams<{ pokerId?: string; taskId?: string }>();
+  const possibleEstimates: number[] = useSelector((state: RootState) => state.volumeTaskReducer.possibleEstimates);
+
+
+  const possibleEstimatesTask: number[] = useMemo(()=>{return [0, ...possibleEstimates]}, [possibleEstimates])
+
+
 
   useEffect(() => {
     if (taskId == "-1" && pokerId) {
@@ -39,7 +45,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ }) => {
         StoryPoint: 0,
         Status: '',
         Completed: false,
-        Estimate: 'xs'
+        Estimate: 0
       };
 
       dispatch(changeCurrentTask(initialTask))
@@ -85,7 +91,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ }) => {
     }
   };
 
-  const handleSetEstimate = (estimate: string) => {
+  const handleSetEstimate = (estimate: number) => {
     if (curentTask) {
       dispatch(changeCurrentTask({ ...curentTask, Estimate: estimate }))
     }
@@ -131,7 +137,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ }) => {
               <TextField
                 label="Оценка"
                 value={curentTask?.Estimate}
-                onChange={(e) => handleSetEstimate(e.target.value as Task['Estimate'])}
+                onChange={(e) => handleSetEstimate(parseInt(e.target.value))}
                 fullWidth
                 select
                 SelectProps={{
@@ -139,9 +145,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ }) => {
                 }}
                 required
               >
-                <option value="xs">XS</option>
-                <option value="s">S</option>
-                <option value="m">M</option>
+                  {possibleEstimatesTask.map(item   => (<option key={item.toString()} value={item.toString()}>{item}</option>))}
               </TextField>
             </Grid2>
             <Grid2 size={{ xs: 12 }}>

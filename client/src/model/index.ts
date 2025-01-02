@@ -6,7 +6,7 @@ export interface Task {
   StoryPoint: number;
   Status: string;
   Completed: boolean;
-  Estimate: string;
+  Estimate: number;
 }
 
 export interface CommentItem {

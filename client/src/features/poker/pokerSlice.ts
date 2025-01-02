@@ -90,7 +90,12 @@ const pokerSlice = createSlice({
   reducers: {
     setActiveUsers: (state, action: PayloadAction<number[]>) => {
       state.activeUsersID = action.payload
+    },
+
+    setUsers: (state, action: PayloadAction< Map<number, User>>) => {
+      state.users = new Map(Object.entries(action.payload).map(([key, user]) => [Number(user.ID), user]))
     }
+
   },
   extraReducers: (builder) => {
     // Обработка состояния для createPoker
@@ -122,7 +127,7 @@ const pokerSlice = createSlice({
         state.createdAt = action.payload.CreatedAt; 
         state.pokerId = action.payload.ID;
         state.activeUsersID = action.payload.ActiveUsersID;
-        state.users = new Map(Object.entries(action.payload.Users).map(([key, user]) => [Number(key), user]));
+        state.users = new Map(Object.entries(action.payload.Users).map(([key, user]) => [Number(user.ID), user]));
       })
       
       .addCase(fetchPokerDetails.rejected, (state, action) => {
@@ -133,5 +138,5 @@ const pokerSlice = createSlice({
   },
 });
 
-export const { setActiveUsers } = pokerSlice.actions;
+export const { setActiveUsers, setUsers } = pokerSlice.actions;
 export default pokerSlice.reducer;

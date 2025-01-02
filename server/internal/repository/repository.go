@@ -10,16 +10,17 @@ type (
 		storage Storage
 	}
 	
-	Users         map[model.UserID]*model.User
-	Tasks         map[model.PokerID]map[model.TaskID]*model.Task
-	Comments      map[model.PokerID]map[model.CommentID]*model.Comment
-	UserEstimates map[model.PokerID]map[model.EstimateID]*model.UserEstimate
-	Pokers        map[model.PokerID]*model.Poker
-	Participants  map[model.PokerID]map[model.UserID]bool
-	VoteState     map[model.PokerID]*model.VoteControlState
+	Users         map[model.UserID] *model.User
+	Tasks         map[model.PokerID]map[model.TaskID] *model.Task
+	Comments      map[model.PokerID]map[model.CommentID] *model.Comment
+	UserEstimates map[model.PokerID]map[model.EstimateID] *model.UserEstimate
+	Pokers        map[model.PokerID] *model.Poker
+	Participants  map[model.PokerID]map[model.UserID] bool
+	VoteState     map[model.PokerID] *model.VoteControlState
 	Voting        map[model.PokerID]map[model.UserID] model.Estimate
 	PokerUsers    map[model.PokerID]map[model.UserID] bool
-
+	PokerAdmins   map[model.PokerID]map[model.UserID] bool
+	
 	Storage struct {
 		mx             *sync.RWMutex
 		users          Users
@@ -35,6 +36,7 @@ type (
 		voteState      VoteState
 		voting Voting
 		pokerUsers PokerUsers
+		pokerAdmins PokerAdmins
 	}
 )
 
@@ -51,6 +53,7 @@ func NewPokerRepository(capacity int) *Repository {
 			voteState:    	make(VoteState),
 			voting: 		make(Voting),
 			pokerUsers:     make(PokerUsers),
+			pokerAdmins:    make(PokerAdmins),
 			nextCommentID:  1,
 			nextEstimateID: 1,
 			nextTaskID:     1,

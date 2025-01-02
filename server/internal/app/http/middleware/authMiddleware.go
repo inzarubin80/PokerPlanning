@@ -7,7 +7,6 @@ import (
 	"inzarubin80/PokerPlanning/internal/model"
 	"net/http"
 	"net/url"
-
 	"github.com/gorilla/sessions"
 )
 

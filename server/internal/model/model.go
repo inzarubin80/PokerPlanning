@@ -21,6 +21,7 @@ const (
 	START_VOTING = "start"
 	STOP_VOTING = "stop"
 	CHANGE_ACTIVE_USERS_POKER = "CHANGE_ACTIVE_USERS_POKER"
+	ADD_POKER_USER = "ADD_POKER_USER"
 
 )
 
@@ -51,7 +52,7 @@ type (
 		StoryPoint  int     
 		Status      string  
 		Completed   bool   
-		Estimate    string 
+		Estimate    Estimate 
 	}
 
 	Comment struct {
@@ -75,6 +76,7 @@ type (
 		Autor         UserID
 		ActiveUsersID []UserID
 		Users         []*User
+		Admins        []UserID
 	}
 		
 	AuthData struct {

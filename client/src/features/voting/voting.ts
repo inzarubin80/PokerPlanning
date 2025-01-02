@@ -77,7 +77,7 @@ const initialState: VotingState = {
     statusSetVotingState: 'idle',
     errorSetVotingState: null,
 
-    possibleEstimates: [0,1,2,3,5,8,13,21],
+    possibleEstimates: [1,2,3,5,8,13,21, 34],
     vote: 0,
     numberVoters: 0,
     duration: 0,
