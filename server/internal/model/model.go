@@ -2,7 +2,6 @@ package model
 
 import (
 	"time"
-
 	"github.com/golang-jwt/jwt"
 )
 
@@ -18,28 +17,50 @@ const (
 	Access_Token_Type = "access_token"
 	Refresh_Token_Type = "refresh_Token"
 	ADD_VOTING = "ADD_VOTING"
-	START_VOTING = "START_VOTING"
-	STOP_VOTING = "STOP_VOTING"
-
+	START_VOTING = "start"
+	STOP_VOTING = "stop"
+	END_VOTING = "end"
+	CHANGE_ACTIVE_USERS_POKER = "CHANGE_ACTIVE_USERS_POKER"
+	ADD_POKER_USER = "ADD_POKER_USER"
 )
 
 type (
-	TaskID     int64
+	TaskID     int
 	PokerID    string
-	UserID     int64
-	Estimate   string
-	CommentID  int64
-	EstimateID int64
+	UserID     int
+	Estimate   int
+	CommentID  int
+	EstimateID int
 
-	UserData struct {
-		Name string
-		Email string		
+  UserProfileFromProvider struct {
+		ProviderID   string `json:"provider_id"`   // Идентификатор пользователя у провайдера
+		Email        string `json:"email"`         // Email пользователя
+		Name         string `json:"name"`          // Имя пользователя
+		FirstName    string `json:"first_name"`    // Имя
+		LastName     string `json:"last_name"`     // Фамилия
+		AvatarURL    string `json:"avatar_url"`    // Ссылка на аватар
+		ProviderName string `json:"provider_name"` // Название провайдера (например, "google", "github")
 	}
 
 	User struct {
 		ID   UserID
+		Name string	
+		EvaluationStrategy string
+		MaximumScore int
+	}
+
+	UserSettings struct {
+		UserID   UserID
+		EvaluationStrategy string
+		MaximumScore int
+	}
+
+	UserAuthProviders struct {
+		ID   UserID
+		UserID UserID
+		ProviderUid string
+		Provider string
 		Name string
-		Email string		
 	}
 
 	Task struct {
@@ -50,7 +71,7 @@ type (
 		StoryPoint  int     
 		Status      string  
 		Completed   bool   
-		Estimate    string 
+		Estimate    Estimate 
 	}
 
 	Comment struct {
@@ -59,12 +80,22 @@ type (
 		UserID UserID 
 		Text   string 
 	}
-	
+
+	VotingResult struct {
+		UserEstimates []UserEstimate
+		FinalResult int
+	}
+
 	UserEstimate struct {
 		ID       EstimateID
 		PokerID  PokerID
 		UserID   UserID
 		Estimate Estimate
+	}
+	
+	PokerSettings struct {
+		EvaluationStrategy string
+		MaximumScore int
 	}
 
 	Poker struct {
@@ -72,7 +103,11 @@ type (
 		CreatedAt     time.Time
 		Name          string	
 		Autor         UserID
-
+		ActiveUsersID []UserID
+		Users         []*User
+		Admins        []UserID
+		EvaluationStrategy string
+		MaximumScore int
 	}
 		
 	AuthData struct {

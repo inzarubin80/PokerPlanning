@@ -13,8 +13,6 @@ import (
 
 type (
 
-	//ProvidersUserData map[string]authinterface.ProviderUserData
-
 	Options struct {
 		Addr string
 	}
@@ -22,7 +20,8 @@ type (
 		index, getPoker, createPoker, createTask,
 		getTasks, getTask, updateTask, deleteTask,
 		getComents, addComent, setVotingTask,
-		getVotingControlState, ws, login, session, refreshToken, logOut, getProviders, ping, vote, getUserEstimates, setVotingControlState string
+		getVotingControlState, ws, login, session, refreshToken, logOut, getProviders, 
+		ping, vote, getUserEstimates, setVotingControlState, setUserName, getUser, setUserSettings string
 	}
 
 	sectrets struct {
@@ -68,8 +67,13 @@ func NewConfig(opts Options) config {
 			ping:                  fmt.Sprintf("GET /api/ping"),
 			createPoker:           "POST	/api/poker",
 			getProviders:          "GET /api/providers",
-			
+
 			login:                 fmt.Sprintf("POST	/api/user/login"),
+			setUserName:           fmt.Sprintf("POST	/api/user/name"),	
+			setUserSettings:       fmt.Sprintf("POST	/api/user/settings"),	
+	
+			getUser:               fmt.Sprintf("GET	/api/user"),	
+			
 			refreshToken:          fmt.Sprintf("POST	/api/user/refresh"),
 			session:               fmt.Sprintf("GET		/api/user/session"),
 			logOut:                fmt.Sprintf("GET		/api/user/logout"),

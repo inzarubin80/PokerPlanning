@@ -8,17 +8,34 @@ import {
     Card,
     CardContent,
     CardActions,
+    List,
+    ListItem,
+    ListItemText,
+    LinearProgress,
+    Rating,
+    TextField,
 } from '@mui/material';
+
+import { styled } from '@mui/material/styles';
 import { Settings } from '@mui/icons-material';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '../../app/store';
-import { fetchAddVote, setVotingState } from '../../features/voting/voting';
+import { fetchAddVote, setVotingState, setFinalResult } from '../../features/voting/votingSlice';
 import { useParams } from 'react-router-dom';
-import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
-import { Task, UserEstimate } from "../../model"
+import { Task, UserEstimate } from "../../model/model"
+import FavoriteIcon from '@mui/icons-material/StarOutline';
+import FavoriteBorderIcon from '@mui/icons-material/StarOutline';
 
-// Тип для пропсов компонента Voting
+const StyledRating = styled(Rating)({
+    '& .MuiRating-iconFilled': {
+        color: '#ff6d75',
+    },
+    '& .MuiRating-iconHover': {
+        color: '#ff3d47',
+    },
+});
+
 interface VotingProps {
     handleSettingsToggle: () => void;
     averageEstimate: number;
@@ -27,52 +44,54 @@ interface VotingProps {
     showSettings: boolean;
 }
 
-
 interface Action {
     id: string;
     name: string;
 }
 
 
-const getType = (value: any) => {
-    return Object.prototype.toString.call(value).slice(8, -1);
-};
-
-
-const isZeroDate = (date: string | null): boolean => {
-
-    return (date == null) || (date == "0001-01-01T00:00:00Z");
-
-};
-
-
-
 const Voting: React.FC<VotingProps> = ({
     handleSettingsToggle,
     handleEndVoting,
 }) => {
-    // Логика таймера
-    const [progress, setProgress] = useState(100); // Начальное значение прогресса (100%)
-    const [isTimerRunning, setIsTimerRunning] = useState(false);
 
-    // Получение данных из Redux
     const tasks: Task[] = useSelector((state: RootState) => state.taskReducer.tasks);
-    const votingTask: number | null = useSelector((state: RootState) => state.volumeTaskReducer.taskID);
-    const userEstimates: UserEstimate[] = useSelector((state: RootState) => state.volumeTaskReducer.userEstimates);
-    const userID: number = useSelector((state: RootState) => state.auth.userID);
-    const possibleEstimates: string[] = useSelector((state: RootState) => state.volumeTaskReducer.possibleEstimates);
-    const isAdmin: boolean = useSelector((state: RootState) => state.poker.isAdmin);
-
-    const startDate: string | null = useSelector((state: RootState) => state.volumeTaskReducer.startDate);
-    const endDate: string | null = useSelector((state: RootState) => state.volumeTaskReducer.endDate);
-
+    const votingTask: number | null = useSelector((state: RootState) => state.volumeReducer.taskID);
+    const userEstimates: UserEstimate[] = useSelector((state: RootState) => state.volumeReducer.userEstimates);
+    const userID: number = useSelector((state: RootState) => state.userReducer.userID);
+    const possibleEstimates: number[] = useSelector((state: RootState) => state.pokerReducer.possibleEstimates);
+    const progress: number = useSelector((state: RootState) => state.volumeReducer.progress);
+    const action: string = useSelector((state: RootState) => state.volumeReducer.action);
+    const actionName: string = useSelector((state: RootState) => state.volumeReducer.actionName);
+    const activeUsersID = useSelector((state: RootState) => state.pokerReducer.activeUsersID);
+    const users = useSelector((state: RootState) => state.pokerReducer.users);
+    const finalResult: number = useSelector((state: RootState) => state.volumeReducer.finalResult);
     const dispatch: AppDispatch = useDispatch();
     const { pokerId } = useParams<{ pokerId: string }>();
 
-    // Выбор текущей задачи
     const selectedTask: Task | undefined = useMemo(
         () => tasks.find(item => item.ID === votingTask),
         [tasks, votingTask]
+    );
+
+    const userEstimatesRes: UserEstimate[] = useMemo(
+        () => {
+            let userEstimatesRes = [...userEstimates]
+            for (let i = 0; i < activeUsersID.length; i++) {
+                if (!userEstimatesRes.find(item => item.UserID == activeUsersID[i])) {
+                    userEstimatesRes.push(
+                        {
+                            Estimate: -1,
+                            UserID: activeUsersID[i],
+                            PokerID: "",
+                            ID: -1
+                        }
+                    )
+                }
+            }
+            return [...userEstimatesRes].sort((a, b) => a.Estimate - b.Estimate);
+        },
+        [activeUsersID, users, userEstimates]
     );
 
 
@@ -81,71 +100,35 @@ const Voting: React.FC<VotingProps> = ({
         [userEstimates, userID]
     );
 
-    const possibleActions: Action | null = useMemo(() => {
-        if (votingTask > 0 && isZeroDate(startDate)) {
-            return {
-                id: "START_VOTING",
-                name: "Начать голосование"
-            };
-        } else if (votingTask > 0 && !isZeroDate(startDate) && isZeroDate(endDate)) {
-            return {
-                id: "STOP_VOTING",
-                name: "Закончить голосование"
-            };
-        } else if (votingTask > 0 && !isZeroDate(startDate) && !isZeroDate(endDate)) {
-            return {
-                id: "START_VOTING",
-                name: "Перезапустить голосование"
-            };
-        } else {
-            return null;
-        }
-    }, [votingTask, startDate, endDate]);
-
-
     const onTimerComplete = () => {
-        setIsTimerRunning(false);
-        handleEndVoting();
+        handleSetStateVoting();
     };
-
-    useEffect(() => {
-        let timer: NodeJS.Timeout | null = null;
-
-        if (isTimerRunning) {
-            timer = setInterval(() => {
-                setProgress((prevProgress) => {
-                    if (prevProgress <= 0) {
-                        clearInterval(timer!);
-                        onTimerComplete(); // Завершение голосования, когда таймер доходит до 0
-                        return 0;
-                    }
-                    return prevProgress - 1; // Уменьшаем прогресс на 1% каждую секунду
-                });
-            }, 1000);
-        }
-
-        return () => {
-            if (timer) clearInterval(timer);
-        };
-    }, [isTimerRunning, onTimerComplete]);
 
     if (!pokerId) {
         return <div>pokerId is missing in the URL</div>;
     }
 
-    // Обработчик добавления голоса
-    const handleAddVote = (taskID: number, estimate: string) => {
-
+    const handleAddVote = (taskID: number, estimate: number) => {
         dispatch(fetchAddVote({
             estimate,
-            pokerID: pokerId,
-            taskID,
+            pokerID: pokerId
         }));
+    };
+
+    const handleSetStateVoting = () => {
+        if (action == '') {
+            return;
+        }
+        dispatch(setVotingState({ pokerID: pokerId, action: action, result: finalResult }));
+    };
+
+    const handleFinalResultChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const value = event.target.value;
+        dispatch(setFinalResult(Number(value))); // Обновление состояния финального результата
     };
 
     return (
         <Paper elevation={3}>
-            {/* Header */}
             <Box
                 position="sticky"
                 top={0}
@@ -157,32 +140,26 @@ const Voting: React.FC<VotingProps> = ({
                 alignItems="center"
                 height={"4vh"}
             >
-                <Typography variant="h6">Голосование</Typography>
+                <Box flex={1} display="flex" justifyContent="center">
+                    <Typography variant="h6">Голосование</Typography>
+                </Box>
                 <IconButton onClick={handleSettingsToggle}>
                     <Settings />
                 </IconButton>
             </Box>
 
-            {/* Main Content */}
             <Box display="flex" height="80vh" flexDirection="column" justifyContent="space-between">
                 {selectedTask ? (
                     <Box p={1} overflow="auto">
-                        {/* Task and Voting Buttons in a Card */}
-                        <Card variant="outlined" sx={{ mb: 2 }}>
+                        <Card variant="outlined">
                             <CardContent>
-                                {/* Task Details */}
-                                <Typography variant="h6" gutterBottom sx={{ whiteSpace: 'normal', wordWrap: 'break-word' }}>
-                                    {selectedTask.Title}
-                                </Typography>
-                                <Typography variant="body1" sx={{ whiteSpace: 'normal', wordWrap: 'break-word' }}>
-                                    {selectedTask.Description}
-                                </Typography>
+                                <Typography variant="h6"> ID {selectedTask.ID} {selectedTask.Title}</Typography>
                             </CardContent>
 
                             <CardActions sx={{ justifyContent: 'center', gap: 3, flexWrap: 'wrap', padding: 2 }}>
-                                {possibleEstimates.map((estimate: string) => (
+                                {action == 'stop' && possibleEstimates.map((estimate: number) => (
                                     <Button
-                                        key={estimate}
+                                        key={estimate.toString()}
                                         variant={currentEstimate && estimate === currentEstimate?.Estimate ? 'contained' : 'outlined'}
                                         color="primary"
                                         onClick={() => handleAddVote(selectedTask.ID, estimate)}
@@ -193,29 +170,70 @@ const Voting: React.FC<VotingProps> = ({
                             </CardActions>
                         </Card>
 
-                        {/* Voting Stats */}
                         <Box mt={2}>
-                            <Typography variant="subtitle1" align="center">
-                                Проголосовало: {userEstimates.length || 0}
-                            </Typography>
 
-                            {/* Timer */}
+                            <Card variant="outlined">
+                                <Box
+                                    display="flex"
+                                    alignItems="center"
+                                    justifyContent="space-between"
+                                    p={2}
+                                    borderBottom="1px solid rgba(0, 0, 0, 0.12)"
+                                    flexDirection="column"
+                                    rowGap={2}
+                                >
+                                    <Typography variant="subtitle1">
+                                        Проголосовало: {userEstimates.length || 0}
+                                    </Typography>
 
-                            <Box p={2} display="flex" flexDirection="column" justifyContent="center" alignItems="center">
-                                <Box sx={{ width: 250, height: 250 }}>
-                                    <CircularProgressbar
-                                        value={progress}
-                                        text={`${progress} сек.`}
-                                        styles={buildStyles({
-                                            textColor: 'black',
-                                            pathColor: 'blue',
-                                            trailColor: 'grey',
-                                        })}
-                                    />
+                                    {action === 'stop' && (
+                                        <Box sx={{ width: '100%' }}>
+                                            <LinearProgress />
+                                        </Box>
+                                    )}
                                 </Box>
-                            </Box>
 
+                                <Box p={0} sx={{ overflowY: 'auto' }}>
+                                    <List dense>
+                                        {userEstimatesRes.map((userEstimate: UserEstimate) => (
+                                            <ListItem key={userEstimate.UserID.toString()} sx={{ py: 0.5 }}>
+                                                <ListItemText
+                                                    primary={`${users.find(item => item.ID == userEstimate.UserID)?.Name}`}
+                                                    secondary={`Оценка: ${userEstimate.Estimate}`}
+                                                    primaryTypographyProps={{ variant: 'body2' }}
+                                                    secondaryTypographyProps={{ variant: 'body2', color: 'text.secondary' }}
+                                                />
+                                                <StyledRating
+                                                    name="customized-color"
+                                                    getLabelText={(value: number) => `${value} Heart${value !== 1 ? 's' : ''}`}
+                                                    precision={1}
+                                                    icon={<FavoriteIcon fontSize="inherit" />}
+                                                    emptyIcon={<FavoriteBorderIcon fontSize="inherit" />}
+                                                    max={possibleEstimates.length}
+                                                    value={possibleEstimates.findIndex(item => item == userEstimate.Estimate) + 1}
+                                                />
+                                            </ListItem>
+                                        ))}
+                                    </List>
+                                </Box>
+                            </Card>
                         </Box>
+
+                        {/* Поле выбора финального результата */}
+                        {(action === 'end') && (
+                            <Box mt={2}>
+                                <TextField
+                                    fullWidth
+                                    label="Финальный результат"
+                                    type="number"
+                                    value={finalResult}
+                                    onChange={handleFinalResultChange}
+                                    slotProps={{ inputLabel: { shrink: true } }}
+
+                                />
+
+                            </Box>
+                        )}
                     </Box>
                 ) : (
                     <Box
@@ -232,11 +250,12 @@ const Voting: React.FC<VotingProps> = ({
                     </Box>
                 )}
 
-                {/* Start Voting Button */}
                 <Box p={2} display="flex" flexDirection="column" justifyContent="flex-start">
-                    {possibleActions && <Button variant="contained" color="primary" onClick={() => dispatch(setVotingState({ pokerID: pokerId, action: possibleActions.id }))}>
-                        {possibleActions.name}
-                    </Button>}
+                    {action !== '' && (
+                        <Button variant="contained" color="primary" onClick={handleSetStateVoting}>
+                            {actionName}
+                        </Button>
+                    )}
                 </Box>
             </Box>
         </Paper>

@@ -15,41 +15,46 @@ func (s *PokerService) Login(ctx context.Context, providerKey string, authorizat
 		return nil, fmt.Errorf("provider not found")
 	}
 
-	userData, err := provider.GetUserData(ctx, authorizationCode)
+	userProfileFromProvider, err := provider.GetUserData(ctx, authorizationCode)
 	if err!=nil {
 		return nil, err
 	}
 
-
-	if userData.Email == "" {
-		return nil, fmt.Errorf("email not found")
-	}
-
-	user, err := s.repository.GetUserByEmail(ctx, userData.Email)
+	userAuthProviders, err := s.repository.GetUserAuthProvidersByProviderUid(ctx, userProfileFromProvider.ProviderID, userProfileFromProvider.ProviderName)
 
 	if err != nil && !errors.Is(err, model.ErrorNotFound) {
 		return nil, err
 	}
 
-	if user == nil {
-		user, err = s.repository.AddUser(ctx, userData)
+	if userAuthProviders == nil {
+		
+		user, err := s.repository.AddUser(ctx, userProfileFromProvider)
 		if err != nil {
 			return nil, err
 		}
+
+		userAuthProviders, err = s.repository.AddUserAuthProviders(ctx, userProfileFromProvider, user.ID)
+		if err != nil {
+			return nil, err
+		}
+
+
 	}
 
-	refreshToken, err := s.refreshTokenService.GenerateToken(user.ID)
+	userID := userAuthProviders.UserID
+
+	refreshToken, err := s.refreshTokenService.GenerateToken(userID)
 	if err != nil {
 		return nil, err
 	}
 
-	accessToken, err := s.accessTokenService.GenerateToken(user.ID)
+	accessToken, err := s.accessTokenService.GenerateToken(userID)
 	if err != nil {
 		return nil, err
 	}
 
 	return &model.AuthData{
-		UserID:       user.ID,
+		UserID:       userID,
 		RefreshToken: refreshToken,
 		AccessToken:  accessToken,
 	}, nil

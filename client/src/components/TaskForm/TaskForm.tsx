@@ -1,6 +1,6 @@
 
-import React, { useState, useEffect } from 'react';
-import { Task } from '../../model';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Task } from '../../model/model';
 import {
   Button,
   TextField,
@@ -29,6 +29,8 @@ const TaskForm: React.FC<TaskFormProps> = ({ }) => {
   const error = useSelector((state: RootState) => state.taskReducer.errorSaveTask);
   const { pokerId, taskId } = useParams<{ pokerId?: string; taskId?: string }>();
 
+
+
   useEffect(() => {
     if (taskId == "-1" && pokerId) {
       const initialTask: Task = {
@@ -39,7 +41,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ }) => {
         StoryPoint: 0,
         Status: '',
         Completed: false,
-        Estimate: 'xs'
+        Estimate: 0
       };
 
       dispatch(changeCurrentTask(initialTask))
@@ -85,7 +87,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ }) => {
     }
   };
 
-  const handleSetEstimate = (estimate: string) => {
+  const handleSetEstimate = (estimate: number) => {
     if (curentTask) {
       dispatch(changeCurrentTask({ ...curentTask, Estimate: estimate }))
     }
@@ -114,6 +116,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ }) => {
                 onChange={(e) => handleSetTitle(e.target.value)}
                 fullWidth
                 required
+                slotProps={{ inputLabel: { shrink: true } }}
               />
             </Grid2>
             <Grid2 size={{ xs: 12 }}>
@@ -125,23 +128,20 @@ const TaskForm: React.FC<TaskFormProps> = ({ }) => {
                 multiline
                 rows={4}
                 required
+                slotProps={{ inputLabel: { shrink: true } }}
+
               />
             </Grid2>
             <Grid2 size={{ xs: 12 }}>
               <TextField
                 label="Оценка"
                 value={curentTask?.Estimate}
-                onChange={(e) => handleSetEstimate(e.target.value as Task['Estimate'])}
+                onChange={(e) => handleSetEstimate(parseInt(e.target.value))}
                 fullWidth
-                select
-                SelectProps={{
-                  native: true,
-                }}
+                slotProps={{ inputLabel: { shrink: true } }}
                 required
               >
-                <option value="xs">XS</option>
-                <option value="s">S</option>
-                <option value="m">M</option>
+             
               </TextField>
             </Grid2>
             <Grid2 size={{ xs: 12 }}>

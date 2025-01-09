@@ -16,10 +16,12 @@ type (
 	}
 
 	Repository interface {
-	
+		
 		//Poker
-		CreatePoker(ctx context.Context, userID model.UserID) (model.PokerID, error)
-	
+		CreatePoker(ctx context.Context, userID model.UserID, pokerSettings *model.PokerSettings) (model.PokerID, error)
+		AddPokerAdmin(ctx context.Context, pokerID model.PokerID, userID model.UserID) (error)
+		GetPokerAdmins(ctx context.Context, pokerID model.PokerID) ([] model.UserID, error)
+
 		//Task
 		AddTask(ctx context.Context,  task *model.Task) (*model.Task, error)
 		GetTasks(ctx context.Context, pokerID model.PokerID) ([]*model.Task, error)
@@ -42,8 +44,15 @@ type (
 		GetPoker(ctx context.Context, pokerID model.PokerID) (*model.Poker, error)
 
 		//User
-		GetUserByEmail(ctx context.Context, email string) (*model.User, error)
-		AddUser(ctx context.Context, userData *model.UserData) (*model.User, error) 
+		GetUserAuthProvidersByProviderUid(ctx context.Context, ProviderUid string, Provider string) (*model.UserAuthProviders, error)
+		AddUserAuthProviders(ctx context.Context, userProfileFromProvide *model.UserProfileFromProvider, userID model.UserID) (*model.UserAuthProviders, error) 
+		AddUser(ctx context.Context, userData *model.UserProfileFromProvider) (*model.User, error) 
+		GetUsersByIDs(ctx context.Context, userIDs []model.UserID) ([]*model.User, error)
+		GetUserIDsByPokerID(ctx context.Context, pokerID model.PokerID) ([] model.UserID, error) 
+		AddPokerUser(ctx context.Context, pokerID model.PokerID, userID model.UserID) (error)
+		SetUserName(ctx context.Context, userID model.UserID, name string) (error)
+		GetUser(ctx context.Context, userID model.UserID) (*model.User, error)
+		SetUserSettings(ctx context.Context, userID model.UserID, userSettings *model.UserSettings) (error) 
 
 		//Voting
 		SetVoting(ctx context.Context, userEstimate *model.UserEstimate) error 
@@ -60,18 +69,19 @@ type (
 	}
 
 	ProviderUserData interface {
-		GetUserData(ctx context.Context, authorizationCode string) (*model.UserData, error)
+		GetUserData(ctx context.Context, authorizationCode string) (*model.UserProfileFromProvider, error)
 	}
-
 
 	Hub interface {
 		AddMessage(pokerID model.PokerID,  payload any)  error
 		AddMessageForUser(pokerID model.PokerID, userID model.UserID, payload any) (error) 
+		GetActiveUsersID(pokerID model.PokerID) ([] model.UserID, error) 
 	}
 )
 
 
 func NewPokerService(repository Repository, hub Hub, accessTokenService TokenService, refreshTokenService TokenService, providersUserData authinterface.ProvidersUserData) *PokerService {
+	
 	return &PokerService{
 		repository: repository,
 		hub: hub,
@@ -79,19 +89,8 @@ func NewPokerService(repository Repository, hub Hub, accessTokenService TokenSer
 		refreshTokenService: refreshTokenService,
 		providersUserData: providersUserData,
 	}
+
 }
 
-func (s *PokerService) GetPoker(ctx context.Context, pokerID model.PokerID) (*model.Poker, error) {	
-	poker, err := s.repository.GetPoker(ctx, pokerID)
-	if err != nil {
-		return nil, model.ErrorNotFound
-	}	
-	return poker, nil
-}
-
-
-func (s *PokerService) CreatePoker(ctx context.Context, userID model.UserID) (model.PokerID, error) {
-	return s.repository.CreatePoker(ctx, userID)
-}
 
 

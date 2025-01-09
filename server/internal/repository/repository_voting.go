@@ -44,12 +44,12 @@ func (r *Repository) GetUserEstimate(ctx context.Context, pokerID model.PokerID,
 
 	_, ok := r.storage.voting[pokerID]
 	if !ok {
-		return model.Estimate(""), nil
+		return model.Estimate(0), nil
 	}
 
 	value, ok := r.storage.voting[pokerID][userID]
 	if !ok {
-		return model.Estimate(""), nil
+		return model.Estimate(0), nil
 	}
 	return value, nil
 

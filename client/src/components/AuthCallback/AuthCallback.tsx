@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { setLoginData } from '../../features/auth/authSlice';
+import { setLoginData } from '../../features/user/userSlice';
 import { AppDispatch } from '../../app/store';
 import { useDispatch } from 'react-redux';
 

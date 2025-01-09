@@ -1,8 +1,9 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { CommentItem } from '../../model';
+import { CommentItem } from '../../model/model';
 
 import {authAxios} from '../../service/http-common'
 import { AxiosError } from 'axios'; 
+
 
 interface ErrorResponse {
   error: boolean;

@@ -8,7 +8,7 @@ import {
   CardActions,
 } from '@mui/material';
 import { Edit, Delete, ThumbUp} from '@mui/icons-material';
-import { Task } from '../../model'
+import { Task } from '../../model/model'
 
 interface TaskCardProps {
   task: Task;
@@ -20,7 +20,7 @@ interface TaskCardProps {
 const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete, onVote }) => (
     <Card>
       <CardContent>
-        <Typography variant="h6"> ID: {task.ID} - {task.Title}</Typography>
+        <Typography variant="h6"> ID {task.ID} {task.Title}</Typography>
         <Typography variant="body2">{task.Description}</Typography>
         <Typography variant="subtitle2">Оценка: {task.Estimate}</Typography>
       </CardContent>

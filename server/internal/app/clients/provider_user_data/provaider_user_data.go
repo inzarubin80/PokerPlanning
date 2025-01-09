@@ -3,7 +3,6 @@ package provideruserdata
 import (
 	"context"
 	"encoding/json"
-	"inzarubin80/PokerPlanning/internal/app/defenitions"
 	"inzarubin80/PokerPlanning/internal/model"
 	"golang.org/x/oauth2"
 )
@@ -11,16 +10,19 @@ import (
 type ProviderUserData struct {
 	url        string
 	oauthConfig *oauth2.Config
+	provider  string
 }
 
-func NewProviderUserData(url string, oauthConfig *oauth2.Config) *ProviderUserData {
+func NewProviderUserData(url string, oauthConfig *oauth2.Config, provider string) *ProviderUserData {
 	return &ProviderUserData{
 		url:        url,
 		oauthConfig: oauthConfig,
+		provider: provider,
+
 	}
 }
 
-func (p *ProviderUserData) GetUserData(ctx context.Context, authorizationCode string) (*model.UserData, error) {
+func (p *ProviderUserData) GetUserData(ctx context.Context, authorizationCode string) (*model.UserProfileFromProvider, error) {
 
 	token, err := p.oauthConfig.Exchange(context.Background(), authorizationCode)
 	if err != nil {
@@ -38,15 +40,20 @@ func (p *ProviderUserData) GetUserData(ctx context.Context, authorizationCode st
 	if err := json.NewDecoder(response.Body).Decode(&profile); err != nil {
 		return nil, err
 	}
-
-	displayName,_ := profile[defenitions.DisplayName].(string)
 	
-
-	default_email,_ := profile[defenitions.DefaultEmail].(string)
+	displayName,_ := profile["real_name"].(string)
+	providerID,_ := profile["id"].(string)
+	defaultEmail,_ := profile["default_email"].(string)
+	firstName,_ := profile["first_name"].(string)
+	lastName,_ := profile["last_name"].(string)
 	
-	userData := &model.UserData{
+	userData := &model.UserProfileFromProvider{
 		Name: displayName,
-		Email: default_email,
+		ProviderID:  providerID,
+		ProviderName:  p.provider,
+		Email: defaultEmail,
+		FirstName: firstName,
+		LastName: lastName,
 	}
 
 	return userData, nil

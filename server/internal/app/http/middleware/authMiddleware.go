@@ -7,7 +7,6 @@ import (
 	"inzarubin80/PokerPlanning/internal/model"
 	"net/http"
 	"net/url"
-
 	"github.com/gorilla/sessions"
 )
 
@@ -24,7 +23,6 @@ type (
 )
 
 func NewAuthMiddleware(h http.Handler, store *sessions.CookieStore, service serviceAuth) *AuthMiddleware {
-
 	return &AuthMiddleware{h: h, store: store, service: service}
 }
 

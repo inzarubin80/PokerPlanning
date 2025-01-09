@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { Task } from '../../model';
+import { Task } from '../../model/model';
 import { authAxios } from '../../service/http-common';
 import { AxiosError } from 'axios';
 
@@ -23,6 +23,7 @@ interface TaskState {
 
   statusDeleteTask: 'idle' | 'loading' | 'succeeded' | 'failed';
   errorDeleteTask: string | null;
+  
 }
 
 const initialState: TaskState = {
@@ -139,6 +140,7 @@ const taskSlice = createSlice({
   initialState,
   reducers: {
     taskAdded: (state, action: PayloadAction<Task>) => {
+
       const updatedTask = action.payload;
       const index = state.tasks.findIndex((task) => task.ID === updatedTask.ID);
       if (index !== -1) {
@@ -150,6 +152,7 @@ const taskSlice = createSlice({
 
     tasksUpdating: (state, action: PayloadAction<Task>) => {
       const updatedTask = action.payload;
+
       const index = state.tasks.findIndex((task) => task.ID === updatedTask.ID);
       if (index !== -1) {
         state.tasks[index] = updatedTask;

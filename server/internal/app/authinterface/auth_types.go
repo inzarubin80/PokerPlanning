@@ -13,7 +13,7 @@ type (
 	}
 
 	ProviderUserData interface {
-		GetUserData(ctx context.Context, authorizationCode string) (*model.UserData, error)
+		GetUserData(ctx context.Context, authorizationCode string) (*model.UserProfileFromProvider, error)
 	}
 
 	ProvidersUserData map[string]ProviderUserData
