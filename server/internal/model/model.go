@@ -63,7 +63,6 @@ type (
 		Name string
 	}
 
-
 	Task struct {
 		ID          TaskID  
 		PokerID     PokerID 
@@ -81,14 +80,19 @@ type (
 		UserID UserID 
 		Text   string 
 	}
-	
+
+	VotingResult struct {
+		UserEstimates []UserEstimate
+		FinalResult int
+	}
+
 	UserEstimate struct {
 		ID       EstimateID
 		PokerID  PokerID
 		UserID   UserID
 		Estimate Estimate
 	}
-
+	
 	PokerSettings struct {
 		EvaluationStrategy string
 		MaximumScore int

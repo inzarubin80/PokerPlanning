@@ -101,10 +101,9 @@ export const fetchVotingControl = createAsyncThunk(
     }
 );
 
-
 export const getUserEstimates = createAsyncThunk(
     'userEstimates/get',
-    async (pokerID: string, { rejectWithValue }) => {
+    async (pokerID:string, { rejectWithValue }) => {
         try {
             const response = await authAxios.get(`/poker/${pokerID}/user-estimates`);
             return response.data;
@@ -160,13 +159,13 @@ export const setVotingState = createAsyncThunk(
     }
 );
 
-const updateFinalResult = (state: VotingState, payload: UserEstimate[]) => {
+const updateUserEstimate = (state: VotingState, payload: { userEstimate: UserEstimate[], evaluationStrategy: string }) => {
 
-    const evaluationStrategy = "maximum";
+    state.userEstimates = payload.userEstimate
 
-    if (evaluationStrategy == "maximum") {
+    if (payload.evaluationStrategy == "maximum") {
         state.finalResult = ArrayUtils.getMax(state.userEstimates.map(item => item.Estimate))
-    } else if (evaluationStrategy == "minimum") {
+    } else if (payload.evaluationStrategy == "minimum") {
         state.finalResult = ArrayUtils.getMin(state.userEstimates.map(item => item.Estimate))
     } else {
         state.finalResult = Math.round(ArrayUtils.getAverage(state.userEstimates.map(item => item.Estimate)))
@@ -211,10 +210,9 @@ const votingTaskSlice = createSlice({
             state.finalResult = action.payload;
         },
 
-        setUserEstimates: (state, action: PayloadAction<UserEstimate[]>) => {
-            state.userEstimates = action.payload;
+        setUserEstimates: (state, action: PayloadAction<{ userEstimate: UserEstimate[], evaluationStrategy: string }>) => {
 
-            updateFinalResult(state, action.payload)
+            updateUserEstimate(state, action.payload)
         },
     },
     extraReducers: (builder) => {
@@ -272,7 +270,7 @@ const votingTaskSlice = createSlice({
 
                 state.statusUserEstimates = 'succeeded';
                 state.userEstimates = action.payload
-                updateFinalResult(state, action.payload)
+                //  updateUserEstimate(state, action.payload)
 
             })
             .addCase(getUserEstimates.rejected, (state, action) => {

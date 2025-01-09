@@ -5,10 +5,10 @@ import {
   Typography,
   Box,
 } from '@mui/material';
+
 import Voting from '../Voting/Voting'
 import TaskList from '../TaskList/TaskList'
 import Comments from '../Comments/Comments'
-
 import { useNavigate } from "react-router-dom";
 import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
@@ -32,6 +32,9 @@ const App: React.FC = () => {
   const tasks = useSelector((state: RootState) => state.taskReducer.tasks);
   const taskID = useSelector((state: RootState) => state.volumeReducer.taskID);
 
+
+  const evaluationStrategy = useSelector((state: RootState) => state.pokerReducer.evaluationStrategy);
+  
   const activeUsersID = useSelector((state: RootState) => state.pokerReducer.activeUsersID);
   const [showSettings, setShowSettings] = useState(false);
   const navigate = useNavigate();
@@ -49,7 +52,6 @@ const App: React.FC = () => {
     dispatch(fetchVotingControl(pokerId));
     dispatch(fetchPokerDetails(pokerId));
     dispatch(getUserEstimates(pokerId));
-
   }, [pokerId]);
 
 
@@ -83,6 +85,7 @@ const App: React.FC = () => {
     for (let i = 0; i < newMessages.length; i++) {
       const msg = newMessages[i];
       switch (msg.Action) {
+        
         case 'ADD_TASK':
           dispatch(taskAdded(msg.Task));
           break;
@@ -102,9 +105,8 @@ const App: React.FC = () => {
           dispatch(setNumberVoters(msg.Count));
           break;
         case 'ADD_VOTING':
-          dispatch(setUserEstimates(msg.Estimates));
+          dispatch(setUserEstimates( { userEstimate: msg.Estimates, evaluationStrategy: evaluationStrategy }));
           break;
-
         case 'CHANGE_ACTIVE_USERS_POKER':
           dispatch(setActiveUsers(msg.Users));
           break;

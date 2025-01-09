@@ -3,8 +3,6 @@ import { authAxios } from '../../service/http-common';
 import { User, Poker, PokerSettings } from '../../model/model'
 import FibonacciNumbers from '../../utils/FibonacciNumbers'
 
-
-
 // Тип для состояния
 interface PokerState {
   pokerId: string;
