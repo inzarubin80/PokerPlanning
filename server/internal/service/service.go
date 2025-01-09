@@ -18,7 +18,7 @@ type (
 	Repository interface {
 		
 		//Poker
-		CreatePoker(ctx context.Context, userID model.UserID) (model.PokerID, error)
+		CreatePoker(ctx context.Context, userID model.UserID, pokerSettings *model.PokerSettings) (model.PokerID, error)
 		AddPokerAdmin(ctx context.Context, pokerID model.PokerID, userID model.UserID) (error)
 		GetPokerAdmins(ctx context.Context, pokerID model.PokerID) ([] model.UserID, error)
 

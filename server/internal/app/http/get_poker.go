@@ -29,6 +29,9 @@ type (
 		ActiveUsersID []model.UserID
 		Admins        []model.UserID
 		Users         []*model.User
+		EvaluationStrategy string
+		MaximumScore int
+
 	}
 )
 
@@ -79,6 +82,8 @@ func (h *GetPokerHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		IsAdmin:       isAdmin,
 		ActiveUsersID: poker.ActiveUsersID,
 		Users:         poker.Users,
+		EvaluationStrategy: poker.EvaluationStrategy,
+		MaximumScore: poker.MaximumScore,	
 	})
 
 	if err != nil {

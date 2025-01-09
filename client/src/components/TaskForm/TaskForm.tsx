@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Task } from '../../model';
+import { Task } from '../../model/model';
 import {
   Button,
   TextField,
@@ -28,10 +28,6 @@ const TaskForm: React.FC<TaskFormProps> = ({ }) => {
   const status = useSelector((state: RootState) => state.taskReducer.statusSaveTask);
   const error = useSelector((state: RootState) => state.taskReducer.errorSaveTask);
   const { pokerId, taskId } = useParams<{ pokerId?: string; taskId?: string }>();
-  const possibleEstimates: number[] = useSelector((state: RootState) => state.volumeReducer.possibleEstimates);
-
-
-  const possibleEstimatesTask: number[] = useMemo(()=>{return [0, ...possibleEstimates]}, [possibleEstimates])
 
 
 
@@ -142,16 +138,10 @@ const TaskForm: React.FC<TaskFormProps> = ({ }) => {
                 value={curentTask?.Estimate}
                 onChange={(e) => handleSetEstimate(parseInt(e.target.value))}
                 fullWidth
-                select
-                SelectProps={{
-                  native: true,
-                }}
                 slotProps={{ inputLabel: { shrink: true } }}
                 required
-
-
               >
-                  {possibleEstimatesTask.map(item   => (<option key={item.toString()} value={item.toString()}>{item}</option>))}
+             
               </TextField>
             </Grid2>
             <Grid2 size={{ xs: 12 }}>

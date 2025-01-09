@@ -32,7 +32,7 @@ type (
 	}
 
 	PokerService interface {
-		CreatePoker(ctx context.Context, userID model.UserID) (model.PokerID, error)
+		CreatePoker(ctx context.Context, userID model.UserID, pokerSettings * model.PokerSettings) (model.PokerID, error)
 		GetPoker(ctx context.Context, pokerID model.PokerID, userID model.UserID) (*model.Poker, error)
 		AddTask(ctx context.Context, task *model.Task) (*model.Task, error)
 		GetTasks(ctx context.Context, pokerID model.PokerID) ([]*model.Task, error)

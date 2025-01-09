@@ -11,7 +11,7 @@ import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
-import {setUserSettings, getUser} from '../../features/user/userSlice';
+import { setUserSettings, getUser } from '../../features/user/userSlice';
 import generateFibonacciNumbers from '../../utils/FibonacciNumbers'
 
 // Тип для ошибки
@@ -27,35 +27,32 @@ function Home() {
 
   const evaluationStrategy = useSelector((state: RootState) => state.userReducer.EvaluationStrategy);
   const maximumScore = useSelector((state: RootState) => state.userReducer.MaximumScore);
-  
+
 
 
   const handleCreatePoker = async () => {
     try {
-      // Вызываем createPoker через dispatch и разворачиваем результат
-      const response = await dispatch(createPoker()).unwrap();
+      const response = await dispatch(createPoker({ EvaluationStrategy: evaluationStrategy, MaximumScore: maximumScore })).unwrap();
       navigate(`/poker/${response}`); // Переход на страницу с созданным покером
     } catch (err) {
       console.error('Failed to create poker:', err);
     }
   };
 
-
   const fibonacciNumbers = generateFibonacciNumbers(1000);
 
+  const handleStrategyChange = (event: any) => {
+    dispatch(setUserSettings({ ID: -1, EvaluationStrategy: event.target.value, MaximumScore: maximumScore }))
+  };
 
-    const handleStrategyChange = (event: any) => {
-      dispatch(setUserSettings({ID:-1, EvaluationStrategy:event.target.value, MaximumScore:maximumScore}))
-    };
-  
-    const handleMaxScoreChange = (event: any) => {
-      dispatch(setUserSettings({ID:-1, EvaluationStrategy:evaluationStrategy, MaximumScore:event.target.value}))  
-    };
+  const handleMaxScoreChange = (event: any) => {
+    dispatch(setUserSettings({ ID: -1, EvaluationStrategy: evaluationStrategy, MaximumScore: event.target.value }))
+  };
 
-    useEffect(() => {
-      dispatch(getUser());
-    }, []);
-    
+  useEffect(() => {
+    dispatch(getUser());
+  }, []);
+
   return (
     <Container maxWidth="sm">
       <Box sx={{ my: 2, textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -96,7 +93,7 @@ function Home() {
           variant="outlined"
           onClick={handleCreatePoker}
           disabled={loading}
-          sx={{ width: '70%', mt: 2 }} 
+          sx={{ width: '70%', mt: 2 }}
         >
           {loading ? 'Создание...' : 'Создать'}
         </Button>

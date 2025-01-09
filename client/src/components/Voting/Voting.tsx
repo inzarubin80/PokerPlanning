@@ -20,10 +20,10 @@ import { styled } from '@mui/material/styles';
 import { Settings } from '@mui/icons-material';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '../../app/store';
-import { fetchAddVote, setVotingState, tickProgress, setFinalResult} from '../../features/voting/votingSlice';
+import { fetchAddVote, setVotingState, setFinalResult } from '../../features/voting/votingSlice';
 import { useParams } from 'react-router-dom';
 import 'react-circular-progressbar/dist/styles.css';
-import { Task, UserEstimate } from "../../model"
+import { Task, UserEstimate } from "../../model/model"
 import FavoriteIcon from '@mui/icons-material/StarOutline';
 import FavoriteBorderIcon from '@mui/icons-material/StarOutline';
 
@@ -49,9 +49,6 @@ interface Action {
     name: string;
 }
 
-const isZeroDate = (date: string | null): boolean => {
-    return (date == null) || (date == "0001-01-01T00:00:00Z");
-};
 
 const Voting: React.FC<VotingProps> = ({
     handleSettingsToggle,
@@ -62,13 +59,13 @@ const Voting: React.FC<VotingProps> = ({
     const votingTask: number | null = useSelector((state: RootState) => state.volumeReducer.taskID);
     const userEstimates: UserEstimate[] = useSelector((state: RootState) => state.volumeReducer.userEstimates);
     const userID: number = useSelector((state: RootState) => state.userReducer.userID);
-    const possibleEstimates: number[] = useSelector((state: RootState) => state.volumeReducer.possibleEstimates);
+    const possibleEstimates: number[] = useSelector((state: RootState) => state.pokerReducer.possibleEstimates);
     const progress: number = useSelector((state: RootState) => state.volumeReducer.progress);
     const action: string = useSelector((state: RootState) => state.volumeReducer.action);
     const actionName: string = useSelector((state: RootState) => state.volumeReducer.actionName);
     const activeUsersID = useSelector((state: RootState) => state.pokerReducer.activeUsersID);
     const users = useSelector((state: RootState) => state.pokerReducer.users);
-    const finalResult: number = useSelector((state: RootState) => state.volumeReducer.finalResult);   
+    const finalResult: number = useSelector((state: RootState) => state.volumeReducer.finalResult);
     const dispatch: AppDispatch = useDispatch();
     const { pokerId } = useParams<{ pokerId: string }>();
 
@@ -97,6 +94,7 @@ const Voting: React.FC<VotingProps> = ({
         [activeUsersID, users, userEstimates]
     );
 
+
     const currentEstimate: UserEstimate | undefined = useMemo(
         () => userEstimates.find(item => item.UserID === userID),
         [userEstimates, userID]
@@ -105,25 +103,6 @@ const Voting: React.FC<VotingProps> = ({
     const onTimerComplete = () => {
         handleSetStateVoting();
     };
-
-    useEffect(() => {
-        let timer: NodeJS.Timeout | null = null;
-
-        if (action === 'stop') {
-            timer = setInterval(() => {
-                if (progress >= 100) {
-                    clearInterval(timer!);
-                    onTimerComplete();
-                } else {
-                    dispatch(tickProgress());
-                }
-            }, 10);
-        }
-
-        return () => {
-            if (timer) clearInterval(timer);
-        };
-    }, [action, progress, onTimerComplete, tickProgress]);
 
     if (!pokerId) {
         return <div>pokerId is missing in the URL</div>;
@@ -140,7 +119,7 @@ const Voting: React.FC<VotingProps> = ({
         if (action == '') {
             return;
         }
-        dispatch(setVotingState({ pokerID: pokerId, action: action, result:finalResult }));
+        dispatch(setVotingState({ pokerID: pokerId, action: action, result: finalResult }));
     };
 
     const handleFinalResultChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -219,7 +198,7 @@ const Voting: React.FC<VotingProps> = ({
                                         {userEstimatesRes.map((userEstimate: UserEstimate) => (
                                             <ListItem key={userEstimate.UserID.toString()} sx={{ py: 0.5 }}>
                                                 <ListItemText
-                                                    primary={`${users.find(item=>item.ID == userEstimate.UserID)?.Name}`}
+                                                    primary={`${users.find(item => item.ID == userEstimate.UserID)?.Name}`}
                                                     secondary={`Оценка: ${userEstimate.Estimate}`}
                                                     primaryTypographyProps={{ variant: 'body2' }}
                                                     secondaryTypographyProps={{ variant: 'body2', color: 'text.secondary' }}
@@ -250,7 +229,7 @@ const Voting: React.FC<VotingProps> = ({
                                     value={finalResult}
                                     onChange={handleFinalResultChange}
                                     slotProps={{ inputLabel: { shrink: true } }}
-                                    
+
                                 />
 
                             </Box>

@@ -1,8 +1,8 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { authAxios, publicAxios } from '../../service/http-common';
-import { LoginData } from "../../model"
+import { LoginData } from "../../model/model"
 import { AxiosError } from 'axios';
-import { User, UserSettings } from '../../model';
+import { User, UserSettings } from '../../model/model';
 
 
 // Тип для состояния авторизации

@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { Task } from '../../model';
+import { Task } from '../../model/model';
 import { authAxios } from '../../service/http-common';
 import { AxiosError } from 'axios';
 

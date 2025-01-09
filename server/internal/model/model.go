@@ -89,6 +89,11 @@ type (
 		Estimate Estimate
 	}
 
+	PokerSettings struct {
+		EvaluationStrategy string
+		MaximumScore int
+	}
+
 	Poker struct {
 		ID            PokerID
 		CreatedAt     time.Time
@@ -97,6 +102,8 @@ type (
 		ActiveUsersID []UserID
 		Users         []*User
 		Admins        []UserID
+		EvaluationStrategy string
+		MaximumScore int
 	}
 		
 	AuthData struct {

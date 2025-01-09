@@ -48,6 +48,11 @@ export interface UserSettings{
   MaximumScore: number
 }
 
+export interface PokerSettings{
+  EvaluationStrategy: string,
+  MaximumScore: number
+}
+
 export interface Poker{
   ID:        string,
   CreatedAt: string,
@@ -56,6 +61,8 @@ export interface Poker{
   IsAdmin:   boolean,
   ActiveUsersID: number[],
   Users:  User[],
+  EvaluationStrategy: string,
+  MaximumScore: number
 }
 
 

@@ -8,7 +8,7 @@ import {
   CardActions,
 } from '@mui/material';
 import { Edit, Delete, ThumbUp} from '@mui/icons-material';
-import { Task } from '../../model'
+import { Task } from '../../model/model'
 
 interface TaskCardProps {
   task: Task;

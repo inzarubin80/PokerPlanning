@@ -7,7 +7,7 @@ import {
   ListItemText,
   Box,
 } from '@mui/material';
-import { CommentItem } from '../../model';
+import { CommentItem } from '../../model/model';
 import CommentForm from '../CommentForm/CommentForm';
 import { SaveCommentParams } from '../../features/comment/commentSlice';
 import { AppDispatch, RootState } from '../../app/store';

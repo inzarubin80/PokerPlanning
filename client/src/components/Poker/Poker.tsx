@@ -4,26 +4,21 @@ import {
   Grid2,
   Typography,
   Box,
-  Button,
 } from '@mui/material';
 import Voting from '../Voting/Voting'
 import TaskList from '../TaskList/TaskList'
 import Comments from '../Comments/Comments'
-import { Task } from '../../model'
-import { CommentItem } from '../../model'
+
 import { useNavigate } from "react-router-dom";
 import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchTasks, taskAdded, taskRemoved, tasksUpdating, deleteTask } from '../../features/task/taskSlice';
+import { getUser } from '../../features/user/userSlice';
 import { addComment, commentAdded, getComments, SaveCommentParams } from '../../features/comment/commentSlice';
 import { setVoteChange, fetchSetVotingTask, fetchVotingControl, setNumberVoters, setUserEstimates, getUserEstimates } from '../../features/voting/votingSlice';
 import { fetchPokerDetails, setActiveUsers, setUsers } from '../../features/poker/pokerSlice';
 import { AppDispatch, RootState } from '../../app/store';
 import WebSocketClient from '../../api/WebSocketClient'
-import { SettingsVoice } from '@mui/icons-material';
-import { IconButton } from '@mui/material';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle'; //
-
 import UserCardBUtton from '../generic/UserCardButton'
 
 
@@ -35,21 +30,10 @@ const App: React.FC = () => {
   const accessToken = useSelector((state: RootState) => state.userReducer.accessToken);
 
   const tasks = useSelector((state: RootState) => state.taskReducer.tasks);
-
   const taskID = useSelector((state: RootState) => state.volumeReducer.taskID);
 
-  const status = useSelector((state: RootState) => state.taskReducer.statusFetchTasks);
-  const error = useSelector((state: RootState) => state.taskReducer.errorFetchTasks);
-
-  const statusFetchComments = useSelector((state: RootState) => state.commentReducer.statusFetchComments);
-  const errorFetchComments = useSelector((state: RootState) => state.commentReducer.errorFetchComments);
-
   const activeUsersID = useSelector((state: RootState) => state.pokerReducer.activeUsersID);
-
-
-  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [showSettings, setShowSettings] = useState(false);
-  const [participants, setParticipants] = useState(1);
   const navigate = useNavigate();
   const { pokerId } = useParams<{ pokerId: string }>();
 
@@ -59,6 +43,7 @@ const App: React.FC = () => {
       return;
     }
 
+    dispatch(getUser());
     dispatch(fetchTasks(pokerId));
     dispatch(getComments(pokerId));
     dispatch(fetchVotingControl(pokerId));
@@ -193,7 +178,7 @@ const App: React.FC = () => {
             </Typography>
           </Box>
 
-          <UserCardBUtton/>
+          <UserCardBUtton />
 
         </Box>
       </Box>

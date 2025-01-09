@@ -7,7 +7,7 @@ import {
   Box,
   List,
 } from '@mui/material';
-import { Task } from '../../model'
+import { Task } from '../../model/model'
 import { Add } from '@mui/icons-material';
 import TaskCard from '../TaskCard/TaskCard'
 

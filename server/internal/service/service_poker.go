@@ -71,9 +71,9 @@ func (s *PokerService) UserIsAdmin(ctx context.Context, pokerID model.PokerID, u
 
 }
 
-func (s *PokerService) CreatePoker(ctx context.Context, userID model.UserID) (model.PokerID, error) {
+func (s *PokerService) CreatePoker(ctx context.Context, userID model.UserID, pokerSettings *model.PokerSettings) (model.PokerID, error)  {
 
-	pokerID, err := s.repository.CreatePoker(ctx, userID)
+	pokerID, err := s.repository.CreatePoker(ctx, userID, pokerSettings)
 	if err != nil {
 		return "", err
 	}

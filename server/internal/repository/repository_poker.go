@@ -7,13 +7,15 @@ import (
 	"github.com/google/uuid"
 )
 
-func (r *Repository) CreatePoker(ctx context.Context, userID model.UserID) (model.PokerID, error) {
+func (r *Repository) CreatePoker(ctx context.Context, userID model.UserID, pokerSettings *model.PokerSettings) (model.PokerID, error) {
 
 	uid := model.PokerID(uuid.New().String())
 	baseDataPoker := &model.Poker{
 		ID:         uid,
 		CreatedAt:  time.Now(),
 		Autor:      userID,
+		EvaluationStrategy: pokerSettings.EvaluationStrategy,
+		MaximumScore: pokerSettings.MaximumScore,
 	}
 	r.storage.pokers[model.PokerID(uid)] = baseDataPoker
 	return uid, nil
