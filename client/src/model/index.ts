@@ -35,14 +35,18 @@ export interface LoginData {
   UserID: number,
 }
 
-
-
 export interface User{
   ID:   number,
-  Name: string,
-  Email: string,		
+  Name: string,		
+  EvaluationStrategy: string,
+  MaximumScore: number
 }
 
+export interface UserSettings{
+  ID:   number,
+  EvaluationStrategy: string,
+  MaximumScore: number
+}
 
 export interface Poker{
   ID:        string,
@@ -51,7 +55,7 @@ export interface Poker{
   Autor:     number,
   IsAdmin:   boolean,
   ActiveUsersID: number[],
-  Users: Map<number, User>,
+  Users:  User[],
 }
 
 

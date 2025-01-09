@@ -50,6 +50,7 @@ const CommentForm: React.FC<CommentFormProps> = ({ onAddComment }) => {
           rows={4}
           required
           variant="outlined"
+          slotProps={{ inputLabel: { shrink: true } }}
         />
         <Box mt={2}>
           <Button

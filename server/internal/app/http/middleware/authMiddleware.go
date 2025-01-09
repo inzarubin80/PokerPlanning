@@ -23,7 +23,6 @@ type (
 )
 
 func NewAuthMiddleware(h http.Handler, store *sessions.CookieStore, service serviceAuth) *AuthMiddleware {
-
 	return &AuthMiddleware{h: h, store: store, service: service}
 }
 

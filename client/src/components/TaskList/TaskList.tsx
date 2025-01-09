@@ -19,7 +19,9 @@ interface TaskListProps {
   setEditingTask: (task: Task | null) => void
 }
 
-const TaskList: React.FC<TaskListProps> = ({ tasks, handleEditTask, handleDeleteTask, handleSetVotingTask, setEditingTask }) => (
+const TaskList: React.FC<TaskListProps> = ({ tasks, handleEditTask, handleDeleteTask, handleSetVotingTask, setEditingTask }) => {
+  
+  return(
   <Paper elevation={3}>
     <Box position="sticky" top={0}  bgcolor="grey.200" zIndex={1} p={2} display="flex" justifyContent="center" height={"4vh"}>
       <Typography variant="h6">Задачи</Typography>
@@ -53,5 +55,6 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, handleEditTask, handleDelete
     </Box>
   </Paper>
 )
+}
 
 export default TaskList

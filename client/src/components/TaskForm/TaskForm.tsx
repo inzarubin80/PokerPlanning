@@ -28,7 +28,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ }) => {
   const status = useSelector((state: RootState) => state.taskReducer.statusSaveTask);
   const error = useSelector((state: RootState) => state.taskReducer.errorSaveTask);
   const { pokerId, taskId } = useParams<{ pokerId?: string; taskId?: string }>();
-  const possibleEstimates: number[] = useSelector((state: RootState) => state.volumeTaskReducer.possibleEstimates);
+  const possibleEstimates: number[] = useSelector((state: RootState) => state.volumeReducer.possibleEstimates);
 
 
   const possibleEstimatesTask: number[] = useMemo(()=>{return [0, ...possibleEstimates]}, [possibleEstimates])
@@ -120,6 +120,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ }) => {
                 onChange={(e) => handleSetTitle(e.target.value)}
                 fullWidth
                 required
+                slotProps={{ inputLabel: { shrink: true } }}
               />
             </Grid2>
             <Grid2 size={{ xs: 12 }}>
@@ -131,6 +132,8 @@ const TaskForm: React.FC<TaskFormProps> = ({ }) => {
                 multiline
                 rows={4}
                 required
+                slotProps={{ inputLabel: { shrink: true } }}
+
               />
             </Grid2>
             <Grid2 size={{ xs: 12 }}>
@@ -143,7 +146,10 @@ const TaskForm: React.FC<TaskFormProps> = ({ }) => {
                 SelectProps={{
                   native: true,
                 }}
+                slotProps={{ inputLabel: { shrink: true } }}
                 required
+
+
               >
                   {possibleEstimatesTask.map(item   => (<option key={item.toString()} value={item.toString()}>{item}</option>))}
               </TextField>

@@ -22,7 +22,7 @@ const Comments: React.FC<CommentsProps> = ({ handleAddComment }) => {
   const commentsEndRef = useRef<HTMLDivElement>(null);
 
     const comments = useSelector((state: RootState) => state.commentReducer.comments);
-    const users = useSelector((state: RootState) => state.poker.users);
+    const users = useSelector((state: RootState) => state.pokerReducer.users);
 
 
   useEffect(() => {
@@ -68,7 +68,7 @@ const Comments: React.FC<CommentsProps> = ({ handleAddComment }) => {
               >
                 <ListItemText
                   primary={comment.Text}
-                  secondary={`Автор: ${users.get(comment.UserID)?.Name}`}
+                  secondary={`Автор: ${users.find(item=>comment.UserID==item.ID)?.Name}`}
                   primaryTypographyProps={{ variant: 'body1' }}
                   secondaryTypographyProps={{ variant: 'caption' }}
                 />

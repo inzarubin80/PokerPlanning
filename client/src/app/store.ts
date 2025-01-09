@@ -1,17 +1,17 @@
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
 import taskReducer from '../features/task/taskSlice';
 import commentReducer from '../features/comment/commentSlice';
-import volumeTaskReducer from '../features/voting/voting';
-import authReducer from '../features/auth/authSlice';
+import volumeTaskReducer from '../features/voting/votingSlice';
+import userReducer from '../features/user/userSlice';
 import pokerReducer from '../features/poker/pokerSlice';
 
 export const store = configureStore({
   reducer: {
     taskReducer: taskReducer,
     commentReducer: commentReducer,
-    volumeTaskReducer: volumeTaskReducer,
-    auth: authReducer,
-    poker: pokerReducer
+    volumeReducer: volumeTaskReducer,
+    userReducer: userReducer,
+    pokerReducer: pokerReducer
   },
 });
 

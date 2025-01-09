@@ -7,6 +7,7 @@ export interface SetVotingTaskParams {
 
     pokerID: string;
     taskID: number;
+
 }
 
 export interface AddVoteParams {
@@ -46,10 +47,12 @@ interface VotingState {
 
     progress: number;
     durationVoiceSec: number;
-    remainingSec: number
+    remainingSec: number;
 
-    action: 'start' | 'stop' | '';
-    actionName: 'Начать голосование' | 'Закончить голосование' | 'Перезапустить голосование' | '';
+    finalResult: number
+
+    action: 'start' | 'stop' | 'end' | '';
+    actionName: 'Начать голосование' | 'Остановить голосование' | 'Завершить голосование' | '';
 
 }
 
@@ -77,10 +80,14 @@ const initialState: VotingState = {
     statusSetVotingState: 'idle',
     errorSetVotingState: null,
 
-    possibleEstimates: [1,2,3,5,8,13,21, 34],
+    possibleEstimates: [1, 2, 3, 5, 8, 13, 21, 34],
+    
     vote: 0,
+    
     numberVoters: 0,
+    
     duration: 0,
+    
     endDate: null,
     startDate: null,
     userEstimates: [],
@@ -90,7 +97,8 @@ const initialState: VotingState = {
     remainingSec: 0,
 
     action: '',
-    actionName: ''
+    actionName: '',
+    finalResult: 0,
 
 };
 
@@ -162,10 +170,10 @@ export const fetchAddVote = createAsyncThunk(
 
 export const setVotingState = createAsyncThunk(
     'votingState/set',
-    async (params: { pokerID: string, action: string }, { rejectWithValue }) => {
-        const { pokerID, action } = params;
+    async (params: { pokerID: string, action: string, result:number}, { rejectWithValue }) => {
+        const { pokerID, action, result } = params;
         try {
-            const response = await authAxios.post(`/poker/${pokerID}/voting-control/${action}`);
+            const response = await authAxios.post(`/poker/${pokerID}/voting-control/${action}`, {result});
             return response.data;
         } catch (error) {
             const errorMessage = handleAxiosError(error);
@@ -173,8 +181,6 @@ export const setVotingState = createAsyncThunk(
         }
     }
 );
-
-
 
 const calculateProgress = (startDate: string | null, durationVoiceSec: number) => {
 
@@ -216,12 +222,12 @@ const updateVoteState = (state: VotingState, payload: VoteControlState) => {
     } else if (state.taskID > 0 && !isZeroDate(state.startDate) && isZeroDate(state.endDate)) {
 
         state.action = 'stop'
-        state.actionName = 'Закончить голосование'
+        state.actionName = 'Остановить голосование'
 
     } else if (state.taskID > 0 && !isZeroDate(state.startDate) && !isZeroDate(state.endDate)) {
 
-        state.action = 'start'
-        state.actionName = 'Перезапустить голосование'
+        state.action = 'end'
+        state.actionName = 'Завершить голосование'
 
     } else {
         state.action = ''
@@ -248,6 +254,10 @@ const votingTaskSlice = createSlice({
 
         setNumberVoters: (state, action: PayloadAction<number>) => {
             state.numberVoters = action.payload;
+        },
+
+        setFinalResult: (state, action: PayloadAction<number>) => {
+            state.finalResult = action.payload;
         },
 
         setUserEstimates: (state, action: PayloadAction<UserEstimate[]>) => {
@@ -330,5 +340,5 @@ const votingTaskSlice = createSlice({
     },
 });
 
-export const { setVoteChange, setNumberVoters, setUserEstimates, tickProgress } = votingTaskSlice.actions;
+export const { setVoteChange, setNumberVoters, setUserEstimates, tickProgress, setFinalResult } = votingTaskSlice.actions;
 export default votingTaskSlice.reducer;

@@ -9,7 +9,7 @@ type (
 	Repository struct {
 		storage Storage
 	}
-	
+
 	Users         map[model.UserID] *model.User
 	Tasks         map[model.PokerID]map[model.TaskID] *model.Task
 	Comments      map[model.PokerID]map[model.CommentID] *model.Comment
@@ -20,7 +20,8 @@ type (
 	Voting        map[model.PokerID]map[model.UserID] model.Estimate
 	PokerUsers    map[model.PokerID]map[model.UserID] bool
 	PokerAdmins   map[model.PokerID]map[model.UserID] bool
-	
+	UserAuthProviders map[string] *model.UserAuthProviders
+
 	Storage struct {
 		mx             *sync.RWMutex
 		users          Users
@@ -29,6 +30,7 @@ type (
 		userEstimates  UserEstimates
 		pokers         Pokers
 		participants   Participants
+		userAuthProviders   UserAuthProviders
 		nextCommentID  model.CommentID
 		nextEstimateID model.EstimateID
 		nextTaskID     model.TaskID
@@ -37,6 +39,7 @@ type (
 		voting Voting
 		pokerUsers PokerUsers
 		pokerAdmins PokerAdmins
+		nextAuthProvidersID model.UserID
 	}
 )
 
@@ -54,10 +57,12 @@ func NewPokerRepository(capacity int) *Repository {
 			voting: 		make(Voting),
 			pokerUsers:     make(PokerUsers),
 			pokerAdmins:    make(PokerAdmins),
+			userAuthProviders: make(UserAuthProviders),
 			nextCommentID:  1,
 			nextEstimateID: 1,
 			nextTaskID:     1,
 			nextUsererID:   1,
+			nextAuthProvidersID:   1,
 		},
 	}
 }

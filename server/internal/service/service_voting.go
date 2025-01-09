@@ -77,7 +77,7 @@ func (s *PokerService) SetVoting(ctx context.Context, userEstimate *model.UserEs
 		return err
 	}
 
-	s.hub.AddMessage(userEstimate.PokerID,  &USER_ESTIMATE_MESSAGE{
+	s.hub.AddMessage(userEstimate.PokerID, &USER_ESTIMATE_MESSAGE{
 		Action:    model.ADD_VOTING,
 		Estimates: userEstimates,
 	})
@@ -98,7 +98,7 @@ func (s *PokerService) GetVotingResults(ctx context.Context, pokerID model.Poker
 
 }
 
-func (s *PokerService) SetVotingState(ctx context.Context, pokerID model.PokerID, actionVotingState string) (*model.VoteControlState, error) {
+func (s *PokerService) SetVotingState(ctx context.Context, pokerID model.PokerID, actionVotingState string, estimate ...model.Estimate) (*model.VoteControlState, error) {
 
 	state, err := s.repository.GetVotingState(ctx, pokerID)
 
@@ -121,6 +121,32 @@ func (s *PokerService) SetVotingState(ctx context.Context, pokerID model.PokerID
 			return nil, fmt.Errorf("StartDate is empty")
 		}
 		state.EndDate = time.Now()
+
+	} else if actionVotingState == model.END_VOTING {
+
+		task, err := s.repository.GetTask(ctx, pokerID, state.TaskID)
+
+		if err != nil {
+			return nil, err
+		}
+
+		task.Estimate = estimate[0]
+
+		_, err = s.repository.UpdateTask(ctx, pokerID, task)
+
+		s.hub.AddMessage(task.PokerID, &TASK_MESSAGE{
+			Action: model.UPDATE_TASK,
+			Task:   task,
+		})
+
+		if err != nil {
+			return nil, err
+		}
+
+		state.EndDate = time.Time{}
+		state.StartDate = time.Time{}
+		state.TaskID = 0
+
 	} else {
 		return nil, fmt.Errorf("action %s %w", actionVotingState, model.ErrorNotFound)
 	}

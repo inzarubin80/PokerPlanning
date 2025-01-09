@@ -6,20 +6,7 @@ import (
 	"inzarubin80/PokerPlanning/internal/model"
 )
 
-func (r *Repository) GetUserByEmail(ctx context.Context, email string) (*model.User, error) {
-
-	r.storage.mx.RLock()
-	defer r.storage.mx.RUnlock()
-
-	for _, user := range r.storage.users {
-		if user.Email == email {
-			return user, nil
-		}
-	}
-	return nil, fmt.Errorf("user with email %s %w", email, model.ErrorNotFound)
-}
-
-func (r *Repository) AddUser(ctx context.Context, userData *model.UserData) (*model.User, error) {
+func (r *Repository) AddUser(ctx context.Context, userData *model.UserProfileFromProvider) (*model.User, error) {
 
 	r.storage.mx.Lock()
 	defer r.storage.mx.Unlock()
@@ -27,13 +14,56 @@ func (r *Repository) AddUser(ctx context.Context, userData *model.UserData) (*mo
 	user := &model.User{
 		ID:    r.storage.nextUsererID,
 		Name:  userData.Name,
-		Email: userData.Email,
 	}
 
 	r.storage.users[r.storage.nextUsererID] = user
 	r.storage.nextUsererID++
 	return user, nil
 
+}
+
+func (r *Repository) SetUserName(ctx context.Context, userID model.UserID, name string) (error) {
+
+	r.storage.mx.Lock()
+	defer r.storage.mx.Unlock()
+	
+	user, ok := r.storage.users[userID]
+	if !ok {
+		return model.ErrorNotFound
+	}
+
+	user.Name = name
+	return  nil
+}
+
+func (r *Repository) SetUserSettings(ctx context.Context, userID model.UserID, userSettings *model.UserSettings) (error) {
+
+	r.storage.mx.Lock()
+	defer r.storage.mx.Unlock()
+	
+	user, ok := r.storage.users[userID]
+	if !ok {
+		return model.ErrorNotFound
+	}
+
+	user.EvaluationStrategy = userSettings.EvaluationStrategy
+	user.MaximumScore = userSettings.MaximumScore
+	
+	return  nil
+}
+
+
+func (r *Repository) GetUser(ctx context.Context, userID model.UserID) (*model.User, error) {
+
+	r.storage.mx.Lock()
+	defer r.storage.mx.Unlock()
+
+	user, ok := r.storage.users[userID]
+	if !ok {
+		return nil, model.ErrorNotFound
+	}
+
+	return  user, nil
 }
 
 func (r *Repository) GetUsersByIDs(ctx context.Context, userIDs []model.UserID) ([]*model.User, error) {
@@ -43,7 +73,7 @@ func (r *Repository) GetUsersByIDs(ctx context.Context, userIDs []model.UserID) 
 
 	users := make([]*model.User, len(userIDs))
 
-	i:=0
+	i := 0
 
 	for _, userID := range userIDs {
 
@@ -55,7 +85,7 @@ func (r *Repository) GetUsersByIDs(ctx context.Context, userIDs []model.UserID) 
 
 		users[i] = user
 		i++
-	
+
 	}
 
 	return users, nil

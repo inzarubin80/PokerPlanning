@@ -4,6 +4,7 @@ import {
   Grid2,
   Typography,
   Box,
+  Button,
 } from '@mui/material';
 import Voting from '../Voting/Voting'
 import TaskList from '../TaskList/TaskList'
@@ -15,12 +16,15 @@ import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchTasks, taskAdded, taskRemoved, tasksUpdating, deleteTask } from '../../features/task/taskSlice';
 import { addComment, commentAdded, getComments, SaveCommentParams } from '../../features/comment/commentSlice';
-import { setVoteChange, fetchSetVotingTask, fetchVotingControl, setNumberVoters, setUserEstimates, getUserEstimates} from '../../features/voting/voting';
-import {fetchPokerDetails, setActiveUsers, setUsers} from '../../features/poker/pokerSlice';
+import { setVoteChange, fetchSetVotingTask, fetchVotingControl, setNumberVoters, setUserEstimates, getUserEstimates } from '../../features/voting/votingSlice';
+import { fetchPokerDetails, setActiveUsers, setUsers } from '../../features/poker/pokerSlice';
 import { AppDispatch, RootState } from '../../app/store';
 import WebSocketClient from '../../api/WebSocketClient'
 import { SettingsVoice } from '@mui/icons-material';
+import { IconButton } from '@mui/material';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle'; //
 
+import UserCardBUtton from '../generic/UserCardButton'
 
 
 const App: React.FC = () => {
@@ -28,11 +32,11 @@ const App: React.FC = () => {
   const previousPokerIdRef = useRef<WebSocketClient | null>(null);
   const dispatch = useDispatch<AppDispatch>();
 
-  const accessToken = useSelector((state: RootState) => state.auth.accessToken);
+  const accessToken = useSelector((state: RootState) => state.userReducer.accessToken);
 
   const tasks = useSelector((state: RootState) => state.taskReducer.tasks);
 
-  const taskID = useSelector((state: RootState) => state.volumeTaskReducer.taskID);
+  const taskID = useSelector((state: RootState) => state.volumeReducer.taskID);
 
   const status = useSelector((state: RootState) => state.taskReducer.statusFetchTasks);
   const error = useSelector((state: RootState) => state.taskReducer.errorFetchTasks);
@@ -40,7 +44,7 @@ const App: React.FC = () => {
   const statusFetchComments = useSelector((state: RootState) => state.commentReducer.statusFetchComments);
   const errorFetchComments = useSelector((state: RootState) => state.commentReducer.errorFetchComments);
 
-  const activeUsersID = useSelector((state: RootState) => state.poker.activeUsersID);
+  const activeUsersID = useSelector((state: RootState) => state.pokerReducer.activeUsersID);
 
 
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
@@ -60,7 +64,7 @@ const App: React.FC = () => {
     dispatch(fetchVotingControl(pokerId));
     dispatch(fetchPokerDetails(pokerId));
     dispatch(getUserEstimates(pokerId));
-    
+
   }, [pokerId]);
 
 
@@ -115,14 +119,14 @@ const App: React.FC = () => {
         case 'ADD_VOTING':
           dispatch(setUserEstimates(msg.Estimates));
           break;
-       
-       case 'CHANGE_ACTIVE_USERS_POKER':
-            dispatch(setActiveUsers(msg.Users));
-            break;
 
-      case 'ADD_POKER_USER':
-              dispatch(setUsers(msg.Users));
-              break;
+        case 'CHANGE_ACTIVE_USERS_POKER':
+          dispatch(setActiveUsers(msg.Users));
+          break;
+
+        case 'ADD_POKER_USER':
+          dispatch(setUsers(msg.Users));
+          break;
 
         default:
           console.warn("Unknown message type:", msg);
@@ -169,22 +173,35 @@ const App: React.FC = () => {
 
   return (
     <Container maxWidth={false}>
-      <Box mt={4}>
-        <Box display="flex" justifyContent="center" alignItems="center">
-          <Typography variant="h4" gutterBottom>
-            Покер планирования
-          </Typography>
-          <Box ml={2}>
+
+
+      <Box mt={4} mb={4}> {/* Добавлен marginBottom для отступа от элементов ниже */}
+        <Box display="flex" justifyContent="space-between" alignItems="center">
+          {/* Центрированный текст */}
+          <Box
+            display="flex"
+            flexGrow={1}
+            justifyContent="center"
+            alignItems="center"
+            sx={{ gap: 2 }} // Добавляем отступ между элементами
+          >
+            <Typography variant="h4" gutterBottom>
+              Покер планирования
+            </Typography>
             <Typography variant="subtitle1" color="textSecondary">
               Участники: {activeUsersID.length}
             </Typography>
           </Box>
+
+          <UserCardBUtton/>
+
         </Box>
       </Box>
+
       <Grid2 container spacing={1} style={{ height: 'calc(100vh - 120px)', display: 'flex' }}>
 
 
-      <Grid2 size={taskID > 0 ?{ xs: 5 }: { xs: 6 }} style={{ display: 'flex', flexDirection: 'column' }}>
+        <Grid2 size={taskID > 0 ? { xs: 5 } : { xs: 6 }} style={{ display: 'flex', flexDirection: 'column' }}>
           <TaskList
             tasks={tasks}
             handleEditTask={handleEditTask}
@@ -193,8 +210,8 @@ const App: React.FC = () => {
             setEditingTask={() => { }} />
 
         </Grid2>
-        
-        <Grid2 size={taskID > 0 ?{ xs: 4 }:{ xs: 6 }} style={{ display: 'flex', flexDirection: 'column' }}>
+
+        <Grid2 size={taskID > 0 ? { xs: 4 } : { xs: 6 }} style={{ display: 'flex', flexDirection: 'column' }}>
           <Voting
             // selectedTask={selectedTask}
             averageEstimate={1}
@@ -204,11 +221,11 @@ const App: React.FC = () => {
             handleEndVoting={handleEndVoting} />
         </Grid2>
 
-       
+
 
         {taskID > 0 && <Grid2 size={{ xs: 3 }} style={{ display: 'flex', flexDirection: 'column' }}>
           <Comments
-         
+
             handleAddComment={handleAddComment} />
         </Grid2>}
 

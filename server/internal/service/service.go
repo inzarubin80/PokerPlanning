@@ -44,11 +44,15 @@ type (
 		GetPoker(ctx context.Context, pokerID model.PokerID) (*model.Poker, error)
 
 		//User
-		GetUserByEmail(ctx context.Context, email string) (*model.User, error)
-		AddUser(ctx context.Context, userData *model.UserData) (*model.User, error) 
+		GetUserAuthProvidersByProviderUid(ctx context.Context, ProviderUid string, Provider string) (*model.UserAuthProviders, error)
+		AddUserAuthProviders(ctx context.Context, userProfileFromProvide *model.UserProfileFromProvider, userID model.UserID) (*model.UserAuthProviders, error) 
+		AddUser(ctx context.Context, userData *model.UserProfileFromProvider) (*model.User, error) 
 		GetUsersByIDs(ctx context.Context, userIDs []model.UserID) ([]*model.User, error)
 		GetUserIDsByPokerID(ctx context.Context, pokerID model.PokerID) ([] model.UserID, error) 
 		AddPokerUser(ctx context.Context, pokerID model.PokerID, userID model.UserID) (error)
+		SetUserName(ctx context.Context, userID model.UserID, name string) (error)
+		GetUser(ctx context.Context, userID model.UserID) (*model.User, error)
+		SetUserSettings(ctx context.Context, userID model.UserID, userSettings *model.UserSettings) (error) 
 
 		//Voting
 		SetVoting(ctx context.Context, userEstimate *model.UserEstimate) error 
@@ -65,7 +69,7 @@ type (
 	}
 
 	ProviderUserData interface {
-		GetUserData(ctx context.Context, authorizationCode string) (*model.UserData, error)
+		GetUserData(ctx context.Context, authorizationCode string) (*model.UserProfileFromProvider, error)
 	}
 
 	Hub interface {

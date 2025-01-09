@@ -21,14 +21,14 @@ type (
 	}
 
 	PokerToFrontend struct {
-		ID        model.PokerID
-		CreatedAt time.Time
-		Name      string
-		Autor     model.UserID
-		IsAdmin   bool
+		ID            model.PokerID
+		CreatedAt     time.Time
+		Name          string
+		Autor         model.UserID
+		IsAdmin       bool
 		ActiveUsersID []model.UserID
-		Users         map[model.UserID]*model.User
-		
+		Admins        []model.UserID
+		Users         []*model.User
 	}
 )
 
@@ -43,17 +43,14 @@ func (h *GetPokerHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	poker_id := r.PathValue("poker_id")
 
-
 	ctx := r.Context()
-	
-	
-	
+
 	userID, ok := ctx.Value(defenitions.UserID).(model.UserID)
 	if !ok {
 		http.Error(w, "not user ID", http.StatusInternalServerError)
 		return
 	}
-	
+
 	poker, err := h.service.GetPoker(ctx, model.PokerID(poker_id), userID)
 
 	if err != nil {
@@ -65,20 +62,23 @@ func (h *GetPokerHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	
-	usersMap := make(map[model.UserID]*model.User)
-	for _,v:=range poker.Users {
-		usersMap[v.ID] = v
+
+	isAdmin := false
+	for _, id := range poker.Admins {
+		if id == userID {
+			isAdmin = true
+			break
+		}
 	}
-	
+
 	jsonContent, err := json.Marshal(&PokerToFrontend{
-		ID:        model.PokerID(poker_id),
-		CreatedAt: poker.CreatedAt,
-		Name:      poker.Name,
-		Autor:     poker.Autor,
-		IsAdmin:   userID == poker.Autor,
+		ID:            model.PokerID(poker_id),
+		CreatedAt:     poker.CreatedAt,
+		Name:          poker.Name,
+		Autor:         poker.Autor,
+		IsAdmin:       isAdmin,
 		ActiveUsersID: poker.ActiveUsersID,
-		Users: usersMap,
+		Users:         poker.Users,
 	})
 
 	if err != nil {
