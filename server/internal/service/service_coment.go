@@ -5,13 +5,6 @@ import (
 	"inzarubin80/PokerPlanning/internal/model"
 )
 
-type (
-	COMMENT_MESSAGE struct {
-		Action    string          
-		Comment   *model.Comment  
-		CommentID model.CommentID 
-	}
-)
 
 func (s *PokerService) AddComment(ctx context.Context, comment *model.Comment) (*model.Comment, error) {
 

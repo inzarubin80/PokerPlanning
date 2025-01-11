@@ -82,7 +82,7 @@ type (
 	}
 
 	VotingResult struct {
-		UserEstimates []UserEstimate
+		UserEstimates []*UserEstimate
 		FinalResult int
 	}
 
@@ -92,7 +92,7 @@ type (
 		UserID   UserID
 		Estimate Estimate
 	}
-	
+
 	PokerSettings struct {
 		EvaluationStrategy string
 		MaximumScore int

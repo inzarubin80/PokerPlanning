@@ -53,9 +53,6 @@ func (r *Repository) GetPokerAdmins(ctx context.Context, pokerID model.PokerID) 
 }
 
 
-
-
-
 func (r *Repository) GetPoker(ctx context.Context, pokerID model.PokerID) (*model.Poker, error) {
 
 	basedata, ok := r.storage.pokers[pokerID]

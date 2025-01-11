@@ -12,7 +12,7 @@ import (
 
 type (
 	serviceSetVoting interface {
-		SetVoting(ctx context.Context, userEstimate *model.UserEstimate) error 
+		SetVoting(ctx context.Context, userEstimate *model.UserEstimate, userID model.UserID) error 
 	}
 	SetVotingHandler struct {
 		name    string
@@ -69,7 +69,7 @@ func (h *SetVotingHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		Estimate: model.Estimate(num),
 	}
 
-	err = h.service.SetVoting(ctx, userEstimate)
+	err = h.service.SetVoting(ctx, userEstimate, userID)
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
