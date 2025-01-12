@@ -107,7 +107,6 @@ type (
 )
 
 func NewPokerService(repository Repository, hub Hub, accessTokenService TokenService, refreshTokenService TokenService, providersUserData authinterface.ProvidersUserData) *PokerService {
-
 	return &PokerService{
 		repository:          repository,
 		hub:                 hub,
@@ -115,5 +114,4 @@ func NewPokerService(repository Repository, hub Hub, accessTokenService TokenSer
 		refreshTokenService: refreshTokenService,
 		providersUserData:   providersUserData,
 	}
-
 }
