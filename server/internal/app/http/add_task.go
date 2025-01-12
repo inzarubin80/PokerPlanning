@@ -3,12 +3,12 @@ package http
 import (
 	"context"
 	"encoding/json"
+	validation "github.com/go-ozzo/ozzo-validation"
 	"inzarubin80/PokerPlanning/internal/app/defenitions"
 	"inzarubin80/PokerPlanning/internal/app/uhttp"
 	"inzarubin80/PokerPlanning/internal/model"
 	"io"
 	"net/http"
-	validation "github.com/go-ozzo/ozzo-validation"
 )
 
 type (

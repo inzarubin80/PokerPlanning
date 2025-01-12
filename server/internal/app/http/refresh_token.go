@@ -3,11 +3,11 @@ package http
 import (
 	"context"
 	"encoding/json"
+	"github.com/gorilla/sessions"
 	"inzarubin80/PokerPlanning/internal/app/defenitions"
 	"inzarubin80/PokerPlanning/internal/app/uhttp"
 	"inzarubin80/PokerPlanning/internal/model"
 	"net/http"
-	"github.com/gorilla/sessions"
 )
 
 type (

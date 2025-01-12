@@ -12,7 +12,7 @@ import (
 
 type (
 	serviceSetVoting interface {
-		SetVoting(ctx context.Context, userEstimate *model.UserEstimate) error 
+		SetVoting(ctx context.Context, userEstimate *model.UserEstimate, userID model.UserID) error
 	}
 	SetVotingHandler struct {
 		name    string
@@ -29,7 +29,7 @@ func NewSetVotingHandler(service serviceSetVoting, name string) *SetVotingHandle
 
 func (h *SetVotingHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
-	ctx := r.Context();
+	ctx := r.Context()
 	pokerID, err := uhttp.ValidatePatchStringParameter(r, defenitions.ParamPokerID)
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusBadRequest, err.Error())
@@ -56,25 +56,24 @@ func (h *SetVotingHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	num, err := strconv.ParseInt(estimate, 10, 64)
 
-	if err !=nil {
+	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusBadRequest, "not  estimate")
-		return 
+		return
 	}
 
-
 	userEstimate := &model.UserEstimate{
-		ID: -1,
+		ID:       -1,
 		PokerID:  model.PokerID(pokerID),
 		UserID:   userID,
 		Estimate: model.Estimate(num),
 	}
 
-	err = h.service.SetVoting(ctx, userEstimate)
+	err = h.service.SetVoting(ctx, userEstimate, userID)
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	
-	uhttp.SendSuccessfulResponse(w,  []byte("{}"))
+
+	uhttp.SendSuccessfulResponse(w, []byte("{}"))
 
 }

@@ -1,27 +1,27 @@
 package model
 
 import (
-	"time"
 	"github.com/golang-jwt/jwt"
+	"time"
 )
 
 const (
-	ADD_TASK  = "ADD_TASK"
-	REMOVE_TASK = "REMOVE_TASK"
-	UPDATE_TASK = "UPDATE_TASK"
-	ADD_COMMENT  = "ADD_COMMENT"
-	REMOVE_COMMENT = "REMOVE_COMMENT"
-	UPDATE_COMMENT = "UPDATE_COMMENT"
-	VOTE_STATE_CHANGE  = "VOTE_STATE_CHANGE"
-	CHANGE_NUMBER_VOTERS  = "CHANGE_NUMBER_VOTERS"
-	Access_Token_Type = "access_token"
-	Refresh_Token_Type = "refresh_Token"
-	ADD_VOTING = "ADD_VOTING"
-	START_VOTING = "start"
-	STOP_VOTING = "stop"
-	END_VOTING = "end"
+	ADD_TASK                  = "ADD_TASK"
+	REMOVE_TASK               = "REMOVE_TASK"
+	UPDATE_TASK               = "UPDATE_TASK"
+	ADD_COMMENT               = "ADD_COMMENT"
+	REMOVE_COMMENT            = "REMOVE_COMMENT"
+	UPDATE_COMMENT            = "UPDATE_COMMENT"
+	VOTE_STATE_CHANGE         = "VOTE_STATE_CHANGE"
+	CHANGE_NUMBER_VOTERS      = "CHANGE_NUMBER_VOTERS"
+	Access_Token_Type         = "access_token"
+	Refresh_Token_Type        = "refresh_Token"
+	ADD_VOTING                = "ADD_VOTING"
+	START_VOTING              = "start"
+	STOP_VOTING               = "stop"
+	END_VOTING                = "end"
 	CHANGE_ACTIVE_USERS_POKER = "CHANGE_ACTIVE_USERS_POKER"
-	ADD_POKER_USER = "ADD_POKER_USER"
+	ADD_POKER_USER            = "ADD_POKER_USER"
 )
 
 type (
@@ -32,7 +32,7 @@ type (
 	CommentID  int
 	EstimateID int
 
-  UserProfileFromProvider struct {
+	UserProfileFromProvider struct {
 		ProviderID   string `json:"provider_id"`   // Идентификатор пользователя у провайдера
 		Email        string `json:"email"`         // Email пользователя
 		Name         string `json:"name"`          // Имя пользователя
@@ -43,47 +43,47 @@ type (
 	}
 
 	User struct {
-		ID   UserID
-		Name string	
+		ID                 UserID
+		Name               string
 		EvaluationStrategy string
-		MaximumScore int
+		MaximumScore       int
 	}
 
 	UserSettings struct {
-		UserID   UserID
+		UserID             UserID
 		EvaluationStrategy string
-		MaximumScore int
+		MaximumScore       int
 	}
 
 	UserAuthProviders struct {
-		ID   UserID
-		UserID UserID
+		ID          UserID
+		UserID      UserID
 		ProviderUid string
-		Provider string
-		Name string
+		Provider    string
+		Name        string
 	}
 
 	Task struct {
-		ID          TaskID  
-		PokerID     PokerID 
-		Title       string  
-		Description string  
-		StoryPoint  int     
-		Status      string  
-		Completed   bool   
-		Estimate    Estimate 
+		ID          TaskID
+		PokerID     PokerID
+		Title       string
+		Description string
+		StoryPoint  int
+		Status      string
+		Completed   bool
+		Estimate    Estimate
 	}
 
 	Comment struct {
-		ID     CommentID 
-		PokerID PokerID  
-		UserID UserID 
-		Text   string 
+		ID      CommentID
+		PokerID PokerID
+		UserID  UserID
+		Text    string
 	}
 
 	VotingResult struct {
-		UserEstimates []UserEstimate
-		FinalResult int
+		UserEstimates []*UserEstimate
+		FinalResult   int
 	}
 
 	UserEstimate struct {
@@ -92,36 +92,36 @@ type (
 		UserID   UserID
 		Estimate Estimate
 	}
-	
+
 	PokerSettings struct {
 		EvaluationStrategy string
-		MaximumScore int
+		MaximumScore       int
 	}
 
 	Poker struct {
-		ID            PokerID
-		CreatedAt     time.Time
-		Name          string	
-		Autor         UserID
-		ActiveUsersID []UserID
-		Users         []*User
-		Admins        []UserID
+		ID                 PokerID
+		CreatedAt          time.Time
+		Name               string
+		Autor              UserID
+		ActiveUsersID      []UserID
+		Users              []*User
+		Admins             []UserID
 		EvaluationStrategy string
-		MaximumScore int
+		MaximumScore       int
 	}
-		
+
 	AuthData struct {
-		UserID UserID
+		UserID       UserID
 		RefreshToken string
-		AccessToken string	
-	}	
-	
+		AccessToken  string
+	}
+
 	VoteControlState struct {
-		TaskID         	   TaskID    
-		PokerID  		   PokerID
-		StartDate          time.Time 
-		Duration           time.Duration 
-		EndDate            time.Time 
+		TaskID    TaskID
+		PokerID   PokerID
+		StartDate time.Time
+		Duration  time.Duration
+		EndDate   time.Time
 	}
 
 	Claims struct {
@@ -129,5 +129,4 @@ type (
 		TokenType string `json:"token_type"` // Добавляем поле для типа токена
 		jwt.StandardClaims
 	}
-	
 )

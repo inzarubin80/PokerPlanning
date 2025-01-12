@@ -5,13 +5,6 @@ import (
 	"inzarubin80/PokerPlanning/internal/model"
 )
 
-type (
-	ADD_POKER_USER_MESSAGE struct {
-		Action string
-		Users  []*model.User
-	}
-)
-
 func (s *PokerService) GetPoker(ctx context.Context, pokerID model.PokerID, userID model.UserID) (*model.Poker, error) {
 
 	err := s.repository.AddPokerUser(ctx, pokerID, userID)
@@ -71,7 +64,7 @@ func (s *PokerService) UserIsAdmin(ctx context.Context, pokerID model.PokerID, u
 
 }
 
-func (s *PokerService) CreatePoker(ctx context.Context, userID model.UserID, pokerSettings *model.PokerSettings) (model.PokerID, error)  {
+func (s *PokerService) CreatePoker(ctx context.Context, userID model.UserID, pokerSettings *model.PokerSettings) (model.PokerID, error) {
 
 	pokerID, err := s.repository.CreatePoker(ctx, userID, pokerSettings)
 	if err != nil {

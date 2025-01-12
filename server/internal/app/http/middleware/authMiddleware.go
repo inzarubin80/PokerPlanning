@@ -3,11 +3,11 @@ package middleware
 import (
 	"context"
 	"fmt"
+	"github.com/gorilla/sessions"
 	"inzarubin80/PokerPlanning/internal/app/defenitions"
 	"inzarubin80/PokerPlanning/internal/model"
 	"net/http"
 	"net/url"
-	"github.com/gorilla/sessions"
 )
 
 type (

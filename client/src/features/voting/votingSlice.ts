@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk, PayloadAction, Dispatch } from '@reduxjs/toolkit';
 import { authAxios } from '../../service/http-common'; // Убедитесь, что путь к authAxios правильный
 import { AxiosError } from 'axios';
-import { VoteControlState, UserEstimate } from '../../model/model';
+import { VoteControlState, UserEstimate, VotingResult } from '../../model/model';
 import { store } from '../../app/store';
 import ArrayUtils from '../../utils/ArrayUtils'
 
@@ -159,18 +159,7 @@ export const setVotingState = createAsyncThunk(
     }
 );
 
-const updateUserEstimate = (state: VotingState, payload: { userEstimate: UserEstimate[], evaluationStrategy: string }) => {
 
-    state.userEstimates = payload.userEstimate
-
-    if (payload.evaluationStrategy == "maximum") {
-        state.finalResult = ArrayUtils.getMax(state.userEstimates.map(item => item.Estimate))
-    } else if (payload.evaluationStrategy == "minimum") {
-        state.finalResult = ArrayUtils.getMin(state.userEstimates.map(item => item.Estimate))
-    } else {
-        state.finalResult = Math.round(ArrayUtils.getAverage(state.userEstimates.map(item => item.Estimate)))
-    }
-};
 
 const updateVoteState = (state: VotingState, payload: VoteControlState) => {
 
@@ -210,9 +199,11 @@ const votingTaskSlice = createSlice({
             state.finalResult = action.payload;
         },
 
-        setUserEstimates: (state, action: PayloadAction<{ userEstimate: UserEstimate[], evaluationStrategy: string }>) => {
+        setUserEstimates: (state, action: PayloadAction< VotingResult >) => {
 
-            updateUserEstimate(state, action.payload)
+            state.userEstimates = action.payload.UserEstimates
+            state.finalResult = action.payload.FinalResult
+
         },
     },
     extraReducers: (builder) => {
@@ -266,12 +257,11 @@ const votingTaskSlice = createSlice({
                 state.statusUserEstimates = 'loading';
                 state.errorUserEstimates = '';
             })
-            .addCase(getUserEstimates.fulfilled, (state, action: PayloadAction<UserEstimate[]>) => {
+            .addCase(getUserEstimates.fulfilled, (state, action: PayloadAction<VotingResult>) => {
 
                 state.statusUserEstimates = 'succeeded';
-                state.userEstimates = action.payload
-                //  updateUserEstimate(state, action.payload)
-
+                state.userEstimates = action.payload.UserEstimates
+                state.finalResult = action.payload.FinalResult
             })
             .addCase(getUserEstimates.rejected, (state, action) => {
                 state.statusUserEstimates = 'failed';

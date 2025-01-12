@@ -2,11 +2,10 @@ package uhttp
 
 import (
 	"fmt"
+	"github.com/go-ozzo/ozzo-validation"
 	"inzarubin80/PokerPlanning/internal/model"
 	"net/http"
 	"strconv"
-	"github.com/go-ozzo/ozzo-validation"
-
 )
 
 type ValidateParameter struct {
@@ -22,7 +21,6 @@ func ValidatePatchStringParameter(r *http.Request, param string) (string, error)
 	}
 	return stringValue, nil
 }
-
 
 func ValidatePatchNumberParameters(r *http.Request, parameters []ValidateParameter) (map[string]int64, error) {
 

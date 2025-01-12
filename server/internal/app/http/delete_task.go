@@ -11,12 +11,12 @@ import (
 
 type (
 	serviceDeleteTask interface {
-		DeleteTask(ctx context.Context, pokerID model.PokerID, taskID model.TaskID ) (error) 
+		DeleteTask(ctx context.Context, pokerID model.PokerID, taskID model.TaskID) error
 	}
 	DeleteTaskHandler struct {
 		name    string
 		service serviceDeleteTask
-	}	
+	}
 )
 
 func NewDeleteTaskHandler(service serviceDeleteTask, name string) *DeleteTaskHandler {
@@ -28,13 +28,13 @@ func NewDeleteTaskHandler(service serviceDeleteTask, name string) *DeleteTaskHan
 
 func (h *DeleteTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
-	ctx := r.Context();
+	ctx := r.Context()
 	pokerID, err := uhttp.ValidatePatchStringParameter(r, defenitions.ParamPokerID)
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	
+
 	validateParameters := []uhttp.ValidateParameter{{defenitions.ParamTaskID, 1, math.MaxInt64}}
 	parameterValues, err := uhttp.ValidatePatchNumberParameters(r, validateParameters)
 	if err != nil {
@@ -50,6 +50,6 @@ func (h *DeleteTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	uhttp.SendSuccessfulResponse(w,  []byte("{}"))
+	uhttp.SendSuccessfulResponse(w, []byte("{}"))
 
 }

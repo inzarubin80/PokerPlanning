@@ -1,7 +1,6 @@
 package middleware
 
 import (
-
 	"context"
 	"inzarubin80/PokerPlanning/internal/app/defenitions"
 	"inzarubin80/PokerPlanning/internal/app/uhttp"
@@ -16,7 +15,7 @@ type (
 	}
 
 	serviceAdmin interface {
-		UserIsAdmin(ctx context.Context, pokerID model.PokerID, userID model.UserID) (bool, error) 
+		UserIsAdmin(ctx context.Context, pokerID model.PokerID, userID model.UserID) (bool, error)
 	}
 )
 
@@ -35,15 +34,13 @@ func (m *AdminMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-
 	pokerID, err := uhttp.ValidatePatchStringParameter(r, defenitions.ParamPokerID)
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-
-	isAdmin, err :=m.service.UserIsAdmin(ctx, model.PokerID(pokerID), userID)
+	isAdmin, err := m.service.UserIsAdmin(ctx, model.PokerID(pokerID), userID)
 
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusInternalServerError, err.Error())
@@ -57,4 +54,3 @@ func (m *AdminMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	m.h.ServeHTTP(w, r)
 
 }
-

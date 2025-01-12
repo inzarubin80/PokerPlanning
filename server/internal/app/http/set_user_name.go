@@ -5,13 +5,13 @@ import (
 	"inzarubin80/PokerPlanning/internal/app/defenitions"
 	"inzarubin80/PokerPlanning/internal/app/uhttp"
 	"inzarubin80/PokerPlanning/internal/model"
-	"net/http"
 	"io"
+	"net/http"
 )
 
 type (
 	serviceSetUserName interface {
-		SetUserName(ctx context.Context, userID model.UserID, name string) (error) 
+		SetUserName(ctx context.Context, userID model.UserID, name string) error
 	}
 	SetUserNameHandler struct {
 		name    string
@@ -28,13 +28,12 @@ func NewSetUserNameHandler(service serviceSetUserName, name string) *SetUserName
 
 func (h *SetUserNameHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
-	ctx:= r.Context()
+	ctx := r.Context()
 
 	userID, ok := ctx.Value(defenitions.UserID).(model.UserID)
 	if !ok {
 		uhttp.SendErrorResponse(w, http.StatusInternalServerError, "not user ID")
 	}
-	
 
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -42,12 +41,11 @@ func (h *SetUserNameHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err =  h.service.SetUserName(ctx, model.UserID(userID), string(body))
-	if err!=nil {
+	err = h.service.SetUserName(ctx, model.UserID(userID), string(body))
+	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusInternalServerError, err.Error())
 	}
-	
-	uhttp.SendSuccessfulResponse(w,  []byte("{}"))
 
+	uhttp.SendSuccessfulResponse(w, []byte("{}"))
 
 }

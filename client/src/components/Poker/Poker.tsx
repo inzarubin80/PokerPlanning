@@ -52,6 +52,7 @@ const App: React.FC = () => {
     dispatch(fetchVotingControl(pokerId));
     dispatch(fetchPokerDetails(pokerId));
     dispatch(getUserEstimates(pokerId));
+    
   }, [pokerId]);
 
 
@@ -105,7 +106,7 @@ const App: React.FC = () => {
           dispatch(setNumberVoters(msg.Count));
           break;
         case 'ADD_VOTING':
-          dispatch(setUserEstimates( { userEstimate: msg.Estimates, evaluationStrategy: evaluationStrategy }));
+          dispatch(setUserEstimates(msg.VotingResult));
           break;
         case 'CHANGE_ACTIVE_USERS_POKER':
           dispatch(setActiveUsers(msg.Users));

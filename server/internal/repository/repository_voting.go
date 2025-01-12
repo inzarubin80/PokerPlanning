@@ -19,14 +19,13 @@ func (r *Repository) SetVoting(ctx context.Context, userEstimate *model.UserEsti
 
 }
 
-
 func (r *Repository) ClearVote(ctx context.Context, pokerID model.PokerID) error {
 
 	r.storage.mx.Lock()
 	defer r.storage.mx.Unlock()
 
 	_, ok := r.storage.voting[pokerID]
-	
+
 	if ok {
 		delete(r.storage.voting, pokerID)
 	}
@@ -34,8 +33,6 @@ func (r *Repository) ClearVote(ctx context.Context, pokerID model.PokerID) error
 	return nil
 
 }
-
-
 
 func (r *Repository) GetUserEstimate(ctx context.Context, pokerID model.PokerID, userID model.UserID) (model.Estimate, error) {
 
@@ -60,28 +57,22 @@ func (r *Repository) GetVotingResults(ctx context.Context, pokerID model.PokerID
 	r.storage.mx.Lock()
 	defer r.storage.mx.Unlock()
 
-	results:= make([]*model.UserEstimate, 0)
+	results := make([]*model.UserEstimate, 0)
 
 	usersVoting, ok := r.storage.voting[pokerID]
 	if !ok {
 		return results, nil
 	}
-	
-	for v,k:= range usersVoting {
+
+	for v, k := range usersVoting {
 		results = append(results, &model.UserEstimate{
-			ID: -1,
-			PokerID: pokerID,
-			UserID: v,
+			ID:       -1,
+			PokerID:  pokerID,
+			UserID:   v,
 			Estimate: k,
 		})
 	}
-	
+
 	return results, nil
 
 }
-
-
-
-
-
-

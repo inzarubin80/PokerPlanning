@@ -17,8 +17,6 @@ type (
 		name    string
 		service serviceGetTasks
 	}
-
-	
 )
 
 func NewGetTasksHandler(service serviceGetTasks, name string) *GetTasksHandler {
@@ -30,7 +28,7 @@ func NewGetTasksHandler(service serviceGetTasks, name string) *GetTasksHandler {
 
 func (h *GetTasksHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
-	ctx := r.Context();
+	ctx := r.Context()
 	pokerID, err := uhttp.ValidatePatchStringParameter(r, defenitions.ParamPokerID)
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusBadRequest, err.Error())
@@ -48,6 +46,6 @@ func (h *GetTasksHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		uhttp.SendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	
-	uhttp.SendSuccessfulResponse(w,  jsonData)
+
+	uhttp.SendSuccessfulResponse(w, jsonData)
 }

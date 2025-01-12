@@ -32,7 +32,7 @@ type (
 	}
 
 	PokerService interface {
-		CreatePoker(ctx context.Context, userID model.UserID, pokerSettings * model.PokerSettings) (model.PokerID, error)
+		CreatePoker(ctx context.Context, userID model.UserID, pokerSettings *model.PokerSettings) (model.PokerID, error)
 		GetPoker(ctx context.Context, pokerID model.PokerID, userID model.UserID) (*model.Poker, error)
 		AddTask(ctx context.Context, task *model.Task) (*model.Task, error)
 		GetTasks(ctx context.Context, pokerID model.PokerID) ([]*model.Task, error)
@@ -50,17 +50,15 @@ type (
 		Login(ctx context.Context, providerKey string, authorizationCode string) (*model.AuthData, error)
 		Authorization(context.Context, string) (*model.Claims, error)
 		RefreshToken(ctx context.Context, refreshToken string) (*model.AuthData, error)
-		GetPokerUsers(ctx context.Context, pokerID model.PokerID) ([]*model.User, error) 
-		SetVoting(ctx context.Context, userEstimate *model.UserEstimate) error
-		GetVotingResults(ctx context.Context, pokerID model.PokerID) ([]*model.UserEstimate, error)
-		UserIsAdmin(ctx context.Context, pokerID model.PokerID, userID model.UserID) (bool, error) 
-		SetUserName(ctx context.Context, userID model.UserID, name string) (error) 
-		SetUserSettings(ctx context.Context, userID model.UserID, userSettings *model.UserSettings) (error)
-		
+		GetPokerUsers(ctx context.Context, pokerID model.PokerID) ([]*model.User, error)
+		SetVoting(ctx context.Context, userEstimate *model.UserEstimate, userID model.UserID) error
+		GetVotingResults(ctx context.Context, pokerID model.PokerID, userID model.UserID) (*model.VotingResult, error)
+		UserIsAdmin(ctx context.Context, pokerID model.PokerID, userID model.UserID) (bool, error)
+		SetUserName(ctx context.Context, userID model.UserID, name string) error
+		SetUserSettings(ctx context.Context, userID model.UserID, userSettings *model.UserSettings) error
 	}
 
 	TokenService interface {
-		
 		GenerateToken(userID model.UserID) (string, error)
 		ValidateToken(tokenString string) (*model.Claims, error)
 	}
@@ -79,28 +77,27 @@ type (
 
 func (a *App) ListenAndServe() error {
 	go a.hub.Run()
-	
-    	handlers := map[string]http.Handler{
-		a.config.path.createPoker: appHttp.NewCreatePoker(a.pokerService, a.config.path.createPoker),
-		a.config.path.getPoker:    appHttp.NewGetPokerHandler(a.pokerService, a.config.path.getPoker),
-		a.config.path.createTask:  middleware.NewAdminMiddleware(appHttp.NewAddTaskHandler(a.pokerService, a.config.path.createPoker), a.pokerService),
-		a.config.path.getTasks:    appHttp.NewGetTasksHandler(a.pokerService, a.config.path.getTasks),
-		a.config.path.getTask:     appHttp.NewGetTaskHandler(a.pokerService, a.config.path.getTask),
-		a.config.path.deleteTask:  middleware.NewAdminMiddleware(appHttp.NewDeleteTaskHandler(a.pokerService, a.config.path.deleteTask),a.pokerService),
-		a.config.path.updateTask:  middleware.NewAdminMiddleware(appHttp.NewUpdateTaskHandler(a.pokerService, a.config.path.updateTask),a.pokerService),
-		a.config.path.addComent:   appHttp.NewAddCommentHandler(a.pokerService, a.config.path.addComent),
-		a.config.path.getComents:  appHttp.NewGetCommentsHandler(a.pokerService, a.config.path.getComents),
-		a.config.path.getUser:   appHttp.NewGetUserHandler(a.store ,  a.config.path.getUser, a.pokerService),
-		a.config.path.setVotingTask:         middleware.NewAdminMiddleware(appHttp.NewSetVotingTaskHandler(a.pokerService, a.config.path.setVotingTask),a.pokerService),
+
+	handlers := map[string]http.Handler{
+		a.config.path.createPoker:           appHttp.NewCreatePoker(a.pokerService, a.config.path.createPoker),
+		a.config.path.getPoker:              appHttp.NewGetPokerHandler(a.pokerService, a.config.path.getPoker),
+		a.config.path.createTask:            middleware.NewAdminMiddleware(appHttp.NewAddTaskHandler(a.pokerService, a.config.path.createPoker), a.pokerService),
+		a.config.path.getTasks:              appHttp.NewGetTasksHandler(a.pokerService, a.config.path.getTasks),
+		a.config.path.getTask:               appHttp.NewGetTaskHandler(a.pokerService, a.config.path.getTask),
+		a.config.path.deleteTask:            middleware.NewAdminMiddleware(appHttp.NewDeleteTaskHandler(a.pokerService, a.config.path.deleteTask), a.pokerService),
+		a.config.path.updateTask:            middleware.NewAdminMiddleware(appHttp.NewUpdateTaskHandler(a.pokerService, a.config.path.updateTask), a.pokerService),
+		a.config.path.addComent:             appHttp.NewAddCommentHandler(a.pokerService, a.config.path.addComent),
+		a.config.path.getComents:            appHttp.NewGetCommentsHandler(a.pokerService, a.config.path.getComents),
+		a.config.path.getUser:               appHttp.NewGetUserHandler(a.store, a.config.path.getUser, a.pokerService),
+		a.config.path.setVotingTask:         middleware.NewAdminMiddleware(appHttp.NewSetVotingTaskHandler(a.pokerService, a.config.path.setVotingTask), a.pokerService),
 		a.config.path.getVotingControlState: appHttp.NewGetVotingStateHandler(a.pokerService, a.config.path.getVotingControlState),
 		a.config.path.getUserEstimates:      appHttp.NewGetUserEstimatesHandler(a.pokerService, a.config.path.getUserEstimates),
-		a.config.path.setVotingControlState: middleware.NewAdminMiddleware(appHttp.NewSetVotingStateHandler(a.pokerService, a.config.path.setVotingControlState),a.pokerService),
-		a.config.path.ping: appHttp.NewPingHandlerHandler(a.config.path.ping),
-		a.config.path.vote: appHttp.NewSetVotingHandler(a.pokerService, a.config.path.vote),
-		a.config.path.ws:   appHttp.NewWSPokerHandler(a.pokerService, a.config.path.ws, a.hub),
-		a.config.path.setUserName:    appHttp.NewSetUserNameHandler(a.pokerService, a.config.path.setUserName),
-		a.config.path.setUserSettings:    appHttp.NewSetUserSettingsHandler(a.pokerService, a.config.path.setUserSettings),
-			
+		a.config.path.setVotingControlState: middleware.NewAdminMiddleware(appHttp.NewSetVotingStateHandler(a.pokerService, a.config.path.setVotingControlState), a.pokerService),
+		a.config.path.ping:                  appHttp.NewPingHandlerHandler(a.config.path.ping),
+		a.config.path.vote:                  appHttp.NewSetVotingHandler(a.pokerService, a.config.path.vote),
+		a.config.path.ws:                    appHttp.NewWSPokerHandler(a.pokerService, a.config.path.ws, a.hub),
+		a.config.path.setUserName:           appHttp.NewSetUserNameHandler(a.pokerService, a.config.path.setUserName),
+		a.config.path.setUserSettings:       appHttp.NewSetUserSettingsHandler(a.pokerService, a.config.path.setUserSettings),
 	}
 
 	for path, handler := range handlers {
@@ -125,8 +122,8 @@ func NewApp(ctx context.Context, config config) (*App, error) {
 		store           = sessions.NewCookieStore([]byte(config.sectrets.storeSecret))
 	)
 
-	accessTokenService := tokenservice.NewtokenService([]byte(config.sectrets.accessTokenSecret), 1 * time.Hour, model.Access_Token_Type)
-	refreshTokenService := tokenservice.NewtokenService([]byte(config.sectrets.refreshTokenSecret), 24 * time.Hour, model.Refresh_Token_Type)
+	accessTokenService := tokenservice.NewtokenService([]byte(config.sectrets.accessTokenSecret), 1*time.Hour, model.Access_Token_Type)
+	refreshTokenService := tokenservice.NewtokenService([]byte(config.sectrets.refreshTokenSecret), 24*time.Hour, model.Refresh_Token_Type)
 
 	providerOauthConfFrontend := []authinterface.ProviderOauthConfFrontend{}
 	providers := make(authinterface.ProvidersUserData)

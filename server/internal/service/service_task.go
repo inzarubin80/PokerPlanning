@@ -5,14 +5,6 @@ import (
 	"inzarubin80/PokerPlanning/internal/model"
 )
 
-type (
-	TASK_MESSAGE struct {
-		Action string       
-		Task   *model.Task  
-		TaskID model.TaskID 
-	}
-)
-
 func (s *PokerService) AddTask(ctx context.Context, task *model.Task) (*model.Task, error) {
 
 	task, err := s.repository.AddTask(ctx, task)
@@ -59,7 +51,6 @@ func (s *PokerService) DeleteTask(ctx context.Context, pokerID model.PokerID, ta
 	if err != nil {
 		return err
 	}
-
 
 	s.hub.AddMessage(pokerID, &TASK_MESSAGE{
 		Action: model.REMOVE_TASK,

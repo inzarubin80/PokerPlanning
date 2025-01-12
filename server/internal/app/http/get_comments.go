@@ -15,8 +15,8 @@ type (
 	}
 	GetCommentsHandler struct {
 		name    string
-		service serviceGetComments 
-	}	
+		service serviceGetComments
+	}
 )
 
 func NewGetCommentsHandler(service serviceGetComments, name string) *GetCommentsHandler {
@@ -28,7 +28,7 @@ func NewGetCommentsHandler(service serviceGetComments, name string) *GetComments
 
 func (h *GetCommentsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
-	ctx := r.Context();
+	ctx := r.Context()
 	pokerID, err := uhttp.ValidatePatchStringParameter(r, defenitions.ParamPokerID)
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusBadRequest, err.Error())
@@ -46,6 +46,6 @@ func (h *GetCommentsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		uhttp.SendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	
-	uhttp.SendSuccessfulResponse(w,  jsonData)
+
+	uhttp.SendSuccessfulResponse(w, jsonData)
 }

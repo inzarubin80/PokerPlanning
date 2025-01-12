@@ -21,17 +21,16 @@ type (
 	}
 
 	PokerToFrontend struct {
-		ID            model.PokerID
-		CreatedAt     time.Time
-		Name          string
-		Autor         model.UserID
-		IsAdmin       bool
-		ActiveUsersID []model.UserID
-		Admins        []model.UserID
-		Users         []*model.User
+		ID                 model.PokerID
+		CreatedAt          time.Time
+		Name               string
+		Autor              model.UserID
+		IsAdmin            bool
+		ActiveUsersID      []model.UserID
+		Admins             []model.UserID
+		Users              []*model.User
 		EvaluationStrategy string
-		MaximumScore int
-
+		MaximumScore       int
 	}
 )
 
@@ -75,15 +74,15 @@ func (h *GetPokerHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	jsonContent, err := json.Marshal(&PokerToFrontend{
-		ID:            model.PokerID(poker_id),
-		CreatedAt:     poker.CreatedAt,
-		Name:          poker.Name,
-		Autor:         poker.Autor,
-		IsAdmin:       isAdmin,
-		ActiveUsersID: poker.ActiveUsersID,
-		Users:         poker.Users,
+		ID:                 model.PokerID(poker_id),
+		CreatedAt:          poker.CreatedAt,
+		Name:               poker.Name,
+		Autor:              poker.Autor,
+		IsAdmin:            isAdmin,
+		ActiveUsersID:      poker.ActiveUsersID,
+		Users:              poker.Users,
 		EvaluationStrategy: poker.EvaluationStrategy,
-		MaximumScore: poker.MaximumScore,	
+		MaximumScore:       poker.MaximumScore,
 	})
 
 	if err != nil {

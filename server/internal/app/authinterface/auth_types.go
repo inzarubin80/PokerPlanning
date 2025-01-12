@@ -2,8 +2,8 @@ package authinterface
 
 import (
 	"context"
-	"inzarubin80/PokerPlanning/internal/model"
 	"golang.org/x/oauth2"
+	"inzarubin80/PokerPlanning/internal/model"
 )
 
 type (
@@ -21,15 +21,15 @@ type (
 	ProviderOauthConf struct {
 		Oauth2Config *oauth2.Config
 		UrlUserData  string
-		ImageBase64 string
+		ImageBase64  string
 	}
 
 	MapProviderOauthConf map[string]*ProviderOauthConf
 
-	ProviderOauthConfFrontend struct{
-		Provider string
-		ClientId string
-		AuthURL string
+	ProviderOauthConfFrontend struct {
+		Provider    string
+		ClientId    string
+		AuthURL     string
 		RedirectUri string
 		ImageBase64 string
 	}

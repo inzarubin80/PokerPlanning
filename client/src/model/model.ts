@@ -65,4 +65,7 @@ export interface Poker{
   MaximumScore: number
 }
 
-
+export interface VotingResult {
+  UserEstimates: UserEstimate[]
+  FinalResult: number
+}

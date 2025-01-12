@@ -20,12 +20,9 @@ type (
 		service serviceSetVotingState
 	}
 
-
 	RequestBody struct {
 		Result int `json:"result"`
 	}
-
-	
 )
 
 func NewSetVotingStateHandler(service serviceSetVotingState, name string) *SetVotingStateHandler {

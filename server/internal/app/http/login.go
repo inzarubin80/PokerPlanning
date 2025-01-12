@@ -28,8 +28,8 @@ type (
 	}
 
 	RequestLoginData struct {
-		AuthorizationCode string 
-		ProviderKey string       
+		AuthorizationCode string
+		ProviderKey       string
 	}
 )
 
@@ -67,9 +67,9 @@ func (h *LoginHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	session.Options = &sessions.Options{
 		Path:     "/",
-		MaxAge:   86400 * 7, // Время жизни сессии (7 дней)
-		HttpOnly: true,      // Запретить доступ через JavaScript
-		Secure:   true,      // Требует HTTPS
+		MaxAge:   86400 * 7,             // Время жизни сессии (7 дней)
+		HttpOnly: true,                  // Запретить доступ через JavaScript
+		Secure:   true,                  // Требует HTTPS
 		SameSite: http.SameSiteNoneMode, // Разрешить cross-origin
 	}
 

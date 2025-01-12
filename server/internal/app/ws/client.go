@@ -37,7 +37,7 @@ var (
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
-	CheckOrigin: func(r *http.Request) bool { return true },	
+	CheckOrigin:     func(r *http.Request) bool { return true },
 }
 
 // Client is a middleman between the websocket connection and the hub.
@@ -46,7 +46,7 @@ type Client struct {
 
 	pokerID model.PokerID
 
-	userID model.UserID 
+	userID model.UserID
 
 	conn *websocket.Conn
 
@@ -110,7 +110,7 @@ func (c *Client) writePump() {
 			n := len(c.send)
 			for i := 0; i < n; i++ {
 				w.Write(newline)
-			
+
 				w.Write((<-c.send).data)
 			}
 
@@ -128,15 +128,14 @@ func (c *Client) writePump() {
 
 // serveWs handles websocket requests from the peer.
 func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
-	
-	ctx := r.Context();
-	
+
+	ctx := r.Context()
+
 	pokerID, err := uhttp.ValidatePatchStringParameter(r, defenitions.ParamPokerID)
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	
 
 	userID, ok := ctx.Value(defenitions.UserID).(model.UserID)
 	if !ok {
@@ -149,7 +148,7 @@ func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
-	
+
 	client := &Client{hub: hub, conn: conn, send: make(chan *Message, 256), pokerID: model.PokerID(pokerID), userID: userID}
 	client.hub.register <- client
 
@@ -157,6 +156,5 @@ func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	// new goroutines.
 	go client.writePump()
 	go client.readPump()
-
 
 }
