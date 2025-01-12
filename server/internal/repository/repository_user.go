@@ -12,8 +12,8 @@ func (r *Repository) AddUser(ctx context.Context, userData *model.UserProfileFro
 	defer r.storage.mx.Unlock()
 
 	user := &model.User{
-		ID:    r.storage.nextUsererID,
-		Name:  userData.Name,
+		ID:   r.storage.nextUsererID,
+		Name: userData.Name,
 	}
 
 	r.storage.users[r.storage.nextUsererID] = user
@@ -22,25 +22,25 @@ func (r *Repository) AddUser(ctx context.Context, userData *model.UserProfileFro
 
 }
 
-func (r *Repository) SetUserName(ctx context.Context, userID model.UserID, name string) (error) {
+func (r *Repository) SetUserName(ctx context.Context, userID model.UserID, name string) error {
 
 	r.storage.mx.Lock()
 	defer r.storage.mx.Unlock()
-	
+
 	user, ok := r.storage.users[userID]
 	if !ok {
 		return model.ErrorNotFound
 	}
 
 	user.Name = name
-	return  nil
+	return nil
 }
 
-func (r *Repository) SetUserSettings(ctx context.Context, userID model.UserID, userSettings *model.UserSettings) (error) {
+func (r *Repository) SetUserSettings(ctx context.Context, userID model.UserID, userSettings *model.UserSettings) error {
 
 	r.storage.mx.Lock()
 	defer r.storage.mx.Unlock()
-	
+
 	user, ok := r.storage.users[userID]
 	if !ok {
 		return model.ErrorNotFound
@@ -48,10 +48,9 @@ func (r *Repository) SetUserSettings(ctx context.Context, userID model.UserID, u
 
 	user.EvaluationStrategy = userSettings.EvaluationStrategy
 	user.MaximumScore = userSettings.MaximumScore
-	
-	return  nil
-}
 
+	return nil
+}
 
 func (r *Repository) GetUser(ctx context.Context, userID model.UserID) (*model.User, error) {
 
@@ -63,7 +62,7 @@ func (r *Repository) GetUser(ctx context.Context, userID model.UserID) (*model.U
 		return nil, model.ErrorNotFound
 	}
 
-	return  user, nil
+	return user, nil
 }
 
 func (r *Repository) GetUsersByIDs(ctx context.Context, userIDs []model.UserID) ([]*model.User, error) {

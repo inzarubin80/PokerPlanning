@@ -52,7 +52,6 @@ func (s *PokerService) DeleteTask(ctx context.Context, pokerID model.PokerID, ta
 		return err
 	}
 
-
 	s.hub.AddMessage(pokerID, &TASK_MESSAGE{
 		Action: model.REMOVE_TASK,
 		TaskID: taskID,

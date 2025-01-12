@@ -3,8 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
-	"inzarubin80/PokerPlanning/internal/app"
 	"github.com/joho/godotenv"
+	"inzarubin80/PokerPlanning/internal/app"
 )
 
 func main() {
@@ -14,7 +14,7 @@ func main() {
 		fmt.Printf("Error loading .env file")
 		return
 	}
-	
+
 	ctx := context.Background()
 	options := app.Options{
 		Addr: ":8080",

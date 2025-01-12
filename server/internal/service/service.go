@@ -7,7 +7,6 @@ import (
 )
 
 type (
-	
 	TASK_MESSAGE struct {
 		Action string
 		Task   *model.Task

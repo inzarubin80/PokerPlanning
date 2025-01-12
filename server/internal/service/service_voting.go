@@ -224,7 +224,6 @@ func (s *PokerService) SetVotingState(ctx context.Context, pokerID model.PokerID
 		return nil, err
 	}
 
-
 	votingResult, err := s.GetVotingResults(ctx, pokerID, -1)
 	if err != nil {
 		return nil, err

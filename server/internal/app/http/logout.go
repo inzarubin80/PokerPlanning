@@ -1,10 +1,10 @@
 package http
 
 import (
+	"github.com/gorilla/sessions"
 	"inzarubin80/PokerPlanning/internal/app/defenitions"
 	"inzarubin80/PokerPlanning/internal/app/uhttp"
 	"net/http"
-	"github.com/gorilla/sessions"
 )
 
 type (

@@ -27,9 +27,9 @@ func (r *Repository) SetVotingTask(ctx context.Context, pokerID model.PokerID, t
 	if !ok {
 		r.storage.voteState[pokerID] = &model.VoteControlState{}
 	}
-	r.storage.voteState[pokerID].StartDate =  time.Time{} 
-	r.storage.voteState[pokerID].EndDate =  time.Time{} 
-	
+	r.storage.voteState[pokerID].StartDate = time.Time{}
+	r.storage.voteState[pokerID].EndDate = time.Time{}
+
 	r.storage.voteState[pokerID].TaskID = taskID
 	return r.storage.voteState[pokerID], nil
 
@@ -43,7 +43,7 @@ func (r *Repository) SetVotingState(ctx context.Context, pokerID model.PokerID, 
 	_, ok := r.storage.voteState[pokerID]
 
 	if !ok {
-		return nil, fmt.Errorf("pokerID state %s %w",pokerID,model.ErrorNotFound)
+		return nil, fmt.Errorf("pokerID state %s %w", pokerID, model.ErrorNotFound)
 	}
 	r.storage.voteState[pokerID] = state
 	return r.storage.voteState[pokerID], nil

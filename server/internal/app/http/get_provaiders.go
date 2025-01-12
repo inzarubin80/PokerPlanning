@@ -7,29 +7,27 @@ import (
 	"net/http"
 )
 
-
 type (
 	GetProvadersHandler struct {
-		name    string
-		providerOauthConfFrontend  []authinterface.ProviderOauthConfFrontend	
+		name                      string
+		providerOauthConfFrontend []authinterface.ProviderOauthConfFrontend
 	}
 )
 
 func NewProvadersHandler(providerOauthConfFrontend []authinterface.ProviderOauthConfFrontend, name string) *GetProvadersHandler {
 	return &GetProvadersHandler{
-		name:    name,
+		name:                      name,
 		providerOauthConfFrontend: providerOauthConfFrontend,
 	}
 }
 
 func (h *GetProvadersHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
+	jsonContent, err := json.Marshal(h.providerOauthConfFrontend)
 
-	jsonContent, err := json.Marshal(h.providerOauthConfFrontend)	
-	
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusInternalServerError, err.Error())
-		return 
+		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")

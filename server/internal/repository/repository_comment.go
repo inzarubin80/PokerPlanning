@@ -7,7 +7,7 @@ import (
 )
 
 func (s *Storage) ClearComments(ctx context.Context, pokerID model.PokerID) error {
-	
+
 	s.mx.Lock()
 	defer s.mx.Unlock()
 
@@ -36,7 +36,6 @@ func (r *Repository) GetComments(ctx context.Context, pokerID model.PokerID) ([]
 	sort.Slice(comments, func(i, j int) bool {
 		return comments[i].ID < comments[j].ID
 	})
-	
 
 	return comments, nil
 }

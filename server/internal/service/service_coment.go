@@ -5,7 +5,6 @@ import (
 	"inzarubin80/PokerPlanning/internal/model"
 )
 
-
 func (s *PokerService) AddComment(ctx context.Context, comment *model.Comment) (*model.Comment, error) {
 
 	commentRes, err := s.repository.AddComment(ctx, comment)

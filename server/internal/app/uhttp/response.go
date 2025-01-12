@@ -1,12 +1,13 @@
 package uhttp
+
 import (
-	"net/http"
 	"encoding/json"
+	"net/http"
 )
 
 type errorResponse struct {
-	Error   bool  
-	Message string 
+	Error   bool
+	Message string
 }
 
 func SendSuccessfulResponse(w http.ResponseWriter, jsonContent []byte) {

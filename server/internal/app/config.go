@@ -12,7 +12,6 @@ import (
 )
 
 type (
-
 	Options struct {
 		Addr string
 	}
@@ -20,7 +19,7 @@ type (
 		index, getPoker, createPoker, createTask,
 		getTasks, getTask, updateTask, deleteTask,
 		getComents, addComent, setVotingTask,
-		getVotingControlState, ws, login, session, refreshToken, logOut, getProviders, 
+		getVotingControlState, ws, login, session, refreshToken, logOut, getProviders,
 		ping, vote, getUserEstimates, setVotingControlState, setUserName, getUser, setUserSettings string
 	}
 
@@ -63,37 +62,37 @@ func NewConfig(opts Options) config {
 	config := config{
 		addr: opts.Addr,
 		path: path{
-			index: "",
-			ping:                  fmt.Sprintf("GET /api/ping"),
-			createPoker:           "POST	/api/poker",
-			getProviders:          "GET /api/providers",
+			index:        "",
+			ping:         fmt.Sprintf("GET /api/ping"),
+			createPoker:  "POST	/api/poker",
+			getProviders: "GET /api/providers",
 
-			login:                 fmt.Sprintf("POST	/api/user/login"),
-			setUserName:           fmt.Sprintf("POST	/api/user/name"),	
-			setUserSettings:       fmt.Sprintf("POST	/api/user/settings"),	
-	
-			getUser:               fmt.Sprintf("GET	/api/user"),	
-			
-			refreshToken:          fmt.Sprintf("POST	/api/user/refresh"),
-			session:               fmt.Sprintf("GET		/api/user/session"),
-			logOut:                fmt.Sprintf("GET		/api/user/logout"),
-			
+			login:           fmt.Sprintf("POST	/api/user/login"),
+			setUserName:     fmt.Sprintf("POST	/api/user/name"),
+			setUserSettings: fmt.Sprintf("POST	/api/user/settings"),
+
+			getUser: fmt.Sprintf("GET	/api/user"),
+
+			refreshToken: fmt.Sprintf("POST	/api/user/refresh"),
+			session:      fmt.Sprintf("GET		/api/user/session"),
+			logOut:       fmt.Sprintf("GET		/api/user/logout"),
+
 			vote:                  fmt.Sprintf("POST 	/api/poker/{%s}/vote", defenitions.ParamPokerID),
 			setVotingTask:         fmt.Sprintf("POST 	/api/poker/{%s}/voting-control/task/{%s}", defenitions.ParamPokerID, defenitions.ParamTaskID),
 			getVotingControlState: fmt.Sprintf("GET  	/api/poker/{%s}/voting-control", defenitions.ParamPokerID),
 			setVotingControlState: fmt.Sprintf("POST 	/api/poker/{%s}/voting-control/{%s}", defenitions.ParamPokerID, defenitions.ParamVotingControlAction),
 			getUserEstimates:      fmt.Sprintf("GET		/api/poker/{%s}/user-estimates", defenitions.ParamPokerID),
 
-			createTask:            fmt.Sprintf("POST	/api/poker/{%s}/tasks", defenitions.ParamPokerID),
-			getTasks:              fmt.Sprintf("GET		/api/poker/{%s}/tasks", defenitions.ParamPokerID),
-			getTask:               fmt.Sprintf("GET		/api/poker/{%s}/tasks/{%s}", defenitions.ParamPokerID, defenitions.ParamTaskID),
-			updateTask:            fmt.Sprintf("PUT 	/api/poker/{%s}/tasks/{%s}", defenitions.ParamPokerID, defenitions.ParamTaskID),
-			deleteTask:            fmt.Sprintf("DELETE 	/api/poker/{%s}/tasks/{%s}", defenitions.ParamPokerID, defenitions.ParamTaskID),
-			
-			getComents:            fmt.Sprintf("GET 	/api/poker/{%s}/comments", defenitions.ParamPokerID),
-			addComent:             fmt.Sprintf("POST 	/api/poker/{%s}/comments", defenitions.ParamPokerID),
-			getPoker:              fmt.Sprintf("GET 	/api/poker/{%s}", defenitions.ParamPokerID),
-			ws:                    fmt.Sprintf("GET 	/ws/{%s}", defenitions.ParamPokerID),
+			createTask: fmt.Sprintf("POST	/api/poker/{%s}/tasks", defenitions.ParamPokerID),
+			getTasks:   fmt.Sprintf("GET		/api/poker/{%s}/tasks", defenitions.ParamPokerID),
+			getTask:    fmt.Sprintf("GET		/api/poker/{%s}/tasks/{%s}", defenitions.ParamPokerID, defenitions.ParamTaskID),
+			updateTask: fmt.Sprintf("PUT 	/api/poker/{%s}/tasks/{%s}", defenitions.ParamPokerID, defenitions.ParamTaskID),
+			deleteTask: fmt.Sprintf("DELETE 	/api/poker/{%s}/tasks/{%s}", defenitions.ParamPokerID, defenitions.ParamTaskID),
+
+			getComents: fmt.Sprintf("GET 	/api/poker/{%s}/comments", defenitions.ParamPokerID),
+			addComent:  fmt.Sprintf("POST 	/api/poker/{%s}/comments", defenitions.ParamPokerID),
+			getPoker:   fmt.Sprintf("GET 	/api/poker/{%s}", defenitions.ParamPokerID),
+			ws:         fmt.Sprintf("GET 	/ws/{%s}", defenitions.ParamPokerID),
 		},
 
 		sectrets: sectrets{

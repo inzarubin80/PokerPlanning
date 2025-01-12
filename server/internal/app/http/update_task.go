@@ -14,7 +14,7 @@ import (
 
 type (
 	serviceUpdateTask interface {
-		UpdateTask(ctx context.Context, pokerID model.PokerID, task *model.Task) (*model.Task, error) 
+		UpdateTask(ctx context.Context, pokerID model.PokerID, task *model.Task) (*model.Task, error)
 	}
 	UpdateTaskHandler struct {
 		name    string
@@ -65,7 +65,7 @@ func (h *UpdateTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		uhttp.SendErrorResponse(w, http.StatusBadRequest, "")
 		return
 	}
-	
+
 	_, err = h.service.UpdateTask(ctx, model.PokerID(pokerID), task)
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusInternalServerError, err.Error())

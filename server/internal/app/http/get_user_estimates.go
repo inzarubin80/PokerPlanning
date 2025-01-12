@@ -11,11 +11,10 @@ import (
 )
 
 type (
-	
 	serviceGetUserEstimates interface {
 		GetVotingResults(ctx context.Context, pokerID model.PokerID, userID model.UserID) (*model.VotingResult, error)
 	}
-	
+
 	GetUserEstimatesHandler struct {
 		name    string
 		service serviceGetUserEstimates
@@ -31,7 +30,7 @@ func NewGetUserEstimatesHandler(service serviceGetUserEstimates, name string) *G
 
 func (h *GetUserEstimatesHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
-	ctx := r.Context();
+	ctx := r.Context()
 	pokerID, err := uhttp.ValidatePatchStringParameter(r, defenitions.ParamPokerID)
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusBadRequest, err.Error())
@@ -46,17 +45,17 @@ func (h *GetUserEstimatesHandler) ServeHTTP(w http.ResponseWriter, r *http.Reque
 
 	fmt.Println(userID)
 
-	votingResults, err:= h.service.GetVotingResults(ctx, model.PokerID(pokerID),  userID )
-	if err != nil {
-		uhttp.SendErrorResponse(w, http.StatusInternalServerError, err.Error())
-		return
-	} 
-	
-	jsonData, err := json.Marshal( votingResults)
+	votingResults, err := h.service.GetVotingResults(ctx, model.PokerID(pokerID), userID)
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	uhttp.SendSuccessfulResponse(w,  jsonData)
-		
+
+	jsonData, err := json.Marshal(votingResults)
+	if err != nil {
+		uhttp.SendErrorResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	uhttp.SendSuccessfulResponse(w, jsonData)
+
 }

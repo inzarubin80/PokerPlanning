@@ -20,27 +20,26 @@ func (r *Repository) ClearTasks(ctx context.Context, pokerID model.PokerID) erro
 	return nil
 }
 
-func (r *Repository) GetTask(ctx context.Context, pokerID model.PokerID, taskID model.TaskID ) (*model.Task, error) {
-	
+func (r *Repository) GetTask(ctx context.Context, pokerID model.PokerID, taskID model.TaskID) (*model.Task, error) {
+
 	r.storage.mx.RLock()
 	defer r.storage.mx.RUnlock()
 
 	tasksRepo, ok := r.storage.tasks[pokerID]
 	if !ok {
-		return nil,  fmt.Errorf("poker %s %w",pokerID, model.ErrorNotFound) 
+		return nil, fmt.Errorf("poker %s %w", pokerID, model.ErrorNotFound)
 	}
 
-	task, ok:= tasksRepo[taskID]
+	task, ok := tasksRepo[taskID]
 	if !ok {
-		return nil,  fmt.Errorf("task %d %w", taskID, model.ErrorNotFound) 
+		return nil, fmt.Errorf("task %d %w", taskID, model.ErrorNotFound)
 	}
 
 	return task, nil
 }
 
+func (r *Repository) DeleteTask(ctx context.Context, pokerID model.PokerID, taskID model.TaskID) error {
 
-func (r *Repository) DeleteTask(ctx context.Context, pokerID model.PokerID, taskID model.TaskID ) (error) {
-	
 	r.storage.mx.RLock()
 	defer r.storage.mx.RUnlock()
 	tasksRepo, ok := r.storage.tasks[pokerID]
@@ -49,10 +48,8 @@ func (r *Repository) DeleteTask(ctx context.Context, pokerID model.PokerID, task
 	}
 
 	delete(tasksRepo, taskID)
-	return  nil
+	return nil
 }
-
-
 
 func (r *Repository) GetTasks(ctx context.Context, pokerID model.PokerID) ([]*model.Task, error) {
 
@@ -70,11 +67,11 @@ func (r *Repository) GetTasks(ctx context.Context, pokerID model.PokerID) ([]*mo
 	sort.Slice(tasks, func(i, j int) bool {
 		return tasks[i].ID < tasks[j].ID
 	})
-	
+
 	return tasks, nil
 }
 
-func (r *Repository) AddTask(ctx context.Context,  task *model.Task) (*model.Task, error) {
+func (r *Repository) AddTask(ctx context.Context, task *model.Task) (*model.Task, error) {
 
 	r.storage.mx.Lock()
 	defer r.storage.mx.Unlock()
@@ -99,13 +96,12 @@ func (r *Repository) UpdateTask(ctx context.Context, pokerID model.PokerID, task
 
 	taskRepo, ok := r.storage.tasks[pokerID]
 	if !ok {
-		return nil, fmt.Errorf("poker %s %w",pokerID, model.ErrorNotFound) 
+		return nil, fmt.Errorf("poker %s %w", pokerID, model.ErrorNotFound)
 	}
 	_, ok = taskRepo[task.ID]
 	if !ok {
-		return  nil, fmt.Errorf("task %d %w", task.ID, model.ErrorNotFound) 
+		return nil, fmt.Errorf("task %d %w", task.ID, model.ErrorNotFound)
 	}
 	taskRepo[task.ID] = task
 	return task, nil
 }
-
