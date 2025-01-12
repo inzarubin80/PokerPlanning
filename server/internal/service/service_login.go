@@ -28,7 +28,7 @@ func (s *PokerService) Login(ctx context.Context, providerKey string, authorizat
 
 	if userAuthProviders == nil {
 
-		user, err := s.repository.AddUser(ctx, userProfileFromProvider)
+		user, err := s.repository.CreateUser(ctx, userProfileFromProvider)
 		if err != nil {
 			return nil, err
 		}

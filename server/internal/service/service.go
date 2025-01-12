@@ -73,7 +73,7 @@ type (
 		//User
 		GetUserAuthProvidersByProviderUid(ctx context.Context, ProviderUid string, Provider string) (*model.UserAuthProviders, error)
 		AddUserAuthProviders(ctx context.Context, userProfileFromProvide *model.UserProfileFromProvider, userID model.UserID) (*model.UserAuthProviders, error)
-		AddUser(ctx context.Context, userData *model.UserProfileFromProvider) (*model.User, error)
+		CreateUser(ctx context.Context, userData *model.UserProfileFromProvider) (*model.User, error)
 		GetUsersByIDs(ctx context.Context, userIDs []model.UserID) ([]*model.User, error)
 		GetUserIDsByPokerID(ctx context.Context, pokerID model.PokerID) ([]model.UserID, error)
 		AddPokerUser(ctx context.Context, pokerID model.PokerID, userID model.UserID) error

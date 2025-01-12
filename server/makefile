@@ -1,8 +1,15 @@
 LOCAL_BIN:=$(CURDIR)/bin
+
 .PHONY: .install-sqlc
 .install-sqlc:
 	$(info Installing sqlc...)
 	GOBIN=$(LOCAL_BIN) go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
+
+.PHONY: .sqlc-generate
+.sqlc-generate:
+	$(info sqlc-generate...)
+	bin/sqlc generate
+
 
 .PHONY: .install-goose
 .install-goose:
