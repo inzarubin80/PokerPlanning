@@ -6,7 +6,7 @@ import (
 	"inzarubin80/PokerPlanning/internal/model"
 )
 
-func (r *Repository) AddUser(ctx context.Context, userData *model.UserProfileFromProvider) (*model.User, error) {
+func (r *Repository) CreateUser(ctx context.Context, userData *model.UserProfileFromProvider) (*model.User, error) {
 
 	r.storage.mx.Lock()
 	defer r.storage.mx.Unlock()
