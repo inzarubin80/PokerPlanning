@@ -7,6 +7,7 @@ import (
 	"inzarubin80/PokerPlanning/internal/app"
 )
 
+//мое исправление
 func main() {
 
 	err := godotenv.Load()
@@ -20,6 +21,9 @@ func main() {
 		Addr: ":8080",
 	}
 
+	
+	fmt.Println("dedede");
+	
 	conf := app.NewConfig(options)
 
 	server, err := app.NewApp(ctx, conf)
