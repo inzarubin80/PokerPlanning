@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"github.com/joho/godotenv"
 	"inzarubin80/PokerPlanning/internal/app"
+	"github.com/jackc/pgx/v5/pgxpool"
+	"os"
 )
 
 //мое исправление
@@ -21,13 +23,21 @@ func main() {
 		Addr: ":8080",
 	}
 
-	
-	fmt.Println("dedede");
-	
 	conf := app.NewConfig(options)
 
-	server, err := app.NewApp(ctx, conf)
+	databaseUrl := os.Getenv("DATABASE_URL")
 
+	cfg, err := pgxpool.ParseConfig(databaseUrl)
+	if err != nil {
+		panic(err.Error())
+
+	}
+	dbConn, err := pgxpool.NewWithConfig(ctx, cfg)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	server, err := app.NewApp(ctx, conf, dbConn)
 	if err != nil {
 		panic(err.Error())
 	}

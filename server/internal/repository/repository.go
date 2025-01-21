@@ -1,14 +1,29 @@
 package repository
 
 import (
+	"context"
 	"inzarubin80/PokerPlanning/internal/model"
 	"sync"
+
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 type (
+	
+	
 	Repository struct {
 		storage Storage
+		conn DBTX
+		
 	}
+
+	 DBTX interface {
+		Exec(context.Context, string, ...interface{}) (pgconn.CommandTag, error)
+		Query(context.Context, string, ...interface{}) (pgx.Rows, error)
+		QueryRow(context.Context, string, ...interface{}) pgx.Row
+	}
+	
 
 	Users             map[model.UserID]*model.User
 	Tasks             map[model.PokerID]map[model.TaskID]*model.Task
@@ -41,9 +56,10 @@ type (
 		pokerAdmins         PokerAdmins
 		nextAuthProvidersID model.UserID
 	}
+
 )
 
-func NewPokerRepository(capacity int) *Repository {
+func NewPokerRepository(capacity int  , conn DBTX) *Repository {
 	return &Repository{
 		storage: Storage{
 			mx:                  &sync.RWMutex{},
@@ -64,5 +80,6 @@ func NewPokerRepository(capacity int) *Repository {
 			nextUsererID:        1,
 			nextAuthProvidersID: 1,
 		},
+		conn: conn,
 	}
 }

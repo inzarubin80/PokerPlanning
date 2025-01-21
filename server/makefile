@@ -1,4 +1,5 @@
 LOCAL_BIN:=$(CURDIR)/bin
+COMPOSE_FILE := docker-compose.yml
 
 .PHONY: .install-sqlc
 .install-sqlc:
@@ -18,15 +19,21 @@ LOCAL_BIN:=$(CURDIR)/bin
 	
 .PHONY: .apply-migrations
 .apply-migrations:
-	bin/goose -dir migrations postgres "postgresql://user:password@127.0.0.1:5432/route256?sslmode=disable" up
+	bin/goose -dir migrations postgres "postgresql://user:password@127.0.0.1:5432/poker?sslmode=disable" up
 
 .PHONY: .reset-migrations
 .reset-migrations:
-	bin/goose -dir migrations postgres "postgresql://user:password@127.0.0.1:5432/route256?sslmode=disable" down-to 0
-	bin/goose -dir migrations postgres "postgresql://user:password@127.0.0.1:5432/route256?sslmode=disable" up                                                                               
+	bin/goose -dir migrations postgres "postgresql://user:password@127.0.0.1:5432/poker?sslmode=disable" down-to 0
+	bin/goose -dir migrations postgres "postgresql://user:password@127.0.0.1:5432/poker?sslmode=disable" up                                                                               
 
 MIGRATIONS_DIR=./migrations
 .PHONY: create-migration
 create-migration:
 	@read -p "Введите имя миграции: " name; \
 	bin/goose -dir $(MIGRATIONS_DIR) create $$name sql
+
+
+run-all:
+	@echo "Building and starting containers..."
+	docker-compose -f $(COMPOSE_FILE) up --build -d
+	

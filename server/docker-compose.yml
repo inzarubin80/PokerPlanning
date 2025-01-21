@@ -1,0 +1,22 @@
+version: "3.8"
+volumes:
+  prometheus_data: {}
+  grafana_data: {}
+services:  
+  postgres:
+    container_name: postgres
+    image: postgres:13
+    networks:
+      - app
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: poker
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgresql_data:/docker-entrypoint-initdb.d
+  
+networks:
+  app:
+    driver: bridge

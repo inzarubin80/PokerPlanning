@@ -3,8 +3,6 @@ package app
 import (
 	"context"
 	"fmt"
-	"github.com/gorilla/sessions"
-	"golang.org/x/oauth2"
 	authinterface "inzarubin80/PokerPlanning/internal/app/authinterface"
 	providerUserData "inzarubin80/PokerPlanning/internal/app/clients/provider_user_data"
 	appHttp "inzarubin80/PokerPlanning/internal/app/http"
@@ -16,6 +14,10 @@ import (
 	service "inzarubin80/PokerPlanning/internal/service"
 	"net/http"
 	"time"
+
+	"github.com/gorilla/sessions"
+	"github.com/jackc/pgx/v5/pgxpool"
+	"golang.org/x/oauth2"
 )
 
 const (
@@ -113,11 +115,11 @@ func (a *App) ListenAndServe() error {
 	return a.server.ListenAndServe()
 }
 
-func NewApp(ctx context.Context, config config) (*App, error) {
+func NewApp(ctx context.Context, config config, dbConn *pgxpool.Pool) (*App, error) {
 
 	var (
 		mux             = http.NewServeMux()
-		pokerRepository = repository.NewPokerRepository(100)
+		pokerRepository = repository.NewPokerRepository(100, dbConn)
 		hub             = ws.NewHub()
 		store           = sessions.NewCookieStore([]byte(config.sectrets.storeSecret))
 	)
