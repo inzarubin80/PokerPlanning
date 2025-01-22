@@ -22,25 +22,6 @@ func (q *Queries) CreateUser(ctx context.Context, name string) (int64, error) {
 	return user_id, err
 }
 
-const createUserSettings = `-- name: CreateUserSettings :one
-INSERT INTO user_settings (user_id, evaluation_strategy, maximum_score)
-VALUES ($1, $2, $3)
-RETURNING user_id, evaluation_strategy, maximum_score
-`
-
-type CreateUserSettingsParams struct {
-	UserID             int64
-	EvaluationStrategy string
-	MaximumScore       int32
-}
-
-func (q *Queries) CreateUserSettings(ctx context.Context, arg *CreateUserSettingsParams) (*UserSetting, error) {
-	row := q.db.QueryRow(ctx, createUserSettings, arg.UserID, arg.EvaluationStrategy, arg.MaximumScore)
-	var i UserSetting
-	err := row.Scan(&i.UserID, &i.EvaluationStrategy, &i.MaximumScore)
-	return &i, err
-}
-
 const getUserByID = `-- name: GetUserByID :one
 SELECT user_id, name, evaluation_strategy, maximum_score FROM users
 WHERE user_id = $1
@@ -112,21 +93,25 @@ func (q *Queries) UpdateUserName(ctx context.Context, arg *UpdateUserNameParams)
 	return &i, err
 }
 
-const updateUserSettings = `-- name: UpdateUserSettings :one
-UPDATE user_settings
-SET evaluation_strategy = $1, maximum_score = $2
-WHERE user_id = $3
+const upsertUserSettings = `-- name: UpsertUserSettings :one
+INSERT INTO user_settings (user_id, evaluation_strategy, maximum_score)
+VALUES ($1, $2, $3)
+ON CONFLICT (user_id)
+DO UPDATE SET
+    user_id = EXCLUDED.user_id,
+    evaluation_strategy = EXCLUDED.evaluation_strategy,
+    maximum_score = EXCLUDED.maximum_score
 RETURNING user_id, evaluation_strategy, maximum_score
 `
 
-type UpdateUserSettingsParams struct {
+type UpsertUserSettingsParams struct {
+	UserID             int64
 	EvaluationStrategy string
 	MaximumScore       int32
-	UserID             int64
 }
 
-func (q *Queries) UpdateUserSettings(ctx context.Context, arg *UpdateUserSettingsParams) (*UserSetting, error) {
-	row := q.db.QueryRow(ctx, updateUserSettings, arg.EvaluationStrategy, arg.MaximumScore, arg.UserID)
+func (q *Queries) UpsertUserSettings(ctx context.Context, arg *UpsertUserSettingsParams) (*UserSetting, error) {
+	row := q.db.QueryRow(ctx, upsertUserSettings, arg.UserID, arg.EvaluationStrategy, arg.MaximumScore)
 	var i UserSetting
 	err := row.Scan(&i.UserID, &i.EvaluationStrategy, &i.MaximumScore)
 	return &i, err

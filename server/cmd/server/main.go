@@ -3,13 +3,13 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
 	"inzarubin80/PokerPlanning/internal/app"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"os"
 )
 
-//мое исправление
+// мое исправление
 func main() {
 
 	err := godotenv.Load()

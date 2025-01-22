@@ -2,9 +2,9 @@ package storage
 
 import (
 	"context"
-	"inzarubin80/PokerPlanning/internal/model"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
+	"inzarubin80/PokerPlanning/internal/model"
 )
 
 type DB interface {
@@ -14,9 +14,8 @@ type DB interface {
 	BeginTx(ctx context.Context, txOptions pgx.TxOptions) (pgx.Tx, error)
 }
 
-
 type Repository interface {
-	
+
 	//Poker
 	CreatePoker(ctx context.Context, userID model.UserID, pokerSettings *model.PokerSettings) (model.PokerID, error)
 	AddPokerAdmin(ctx context.Context, pokerID model.PokerID, userID model.UserID) error
@@ -60,10 +59,7 @@ type Repository interface {
 	GetVotingResults(ctx context.Context, pokerID model.PokerID) ([]*model.UserEstimate, error)
 	GetUserEstimate(ctx context.Context, pokerID model.PokerID, userID model.UserID) (model.Estimate, error)
 	SetVotingState(ctx context.Context, pokerID model.PokerID, state *model.VoteControlState) (*model.VoteControlState, error)
-
 }
-
-
 
 type Adapters struct {
 	Repository Repository

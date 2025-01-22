@@ -16,6 +16,10 @@ func (s *PokerService) GetUser(ctx context.Context, userID model.UserID) (*model
 
 	user, err := s.repository.GetUser(ctx, userID)
 
+	if err != nil {
+		return nil, err
+	}
+
 	if user.EvaluationStrategy == "" {
 		user.EvaluationStrategy = "average"
 	}

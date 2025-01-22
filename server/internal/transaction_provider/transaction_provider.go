@@ -28,7 +28,7 @@ func (p *TransactionProvider) Transact(ctx context.Context, txFunc func(adapters
 }
 
 func runInTx(ctx context.Context, conn stor.DB, fn func(tx pgx.Tx) error) error {
-	
+
 	tx, err := conn.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.ReadCommitted})
 	if err != nil {
 		return err
