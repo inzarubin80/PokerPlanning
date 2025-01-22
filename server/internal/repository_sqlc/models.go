@@ -3,3 +3,16 @@
 //   sqlc v1.27.0
 
 package sqlc_repository
+
+type User struct {
+	UserID             int64
+	Name               string
+	EvaluationStrategy *string
+	MaximumScore       *int32
+}
+
+type UserSetting struct {
+	UserID             int64
+	EvaluationStrategy string
+	MaximumScore       int32
+}

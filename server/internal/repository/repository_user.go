@@ -4,10 +4,24 @@ import (
 	"context"
 	"fmt"
 	"inzarubin80/PokerPlanning/internal/model"
+	sqlc_repository  "inzarubin80/PokerPlanning/internal/repository_sqlc"
 )
 
 func (r *Repository) CreateUser(ctx context.Context, userData *model.UserProfileFromProvider) (*model.User, error) {
 
+	reposqlsc := sqlc_repository.New(r.conn)
+    userID, err:= reposqlsc.CreateUser(ctx, userData.Name)
+
+	if err!=nil {
+		return nil, err
+	}
+
+	return &model.User{
+		ID: model.UserID(userID),
+		Name: userData.Name,
+	}, nil
+
+	/*
 	r.storage.mx.Lock()
 	defer r.storage.mx.Unlock()
 
@@ -19,6 +33,7 @@ func (r *Repository) CreateUser(ctx context.Context, userData *model.UserProfile
 	r.storage.users[r.storage.nextUsererID] = user
 	r.storage.nextUsererID++
 	return user, nil
+	*/
 
 }
 

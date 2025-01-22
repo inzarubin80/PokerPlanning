@@ -1,6 +1,6 @@
 -- +goose Up
 CREATE TABLE tasks (
-    id SERIAL PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     poker_id TEXT NOT NULL,
     title TEXT NOT NULL,
     description TEXT,

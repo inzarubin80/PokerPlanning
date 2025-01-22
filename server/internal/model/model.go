@@ -25,12 +25,12 @@ const (
 )
 
 type (
-	TaskID     int
+	TaskID     int64
 	PokerID    string
-	UserID     int
-	Estimate   int
-	CommentID  int
-	EstimateID int
+	UserID     int64
+	Estimate   int64
+	CommentID  int64
+	EstimateID int64
 
 	UserProfileFromProvider struct {
 		ProviderID   string `json:"provider_id"`   // Идентификатор пользователя у провайдера

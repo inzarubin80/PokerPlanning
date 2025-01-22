@@ -15,9 +15,119 @@ VALUES ($1)
 returning user_id
 `
 
-func (q *Queries) CreateUser(ctx context.Context, name string) (int32, error) {
+func (q *Queries) CreateUser(ctx context.Context, name string) (int64, error) {
 	row := q.db.QueryRow(ctx, createUser, name)
-	var user_id int32
+	var user_id int64
 	err := row.Scan(&user_id)
 	return user_id, err
+}
+
+const createUserSettings = `-- name: CreateUserSettings :one
+INSERT INTO user_settings (user_id, evaluation_strategy, maximum_score)
+VALUES ($1, $2, $3)
+RETURNING user_id, evaluation_strategy, maximum_score
+`
+
+type CreateUserSettingsParams struct {
+	UserID             int64
+	EvaluationStrategy string
+	MaximumScore       int32
+}
+
+func (q *Queries) CreateUserSettings(ctx context.Context, arg *CreateUserSettingsParams) (*UserSetting, error) {
+	row := q.db.QueryRow(ctx, createUserSettings, arg.UserID, arg.EvaluationStrategy, arg.MaximumScore)
+	var i UserSetting
+	err := row.Scan(&i.UserID, &i.EvaluationStrategy, &i.MaximumScore)
+	return &i, err
+}
+
+const getUserByID = `-- name: GetUserByID :one
+SELECT user_id, name, evaluation_strategy, maximum_score FROM users
+WHERE user_id = $1
+`
+
+func (q *Queries) GetUserByID(ctx context.Context, userID int64) (*User, error) {
+	row := q.db.QueryRow(ctx, getUserByID, userID)
+	var i User
+	err := row.Scan(
+		&i.UserID,
+		&i.Name,
+		&i.EvaluationStrategy,
+		&i.MaximumScore,
+	)
+	return &i, err
+}
+
+const getUsersByIDs = `-- name: GetUsersByIDs :many
+SELECT user_id, name, evaluation_strategy, maximum_score FROM users
+WHERE user_id = ANY($1::bigint[])
+`
+
+func (q *Queries) GetUsersByIDs(ctx context.Context, dollar_1 []int64) ([]*User, error) {
+	rows, err := q.db.Query(ctx, getUsersByIDs, dollar_1)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*User
+	for rows.Next() {
+		var i User
+		if err := rows.Scan(
+			&i.UserID,
+			&i.Name,
+			&i.EvaluationStrategy,
+			&i.MaximumScore,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const updateUserName = `-- name: UpdateUserName :one
+UPDATE users
+SET name = $1
+WHERE user_id = $2
+RETURNING user_id, name, evaluation_strategy, maximum_score
+`
+
+type UpdateUserNameParams struct {
+	Name   string
+	UserID int64
+}
+
+func (q *Queries) UpdateUserName(ctx context.Context, arg *UpdateUserNameParams) (*User, error) {
+	row := q.db.QueryRow(ctx, updateUserName, arg.Name, arg.UserID)
+	var i User
+	err := row.Scan(
+		&i.UserID,
+		&i.Name,
+		&i.EvaluationStrategy,
+		&i.MaximumScore,
+	)
+	return &i, err
+}
+
+const updateUserSettings = `-- name: UpdateUserSettings :one
+UPDATE user_settings
+SET evaluation_strategy = $1, maximum_score = $2
+WHERE user_id = $3
+RETURNING user_id, evaluation_strategy, maximum_score
+`
+
+type UpdateUserSettingsParams struct {
+	EvaluationStrategy string
+	MaximumScore       int32
+	UserID             int64
+}
+
+func (q *Queries) UpdateUserSettings(ctx context.Context, arg *UpdateUserSettingsParams) (*UserSetting, error) {
+	row := q.db.QueryRow(ctx, updateUserSettings, arg.EvaluationStrategy, arg.MaximumScore, arg.UserID)
+	var i UserSetting
+	err := row.Scan(&i.UserID, &i.EvaluationStrategy, &i.MaximumScore)
+	return &i, err
 }

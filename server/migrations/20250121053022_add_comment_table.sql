@@ -1,6 +1,6 @@
 -- +goose Up
 CREATE TABLE comments (
-    id SERIAL PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     poker_id TEXT NOT NULL,
     user_id INT NOT NULL,
     text TEXT NOT NULL
