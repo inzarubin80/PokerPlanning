@@ -9,6 +9,36 @@ import (
 	"context"
 )
 
+const addUserAuthProviders = `-- name: AddUserAuthProviders :one
+INSERT INTO user_auth_providers (user_id, provider_uid, provider, name)
+VALUES ($1, $2, $3, $4)
+returning user_id, provider_uid, provider, name
+`
+
+type AddUserAuthProvidersParams struct {
+	UserID      int64
+	ProviderUid string
+	Provider    string
+	Name        *string
+}
+
+func (q *Queries) AddUserAuthProviders(ctx context.Context, arg *AddUserAuthProvidersParams) (*UserAuthProvider, error) {
+	row := q.db.QueryRow(ctx, addUserAuthProviders,
+		arg.UserID,
+		arg.ProviderUid,
+		arg.Provider,
+		arg.Name,
+	)
+	var i UserAuthProvider
+	err := row.Scan(
+		&i.UserID,
+		&i.ProviderUid,
+		&i.Provider,
+		&i.Name,
+	)
+	return &i, err
+}
+
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (name)
 VALUES ($1)
@@ -20,6 +50,28 @@ func (q *Queries) CreateUser(ctx context.Context, name string) (int64, error) {
 	var user_id int64
 	err := row.Scan(&user_id)
 	return user_id, err
+}
+
+const getUserAuthProvidersByProviderUid = `-- name: GetUserAuthProvidersByProviderUid :one
+SELECT user_id, provider_uid, provider, name FROM user_auth_providers
+WHERE provider_uid = $1 AND provider = $2
+`
+
+type GetUserAuthProvidersByProviderUidParams struct {
+	ProviderUid string
+	Provider    string
+}
+
+func (q *Queries) GetUserAuthProvidersByProviderUid(ctx context.Context, arg *GetUserAuthProvidersByProviderUidParams) (*UserAuthProvider, error) {
+	row := q.db.QueryRow(ctx, getUserAuthProvidersByProviderUid, arg.ProviderUid, arg.Provider)
+	var i UserAuthProvider
+	err := row.Scan(
+		&i.UserID,
+		&i.ProviderUid,
+		&i.Provider,
+		&i.Name,
+	)
+	return &i, err
 }
 
 const getUserByID = `-- name: GetUserByID :one

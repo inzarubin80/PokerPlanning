@@ -11,6 +11,13 @@ type User struct {
 	MaximumScore       *int32
 }
 
+type UserAuthProvider struct {
+	UserID      int64
+	ProviderUid string
+	Provider    string
+	Name        *string
+}
+
 type UserSetting struct {
 	UserID             int64
 	EvaluationStrategy string

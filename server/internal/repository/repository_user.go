@@ -2,6 +2,10 @@ package repository
 
 import (
 	"context"
+	"database/sql"
+	"errors"
+	"fmt"
+
 	"inzarubin80/PokerPlanning/internal/model"
 	sqlc_repository "inzarubin80/PokerPlanning/internal/repository_sqlc"
 )
@@ -12,7 +16,7 @@ func (r *Repository) CreateUser(ctx context.Context, userData *model.UserProfile
 	userID, err := reposqlsc.CreateUser(ctx, userData.Name)
 
 	if err != nil {
-		return nil, err
+			return nil, err
 	}
 
 	return &model.User{
@@ -96,9 +100,13 @@ func (r *Repository) GetUser(ctx context.Context, userID model.UserID) (*model.U
 	reposqlsc := sqlc_repository.New(r.conn)
 	user, err := reposqlsc.GetUserByID(ctx, int64(userID))
 
-	if err != nil {
-		return nil, err
-	}
+		if err != nil {
+			if errors.Is(err, sql.ErrNoRows) {
+				return nil, fmt.Errorf("%w: %v", model.ErrorNotFound, err)
+			}
+			return nil, err
+		}
+	
 
 	return &model.User{
 		ID:   model.UserID(user.UserID),
@@ -130,9 +138,12 @@ func (r *Repository) GetUsersByIDs(ctx context.Context, userIDs []model.UserID) 
 
 	users, err := reposqlsc.GetUsersByIDs(ctx, arg)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, fmt.Errorf("%w: %v", model.ErrorNotFound, err)
+		}
 		return nil, err
 	}
-
+	
 	usersRes := make([]*model.User, len(users))
 
 	for i, value := range users {

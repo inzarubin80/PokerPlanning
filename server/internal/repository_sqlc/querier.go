@@ -9,7 +9,9 @@ import (
 )
 
 type Querier interface {
+	AddUserAuthProviders(ctx context.Context, arg *AddUserAuthProvidersParams) (*UserAuthProvider, error)
 	CreateUser(ctx context.Context, name string) (int64, error)
+	GetUserAuthProvidersByProviderUid(ctx context.Context, arg *GetUserAuthProvidersByProviderUidParams) (*UserAuthProvider, error)
 	GetUserByID(ctx context.Context, userID int64) (*User, error)
 	GetUsersByIDs(ctx context.Context, dollar_1 []int64) ([]*User, error)
 	UpdateUserName(ctx context.Context, arg *UpdateUserNameParams) (*User, error)

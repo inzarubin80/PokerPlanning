@@ -56,7 +56,6 @@ type (
 	}
 
 	UserAuthProviders struct {
-		ID          UserID
 		UserID      UserID
 		ProviderUid string
 		Provider    string

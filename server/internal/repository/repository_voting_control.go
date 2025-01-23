@@ -51,15 +51,12 @@ func (r *Repository) SetVotingState(ctx context.Context, pokerID model.PokerID, 
 }
 
 func (r *Repository) GetVotingState(ctx context.Context, pokerID model.PokerID) (*model.VoteControlState, error) {
-
+	
 	r.storage.mx.Lock()
 	defer r.storage.mx.Unlock()
-
 	state, ok := r.storage.voteState[pokerID]
 	if !ok {
 		state = &model.VoteControlState{}
 	}
-
 	return state, nil
-
 }

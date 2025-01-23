@@ -39,7 +39,6 @@ type Repository interface {
 	SetVotingTask(ctx context.Context, pokerID model.PokerID, taskID model.TaskID) (*model.VoteControlState, error)
 	GetVotingState(ctx context.Context, pokerID model.PokerID) (*model.VoteControlState, error)
 
-	GetParticipants(ctx context.Context, pokerID model.PokerID) ([]model.UserID, error)
 	GetPoker(ctx context.Context, pokerID model.PokerID) (*model.Poker, error)
 
 	//User
