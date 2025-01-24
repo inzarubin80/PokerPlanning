@@ -14,7 +14,7 @@ import (
 
 type (
 	serviceAddComment interface {
-		AddComment(ctx context.Context, comment *model.Comment) (*model.Comment, error)
+		CreateComent(ctx context.Context, comment *model.Comment) (*model.Comment, error)
 	}
 	AddCommentHandler struct {
 		name    string
@@ -65,7 +65,7 @@ func (h *AddCommentHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = h.service.AddComment(ctx, &model.Comment{ID: -1, PokerID: comment.PokerID, UserID: model.UserID(userID), Text: comment.Text})
+	_, err = h.service.CreateComent(ctx, &model.Comment{ID: -1, PokerID: comment.PokerID, UserID: model.UserID(userID), Text: comment.Text})
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusInternalServerError, err.Error())
 	} else {

@@ -29,3 +29,10 @@ WHERE provider_uid = $1 AND provider = $2;
 INSERT INTO user_auth_providers (user_id, provider_uid, provider, name)
 VALUES ($1, $2, $3, $4)
 returning *;
+-- name: GetComments :many
+SELECT * FROM comments
+WHERE poker_id = $1 AND task_id = $2;
+-- name: CreateComent :one
+INSERT INTO comments (poker_id, user_id, task_id, text)
+VALUES ($1, $2, $3, $4) 
+RETURNING comment_id;

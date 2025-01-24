@@ -75,6 +75,7 @@ type (
 
 	Comment struct {
 		ID      CommentID
+		TaskID  TaskID
 		PokerID PokerID
 		UserID  UserID
 		Text    string

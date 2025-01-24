@@ -11,7 +11,7 @@ import (
 
 type (
 	serviceGetComments interface {
-		GetComments(ctx context.Context, pokerID model.PokerID) ([]*model.Comment, error)
+		GetComments(ctx context.Context, pokerID model.PokerID, taskID model.TaskID) ([]*model.Comment, error)
 	}
 	GetCommentsHandler struct {
 		name    string
@@ -35,7 +35,7 @@ func (h *GetCommentsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	comments, err := h.service.GetComments(ctx, model.PokerID(pokerID))
+	comments, err := h.service.GetComments(ctx, model.PokerID(pokerID), 1)
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return

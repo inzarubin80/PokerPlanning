@@ -4,6 +4,14 @@
 
 package sqlc_repository
 
+type Comment struct {
+	CommentID int64
+	PokerID   string
+	UserID    int64
+	TaskID    int64
+	Text      string
+}
+
 type User struct {
 	UserID             int64
 	Name               string

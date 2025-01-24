@@ -39,6 +39,31 @@ func (q *Queries) AddUserAuthProviders(ctx context.Context, arg *AddUserAuthProv
 	return &i, err
 }
 
+const createComent = `-- name: CreateComent :one
+INSERT INTO comments (poker_id, user_id, task_id, text)
+VALUES ($1, $2, $3, $4) 
+RETURNING comment_id
+`
+
+type CreateComentParams struct {
+	PokerID string
+	UserID  int64
+	TaskID  int64
+	Text    string
+}
+
+func (q *Queries) CreateComent(ctx context.Context, arg *CreateComentParams) (int64, error) {
+	row := q.db.QueryRow(ctx, createComent,
+		arg.PokerID,
+		arg.UserID,
+		arg.TaskID,
+		arg.Text,
+	)
+	var comment_id int64
+	err := row.Scan(&comment_id)
+	return comment_id, err
+}
+
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (name)
 VALUES ($1)
@@ -50,6 +75,42 @@ func (q *Queries) CreateUser(ctx context.Context, name string) (int64, error) {
 	var user_id int64
 	err := row.Scan(&user_id)
 	return user_id, err
+}
+
+const getComments = `-- name: GetComments :many
+SELECT comment_id, poker_id, user_id, task_id, text FROM comments
+WHERE poker_id = $1 AND task_id = $2
+`
+
+type GetCommentsParams struct {
+	PokerID string
+	TaskID  int64
+}
+
+func (q *Queries) GetComments(ctx context.Context, arg *GetCommentsParams) ([]*Comment, error) {
+	rows, err := q.db.Query(ctx, getComments, arg.PokerID, arg.TaskID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*Comment
+	for rows.Next() {
+		var i Comment
+		if err := rows.Scan(
+			&i.CommentID,
+			&i.PokerID,
+			&i.UserID,
+			&i.TaskID,
+			&i.Text,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getUserAuthProvidersByProviderUid = `-- name: GetUserAuthProvidersByProviderUid :one

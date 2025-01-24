@@ -57,11 +57,9 @@ type (
 		DeleteTask(ctx context.Context, pokerID model.PokerID, taskID model.TaskID) error
 
 		//Comment
-		AddComment(ctx context.Context, comment *model.Comment) (*model.Comment, error)
-		GetComment(ctx context.Context, pokerID model.PokerID, commentID model.CommentID) (*model.Comment, error)
-		GetComments(ctx context.Context, pokerID model.PokerID) ([]*model.Comment, error)
-		UpdateComment(ctx context.Context, comment *model.Comment) (*model.Comment, error)
-		RemoveComment(ctx context.Context, pokerID model.PokerID, commentID model.CommentID) error
+		CreateComent(ctx context.Context, comment *model.Comment) (*model.Comment, error)
+		GetComments(ctx context.Context, pokerID model.PokerID, taskID model.TaskID) ([]*model.Comment, error)
+
 
 		//TargetTask
 		SetVotingTask(ctx context.Context, pokerID model.PokerID, taskID model.TaskID) (*model.VoteControlState, error)

@@ -1,8 +1,9 @@
 -- +goose Up
 CREATE TABLE comments (
-    id BIGSERIAL PRIMARY KEY,
+    comment_id BIGSERIAL PRIMARY KEY,
     poker_id TEXT NOT NULL,
-    user_id INT NOT NULL,
+    user_id bigint NOT NULL,
+    task_id bigint NOT NULL,
     text TEXT NOT NULL
 );
 

@@ -5,9 +5,9 @@ import (
 	"inzarubin80/PokerPlanning/internal/model"
 )
 
-func (s *PokerService) AddComment(ctx context.Context, comment *model.Comment) (*model.Comment, error) {
+func (s *PokerService) CreateComent(ctx context.Context, comment *model.Comment) (*model.Comment, error) {
 
-	commentRes, err := s.repository.AddComment(ctx, comment)
+	commentRes, err := s.repository.CreateComent(ctx, comment)
 
 	if err != nil {
 		return nil, err
@@ -21,8 +21,8 @@ func (s *PokerService) AddComment(ctx context.Context, comment *model.Comment) (
 
 }
 
-func (s *PokerService) GetComments(ctx context.Context, pokerID model.PokerID) ([]*model.Comment, error) {
-	comments, err := s.repository.GetComments(ctx, pokerID)
+func (s *PokerService) GetComments(ctx context.Context, pokerID model.PokerID, taskID model.TaskID) ([]*model.Comment, error) {
+	comments, err := s.repository.GetComments(ctx, pokerID, taskID)
 
 	if err != nil {
 		return nil, err
@@ -30,35 +30,4 @@ func (s *PokerService) GetComments(ctx context.Context, pokerID model.PokerID) (
 	return comments, nil
 }
 
-func (s *PokerService) UpdateComment(ctx context.Context, comment *model.Comment) (*model.Comment, error) {
 
-	commentRes, err := s.repository.UpdateComment(ctx, comment)
-
-	if err != nil {
-		return nil, err
-	}
-
-	s.hub.AddMessage(comment.PokerID, &COMMENT_MESSAGE{
-		Action:  model.UPDATE_COMMENT,
-		Comment: commentRes,
-	})
-
-	return commentRes, nil
-
-}
-
-func (s *PokerService) RemoveComment(ctx context.Context, pokerID model.PokerID, commentID model.CommentID) error {
-
-	err := s.repository.RemoveComment(ctx, pokerID, commentID)
-
-	if err != nil {
-		return err
-	}
-
-	s.hub.AddMessage(pokerID, &COMMENT_MESSAGE{
-		Action:    model.REMOVE_COMMENT,
-		CommentID: commentID,
-	})
-
-	return nil
-}
