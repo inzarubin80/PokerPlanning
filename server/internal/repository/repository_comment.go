@@ -8,7 +8,6 @@ import (
 	sqlc_repository "inzarubin80/PokerPlanning/internal/repository_sqlc"
 )
 
-
 func (r *Repository) GetComments(ctx context.Context, pokerID model.PokerID, taskID model.TaskID) ([]*model.Comment, error) {
 
 	reposqlsc := sqlc_repository.New(r.conn)

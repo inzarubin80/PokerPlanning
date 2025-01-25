@@ -9,6 +9,46 @@ import (
 	"context"
 )
 
+const addTask = `-- name: AddTask :one
+INSERT INTO tasks (poker_id, title, description, story_point, status, completed, estimate)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
+RETURNING tasks_id, poker_id, title, description, story_point, status, completed, estimate
+`
+
+type AddTaskParams struct {
+	PokerID     string
+	Title       string
+	Description *string
+	StoryPoint  *int32
+	Status      string
+	Completed   bool
+	Estimate    *int32
+}
+
+func (q *Queries) AddTask(ctx context.Context, arg *AddTaskParams) (*Task, error) {
+	row := q.db.QueryRow(ctx, addTask,
+		arg.PokerID,
+		arg.Title,
+		arg.Description,
+		arg.StoryPoint,
+		arg.Status,
+		arg.Completed,
+		arg.Estimate,
+	)
+	var i Task
+	err := row.Scan(
+		&i.TasksID,
+		&i.PokerID,
+		&i.Title,
+		&i.Description,
+		&i.StoryPoint,
+		&i.Status,
+		&i.Completed,
+		&i.Estimate,
+	)
+	return &i, err
+}
+
 const addUserAuthProviders = `-- name: AddUserAuthProviders :one
 INSERT INTO user_auth_providers (user_id, provider_uid, provider, name)
 VALUES ($1, $2, $3, $4)
@@ -37,6 +77,15 @@ func (q *Queries) AddUserAuthProviders(ctx context.Context, arg *AddUserAuthProv
 		&i.Name,
 	)
 	return &i, err
+}
+
+const clearTasks = `-- name: ClearTasks :exec
+DELETE FROM tasks WHERE poker_id = $1
+`
+
+func (q *Queries) ClearTasks(ctx context.Context, pokerID string) error {
+	_, err := q.db.Exec(ctx, clearTasks, pokerID)
+	return err
 }
 
 const createComent = `-- name: CreateComent :one
@@ -77,6 +126,20 @@ func (q *Queries) CreateUser(ctx context.Context, name string) (int64, error) {
 	return user_id, err
 }
 
+const deleteTask = `-- name: DeleteTask :exec
+DELETE FROM tasks WHERE poker_id = $1 AND tasks_id = $2
+`
+
+type DeleteTaskParams struct {
+	PokerID string
+	TasksID int64
+}
+
+func (q *Queries) DeleteTask(ctx context.Context, arg *DeleteTaskParams) error {
+	_, err := q.db.Exec(ctx, deleteTask, arg.PokerID, arg.TasksID)
+	return err
+}
+
 const getComments = `-- name: GetComments :many
 SELECT comment_id, poker_id, user_id, task_id, text FROM comments
 WHERE poker_id = $1 AND task_id = $2
@@ -102,6 +165,64 @@ func (q *Queries) GetComments(ctx context.Context, arg *GetCommentsParams) ([]*C
 			&i.UserID,
 			&i.TaskID,
 			&i.Text,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getTask = `-- name: GetTask :one
+SELECT tasks_id, poker_id, title, description, story_point, status, completed, estimate FROM tasks WHERE poker_id = $1 AND tasks_id = $2
+`
+
+type GetTaskParams struct {
+	PokerID string
+	TasksID int64
+}
+
+func (q *Queries) GetTask(ctx context.Context, arg *GetTaskParams) (*Task, error) {
+	row := q.db.QueryRow(ctx, getTask, arg.PokerID, arg.TasksID)
+	var i Task
+	err := row.Scan(
+		&i.TasksID,
+		&i.PokerID,
+		&i.Title,
+		&i.Description,
+		&i.StoryPoint,
+		&i.Status,
+		&i.Completed,
+		&i.Estimate,
+	)
+	return &i, err
+}
+
+const getTasks = `-- name: GetTasks :many
+SELECT tasks_id, poker_id, title, description, story_point, status, completed, estimate FROM tasks WHERE poker_id = $1 ORDER BY tasks_id
+`
+
+func (q *Queries) GetTasks(ctx context.Context, pokerID string) ([]*Task, error) {
+	rows, err := q.db.Query(ctx, getTasks, pokerID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*Task
+	for rows.Next() {
+		var i Task
+		if err := rows.Scan(
+			&i.TasksID,
+			&i.PokerID,
+			&i.Title,
+			&i.Description,
+			&i.StoryPoint,
+			&i.Status,
+			&i.Completed,
+			&i.Estimate,
 		); err != nil {
 			return nil, err
 		}
@@ -180,6 +301,55 @@ func (q *Queries) GetUsersByIDs(ctx context.Context, dollar_1 []int64) ([]*User,
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateTask = `-- name: UpdateTask :one
+UPDATE tasks
+SET
+    title = $3,
+    description = $4,
+    story_point = $5,
+    status = $6,
+    completed = $7,
+    estimate = $8
+WHERE poker_id = $1 AND tasks_id = $2
+RETURNING tasks_id, poker_id, title, description, story_point, status, completed, estimate
+`
+
+type UpdateTaskParams struct {
+	PokerID     string
+	TasksID     int64
+	Title       string
+	Description *string
+	StoryPoint  *int32
+	Status      string
+	Completed   bool
+	Estimate    *int32
+}
+
+func (q *Queries) UpdateTask(ctx context.Context, arg *UpdateTaskParams) (*Task, error) {
+	row := q.db.QueryRow(ctx, updateTask,
+		arg.PokerID,
+		arg.TasksID,
+		arg.Title,
+		arg.Description,
+		arg.StoryPoint,
+		arg.Status,
+		arg.Completed,
+		arg.Estimate,
+	)
+	var i Task
+	err := row.Scan(
+		&i.TasksID,
+		&i.PokerID,
+		&i.Title,
+		&i.Description,
+		&i.StoryPoint,
+		&i.Status,
+		&i.Completed,
+		&i.Estimate,
+	)
+	return &i, err
 }
 
 const updateUserName = `-- name: UpdateUserName :one

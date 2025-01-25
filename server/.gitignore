@@ -84,3 +84,6 @@ go.work.sum.lock
 
 # Go workspace file
 go.work.sum.lock.tmp
+
+# Игнорировать все файлы, начинающиеся с __debug_bin
+__debug_bin*

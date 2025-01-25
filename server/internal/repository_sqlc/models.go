@@ -12,6 +12,17 @@ type Comment struct {
 	Text      string
 }
 
+type Task struct {
+	TasksID     int64
+	PokerID     string
+	Title       string
+	Description *string
+	StoryPoint  *int32
+	Status      string
+	Completed   bool
+	Estimate    *int32
+}
+
 type User struct {
 	UserID             int64
 	Name               string

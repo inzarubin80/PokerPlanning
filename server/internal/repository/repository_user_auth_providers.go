@@ -35,6 +35,7 @@ func (r *Repository) GetUserAuthProvidersByProviderUid(ctx context.Context, Prov
 		Name: *UserAuthProvider.Name,
 	}, nil
 
+
 	/*
 	r.storage.mx.RLock()
 	defer r.storage.mx.RUnlock()
@@ -44,19 +45,20 @@ func (r *Repository) GetUserAuthProvidersByProviderUid(ctx context.Context, Prov
 		return nil, model.ErrorNotFound
 	}
 	return userAuthProviders, nil
-    */
+	*/
 
 }
 
 func (r *Repository) AddUserAuthProviders(ctx context.Context, userProfileFromProvide *model.UserProfileFromProvider, userID model.UserID) (*model.UserAuthProviders, error) {
 
+	
 
 	reposqlsc := sqlc_repository.New(r.conn)
 
 	arg := &sqlc_repository.AddUserAuthProvidersParams{
 		UserID: int64(userID),
 		ProviderUid: userProfileFromProvide.ProviderID,
-		Provider: userProfileFromProvide.Name,
+		Provider: userProfileFromProvide.ProviderName,
 		Name: &userProfileFromProvide.Name,
 	}
 
@@ -73,8 +75,9 @@ func (r *Repository) AddUserAuthProviders(ctx context.Context, userProfileFromPr
 		Name: *UserAuthProvider.Name,
 	}, nil
 
+  
 
-	/*
+/*
 	r.storage.mx.RLock()
 	defer r.storage.mx.RUnlock()
 	userAuthProviders := &model.UserAuthProviders{
@@ -85,5 +88,7 @@ func (r *Repository) AddUserAuthProviders(ctx context.Context, userProfileFromPr
 	r.storage.nextAuthProvidersID++
 	r.storage.userAuthProviders[userProfileFromProvide.ProviderID] = userAuthProviders
 	return userAuthProviders, nil
-    */
+
+	  */
+
 }
