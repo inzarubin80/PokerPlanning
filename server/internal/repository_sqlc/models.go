@@ -4,17 +4,26 @@
 
 package sqlc_repository
 
+import (
+	"github.com/jackc/pgx/v5/pgtype"
+)
+
 type Comment struct {
 	CommentID int64
-	PokerID   string
+	PokerID   pgtype.UUID
 	UserID    int64
 	TaskID    int64
 	Text      string
 }
 
+type PokerUser struct {
+	UserID  int64
+	PokerID pgtype.UUID
+}
+
 type Task struct {
 	TasksID     int64
-	PokerID     string
+	PokerID     pgtype.UUID
 	Title       string
 	Description *string
 	StoryPoint  *int32

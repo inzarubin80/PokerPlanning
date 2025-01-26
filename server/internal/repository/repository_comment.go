@@ -4,16 +4,23 @@ import (
 	"context"
 	"sort"
 
+	"github.com/google/uuid"
 	"inzarubin80/PokerPlanning/internal/model"
 	sqlc_repository "inzarubin80/PokerPlanning/internal/repository_sqlc"
+
 )
 
 func (r *Repository) GetComments(ctx context.Context, pokerID model.PokerID, taskID model.TaskID) ([]*model.Comment, error) {
 
 	reposqlsc := sqlc_repository.New(r.conn)
 
+	pgUUID, err := r.generatePgUUID(ctx, uuid.UUID(pokerID))
+	if err != nil {
+		return nil, err
+	}
+
 	arg := &sqlc_repository.GetCommentsParams{
-		PokerID: string(pokerID),
+		PokerID: pgUUID,
 		TaskID: int64(taskID),
 	}
 
@@ -24,11 +31,11 @@ func (r *Repository) GetComments(ctx context.Context, pokerID model.PokerID, tas
 	}
 	
 	commentsRes := make([]*model.Comment, len(comments))
-    for i,v:= range comments {
+    for i, v:= range comments {
 		commentsRes[i] = &model.Comment{
 		ID: model.CommentID(v.CommentID),
 		TaskID: model.TaskID(v.TaskID),
-		PokerID: model.PokerID(v.PokerID),
+		PokerID: model.PokerID(uuid.UUID(v.PokerID.Bytes)),
 		UserID: model.UserID(v.UserID),
 		Text: v.Text,	
 		}
@@ -66,8 +73,13 @@ func (r *Repository) CreateComent(ctx context.Context, comment *model.Comment) (
 
 	reposqlsc := sqlc_repository.New(r.conn)
 
+	pgUUID, err := r.generatePgUUID(ctx, uuid.UUID(comment.PokerID))
+	if err != nil {
+		return nil, err
+	}
+
 	arg := &sqlc_repository.CreateComentParams{
-		PokerID: string(comment.PokerID),
+		PokerID: pgUUID,
 		UserID: int64(comment.UserID),
 		TaskID: int64(comment.TaskID),
 		Text: comment.Text,

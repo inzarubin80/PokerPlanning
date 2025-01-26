@@ -7,6 +7,8 @@ import (
 	"inzarubin80/PokerPlanning/internal/app/uhttp"
 	"inzarubin80/PokerPlanning/internal/model"
 	"net/http"
+
+	"github.com/google/uuid"
 )
 
 type (
@@ -29,11 +31,17 @@ func NewGetCommentsHandler(service serviceGetComments, name string) *GetComments
 func (h *GetCommentsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
-	pokerID, err := uhttp.ValidatePatchStringParameter(r, defenitions.ParamPokerID)
+	strPokerID, err := uhttp.ValidatePatchStringParameter(r, defenitions.ParamPokerID)
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
+
+	pokerID, err := uuid.Parse(strPokerID)
+    if err != nil {
+		uhttp.SendErrorResponse(w, http.StatusBadRequest,"Error parsing UUID:")
+		     return
+    }
 
 	comments, err := h.service.GetComments(ctx, model.PokerID(pokerID), 1)
 	if err != nil {

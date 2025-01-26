@@ -3,6 +3,8 @@ package service
 import (
 	"context"
 	"inzarubin80/PokerPlanning/internal/model"
+
+	"github.com/google/uuid"
 )
 
 func (s *PokerService) GetPoker(ctx context.Context, pokerID model.PokerID, userID model.UserID) (*model.Poker, error) {
@@ -68,12 +70,12 @@ func (s *PokerService) CreatePoker(ctx context.Context, userID model.UserID, pok
 
 	pokerID, err := s.repository.CreatePoker(ctx, userID, pokerSettings)
 	if err != nil {
-		return "", err
+		return model.PokerID(uuid.Nil), err
 	}
 
 	err = s.repository.AddPokerAdmin(ctx, pokerID, userID)
 	if err != nil {
-		return "", err
+		return model.PokerID(uuid.Nil), err
 	}
 
 	return pokerID, nil

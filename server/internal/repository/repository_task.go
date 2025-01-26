@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"sort"
-
+	"github.com/google/uuid"
 	"inzarubin80/PokerPlanning/internal/model"
 	sqlc_repository "inzarubin80/PokerPlanning/internal/repository_sqlc"
 )
@@ -14,7 +14,12 @@ func (r *Repository) ClearTasks(ctx context.Context, pokerID model.PokerID) erro
 	
 	reposqlsc := sqlc_repository.New(r.conn)
 
-	return reposqlsc.ClearTasks(ctx, string(pokerID))
+	pgUUID, err := r.generatePgUUID(ctx, uuid.UUID(pokerID))
+	if err != nil {
+		return  err
+	}
+
+	return reposqlsc.ClearTasks(ctx, pgUUID)
 
 	/*
 	r.storage.mx.Lock()
@@ -32,10 +37,19 @@ func (r *Repository) ClearTasks(ctx context.Context, pokerID model.PokerID) erro
 func (r *Repository) GetTask(ctx context.Context, pokerID model.PokerID, taskID model.TaskID) (*model.Task, error) {
 
 	reposqlsc := sqlc_repository.New(r.conn)
+
+	pgUUID, err := r.generatePgUUID(ctx, uuid.UUID(pokerID))
+	if err != nil {
+		return  nil, err
+	}
+
 	arg := &sqlc_repository.GetTaskParams{
-		PokerID: string(pokerID),
+		PokerID: pgUUID,
 		TasksID: int64(taskID),
 	} 
+
+
+
 	task, err := reposqlsc.GetTask(ctx, arg)
 
 	if err != nil {
@@ -47,7 +61,7 @@ func (r *Repository) GetTask(ctx context.Context, pokerID model.PokerID, taskID 
 
 	return &model.Task{
 		ID: model.TaskID(task.TasksID),
-		PokerID: model.PokerID(task.PokerID),
+		PokerID: task.PokerID.Bytes,
 		Title: task.Title,
 		Description: *task.Description,
 		StoryPoint: int(*task.StoryPoint),
@@ -77,8 +91,13 @@ func (r *Repository) DeleteTask(ctx context.Context, pokerID model.PokerID, task
 
 	reposqlsc := sqlc_repository.New(r.conn)
 	
+	pgUUID, err := r.generatePgUUID(ctx, uuid.UUID(pokerID))
+	if err != nil {
+		return  err
+	}
+
 	arg := &sqlc_repository.DeleteTaskParams{
-		PokerID: string(pokerID),
+		PokerID: pgUUID,
 		TasksID: int64(taskID),
 	} 
 
@@ -101,7 +120,14 @@ func (r *Repository) DeleteTask(ctx context.Context, pokerID model.PokerID, task
 func (r *Repository) GetTasks(ctx context.Context, pokerID model.PokerID) ([]*model.Task, error) {
 
 	reposqlsc := sqlc_repository.New(r.conn)
-	tasks, err := reposqlsc.GetTasks(ctx, string(pokerID))
+	
+	pgUUID, err := r.generatePgUUID(ctx, uuid.UUID(pokerID))
+	if err != nil {
+		return  nil,err
+	}
+	
+	
+	tasks, err := reposqlsc.GetTasks(ctx, pgUUID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
             return nil, fmt.Errorf("%w: %v", model.ErrorNotFound, err)
@@ -113,7 +139,7 @@ func (r *Repository) GetTasks(ctx context.Context, pokerID model.PokerID) ([]*mo
 	for i,v:= range tasks {
 		tasksRes[i] = &model.Task{
 			ID: model.TaskID(v.TasksID),
-			PokerID: model.PokerID(v.PokerID),
+			PokerID: model.PokerID(v.PokerID.Bytes),
 			Title: v.Title,
 			Description: *v.Description,
 			StoryPoint: int(*v.StoryPoint),
@@ -155,8 +181,13 @@ func (r *Repository) AddTask(ctx context.Context, task *model.Task) (*model.Task
 	storyPoint := int32(task.StoryPoint)
 	estimate := int32(task.Estimate)
 
+	pgUUID, err := r.generatePgUUID(ctx, uuid.UUID(task.PokerID))
+	if err != nil {
+		return  nil, err
+	}
+
 	arg := &sqlc_repository.AddTaskParams{
-		PokerID: string(task.PokerID),
+		PokerID: pgUUID,
 		Title: task.Title,
 		Description: &task.Description,
 		StoryPoint: &storyPoint,
@@ -173,7 +204,7 @@ func (r *Repository) AddTask(ctx context.Context, task *model.Task) (*model.Task
 
 	return &model.Task{
 		ID: model.TaskID(taskSqlc.TasksID),
-		PokerID: model.PokerID(taskSqlc.PokerID),
+		PokerID: model.PokerID(taskSqlc.PokerID.Bytes),
 		Title: taskSqlc.Title,
 		Description: *taskSqlc.Description,
 		StoryPoint: int(*taskSqlc.StoryPoint),
@@ -208,9 +239,14 @@ func (r *Repository) UpdateTask(ctx context.Context, pokerID model.PokerID, task
 	storyPoint := int32(task.StoryPoint)
 	estimate := int32(task.Estimate)
 
+	pgUUID, err := r.generatePgUUID(ctx, uuid.UUID(pokerID))
+	if err != nil {
+		return  nil, err
+	}
+	
 	arg := &sqlc_repository.UpdateTaskParams{
 		TasksID: int64(task.ID),
-		PokerID: string(task.PokerID),
+		PokerID: pgUUID,
 		Title: task.Title,
 		Description: &task.Description,
 		StoryPoint: &storyPoint,
@@ -229,7 +265,7 @@ func (r *Repository) UpdateTask(ctx context.Context, pokerID model.PokerID, task
 	}	
 	return &model.Task{
 		ID: model.TaskID(taskSqlc.TasksID),
-		PokerID: model.PokerID(taskSqlc.PokerID),
+		PokerID: model.PokerID(taskSqlc.PokerID.Bytes),
 		Title: taskSqlc.Title,
 		Description: *taskSqlc.Description,
 		StoryPoint: int(*taskSqlc.StoryPoint),

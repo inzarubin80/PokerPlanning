@@ -7,7 +7,31 @@ package sqlc_repository
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
+
+const addPokerUser = `-- name: AddPokerUser :one
+INSERT INTO poker_users (user_id, poker_id)
+VALUES ($1, $2)
+ON CONFLICT (user_id, poker_id)
+DO UPDATE SET
+    user_id = EXCLUDED.user_id,
+    poker_id = EXCLUDED.poker_id
+RETURNING user_id, poker_id
+`
+
+type AddPokerUserParams struct {
+	UserID  int64
+	PokerID pgtype.UUID
+}
+
+func (q *Queries) AddPokerUser(ctx context.Context, arg *AddPokerUserParams) (*PokerUser, error) {
+	row := q.db.QueryRow(ctx, addPokerUser, arg.UserID, arg.PokerID)
+	var i PokerUser
+	err := row.Scan(&i.UserID, &i.PokerID)
+	return &i, err
+}
 
 const addTask = `-- name: AddTask :one
 INSERT INTO tasks (poker_id, title, description, story_point, status, completed, estimate)
@@ -16,7 +40,7 @@ RETURNING tasks_id, poker_id, title, description, story_point, status, completed
 `
 
 type AddTaskParams struct {
-	PokerID     string
+	PokerID     pgtype.UUID
 	Title       string
 	Description *string
 	StoryPoint  *int32
@@ -83,7 +107,7 @@ const clearTasks = `-- name: ClearTasks :exec
 DELETE FROM tasks WHERE poker_id = $1
 `
 
-func (q *Queries) ClearTasks(ctx context.Context, pokerID string) error {
+func (q *Queries) ClearTasks(ctx context.Context, pokerID pgtype.UUID) error {
 	_, err := q.db.Exec(ctx, clearTasks, pokerID)
 	return err
 }
@@ -95,7 +119,7 @@ RETURNING comment_id
 `
 
 type CreateComentParams struct {
-	PokerID string
+	PokerID pgtype.UUID
 	UserID  int64
 	TaskID  int64
 	Text    string
@@ -131,7 +155,7 @@ DELETE FROM tasks WHERE poker_id = $1 AND tasks_id = $2
 `
 
 type DeleteTaskParams struct {
-	PokerID string
+	PokerID pgtype.UUID
 	TasksID int64
 }
 
@@ -146,7 +170,7 @@ WHERE poker_id = $1 AND task_id = $2
 `
 
 type GetCommentsParams struct {
-	PokerID string
+	PokerID pgtype.UUID
 	TaskID  int64
 }
 
@@ -181,7 +205,7 @@ SELECT tasks_id, poker_id, title, description, story_point, status, completed, e
 `
 
 type GetTaskParams struct {
-	PokerID string
+	PokerID pgtype.UUID
 	TasksID int64
 }
 
@@ -205,7 +229,7 @@ const getTasks = `-- name: GetTasks :many
 SELECT tasks_id, poker_id, title, description, story_point, status, completed, estimate FROM tasks WHERE poker_id = $1 ORDER BY tasks_id
 `
 
-func (q *Queries) GetTasks(ctx context.Context, pokerID string) ([]*Task, error) {
+func (q *Queries) GetTasks(ctx context.Context, pokerID pgtype.UUID) ([]*Task, error) {
 	rows, err := q.db.Query(ctx, getTasks, pokerID)
 	if err != nil {
 		return nil, err
@@ -273,6 +297,31 @@ func (q *Queries) GetUserByID(ctx context.Context, userID int64) (*User, error) 
 	return &i, err
 }
 
+const getUserIDsByPokerID = `-- name: GetUserIDsByPokerID :many
+SELECT user_id, poker_id FROM poker_users
+WHERE poker_id = $1
+`
+
+func (q *Queries) GetUserIDsByPokerID(ctx context.Context, pokerID pgtype.UUID) ([]*PokerUser, error) {
+	rows, err := q.db.Query(ctx, getUserIDsByPokerID, pokerID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*PokerUser
+	for rows.Next() {
+		var i PokerUser
+		if err := rows.Scan(&i.UserID, &i.PokerID); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getUsersByIDs = `-- name: GetUsersByIDs :many
 SELECT user_id, name, evaluation_strategy, maximum_score FROM users
 WHERE user_id = ANY($1::bigint[])
@@ -317,7 +366,7 @@ RETURNING tasks_id, poker_id, title, description, story_point, status, completed
 `
 
 type UpdateTaskParams struct {
-	PokerID     string
+	PokerID     pgtype.UUID
 	TasksID     int64
 	Title       string
 	Description *string

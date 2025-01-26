@@ -7,6 +7,8 @@ import (
 	"inzarubin80/PokerPlanning/internal/app/uhttp"
 	"inzarubin80/PokerPlanning/internal/model"
 	"net/http"
+
+	"github.com/google/uuid"
 )
 
 type (
@@ -29,11 +31,17 @@ func NewGetTasksHandler(service serviceGetTasks, name string) *GetTasksHandler {
 func (h *GetTasksHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
-	pokerID, err := uhttp.ValidatePatchStringParameter(r, defenitions.ParamPokerID)
+	strPokerID, err := uhttp.ValidatePatchStringParameter(r, defenitions.ParamPokerID)
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
+
+	pokerID, err := uuid.Parse(strPokerID)
+    if err != nil {
+		uhttp.SendErrorResponse(w, http.StatusBadRequest,"Error parsing UUID:")
+		     return
+    }
 
 	tasks, err := h.service.GetTasks(ctx, model.PokerID(pokerID))
 	if err != nil {

@@ -8,6 +8,8 @@ import (
 	"inzarubin80/PokerPlanning/internal/app/uhttp"
 	"inzarubin80/PokerPlanning/internal/model"
 	"net/http"
+
+	"github.com/google/uuid"
 )
 
 type (
@@ -31,11 +33,17 @@ func NewGetUserEstimatesHandler(service serviceGetUserEstimates, name string) *G
 func (h *GetUserEstimatesHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
-	pokerID, err := uhttp.ValidatePatchStringParameter(r, defenitions.ParamPokerID)
+	strPokerID, err := uhttp.ValidatePatchStringParameter(r, defenitions.ParamPokerID)
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
+
+	pokerID, err := uuid.Parse(strPokerID)
+    if err != nil {
+		uhttp.SendErrorResponse(w, http.StatusBadRequest,"Error parsing UUID:")
+		     return
+    }
 
 	userID, ok := ctx.Value(defenitions.UserID).(model.UserID)
 	if !ok {

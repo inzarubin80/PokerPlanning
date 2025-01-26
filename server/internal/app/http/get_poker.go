@@ -5,9 +5,12 @@ import (
 	"encoding/json"
 	"errors"
 	"inzarubin80/PokerPlanning/internal/app/defenitions"
+	"inzarubin80/PokerPlanning/internal/app/uhttp"
 	"inzarubin80/PokerPlanning/internal/model"
 	"net/http"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type (
@@ -43,7 +46,21 @@ func NewGetPokerHandler(service serviceGetPoker, name string) *GetPokerHandler {
 
 func (h *GetPokerHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
-	poker_id := r.PathValue("poker_id")
+	
+
+	strPokerID, err := uhttp.ValidatePatchStringParameter(r, defenitions.ParamPokerID)
+	if err != nil {
+		uhttp.SendErrorResponse(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+
+	pokerID, err := uuid.Parse(strPokerID)
+    if err != nil {
+		uhttp.SendErrorResponse(w, http.StatusBadRequest,"Error parsing UUID:")
+		     return
+    }
+
 
 	ctx := r.Context()
 
@@ -53,7 +70,7 @@ func (h *GetPokerHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	poker, err := h.service.GetPoker(ctx, model.PokerID(poker_id), userID)
+	poker, err := h.service.GetPoker(ctx, model.PokerID(pokerID), userID)
 
 	if err != nil {
 		if errors.Is(err, model.ErrorNotFound) {
@@ -74,7 +91,7 @@ func (h *GetPokerHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	jsonContent, err := json.Marshal(&PokerToFrontend{
-		ID:                 model.PokerID(poker_id),
+		ID:                 model.PokerID(pokerID),
 		CreatedAt:          poker.CreatedAt,
 		Name:               poker.Name,
 		Autor:              poker.Autor,

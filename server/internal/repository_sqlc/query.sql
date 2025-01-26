@@ -64,3 +64,18 @@ SET
     estimate = $8
 WHERE poker_id = $1 AND tasks_id = $2
 RETURNING *;
+
+-- name: AddPokerUser :one
+INSERT INTO poker_users (user_id, poker_id)
+VALUES ($1, $2)
+ON CONFLICT (user_id, poker_id)
+DO UPDATE SET
+    user_id = EXCLUDED.user_id,
+    poker_id = EXCLUDED.poker_id
+RETURNING *;
+
+-- name: GetUserIDsByPokerID :many
+SELECT * FROM poker_users
+WHERE poker_id = $1;
+
+

@@ -7,6 +7,8 @@ import (
 	"inzarubin80/PokerPlanning/internal/model"
 	"math"
 	"net/http"
+
+	"github.com/google/uuid"
 )
 
 type (
@@ -29,11 +31,17 @@ func NewSetVotingTaskHandler(service serviceSetVotingTask, name string) *SetVoti
 func (h *SetVotingTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
-	pokerID, err := uhttp.ValidatePatchStringParameter(r, defenitions.ParamPokerID)
+	strPokerID, err := uhttp.ValidatePatchStringParameter(r, defenitions.ParamPokerID)
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
+
+	pokerID, err := uuid.Parse(strPokerID)
+    if err != nil {
+		uhttp.SendErrorResponse(w, http.StatusBadRequest,"Error parsing UUID:")
+		     return
+    }
 
 	validateParameters := []uhttp.ValidateParameter{{Fild: defenitions.ParamTaskID, Min: 1, Max: math.MaxInt64}}
 	parameterValues, err := uhttp.ValidatePatchNumberParameters(r, validateParameters)

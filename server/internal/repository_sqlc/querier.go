@@ -6,20 +6,24 @@ package sqlc_repository
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Querier interface {
+	AddPokerUser(ctx context.Context, arg *AddPokerUserParams) (*PokerUser, error)
 	AddTask(ctx context.Context, arg *AddTaskParams) (*Task, error)
 	AddUserAuthProviders(ctx context.Context, arg *AddUserAuthProvidersParams) (*UserAuthProvider, error)
-	ClearTasks(ctx context.Context, pokerID string) error
+	ClearTasks(ctx context.Context, pokerID pgtype.UUID) error
 	CreateComent(ctx context.Context, arg *CreateComentParams) (int64, error)
 	CreateUser(ctx context.Context, name string) (int64, error)
 	DeleteTask(ctx context.Context, arg *DeleteTaskParams) error
 	GetComments(ctx context.Context, arg *GetCommentsParams) ([]*Comment, error)
 	GetTask(ctx context.Context, arg *GetTaskParams) (*Task, error)
-	GetTasks(ctx context.Context, pokerID string) ([]*Task, error)
+	GetTasks(ctx context.Context, pokerID pgtype.UUID) ([]*Task, error)
 	GetUserAuthProvidersByProviderUid(ctx context.Context, arg *GetUserAuthProvidersByProviderUidParams) (*UserAuthProvider, error)
 	GetUserByID(ctx context.Context, userID int64) (*User, error)
+	GetUserIDsByPokerID(ctx context.Context, pokerID pgtype.UUID) ([]*PokerUser, error)
 	GetUsersByIDs(ctx context.Context, dollar_1 []int64) ([]*User, error)
 	UpdateTask(ctx context.Context, arg *UpdateTaskParams) (*Task, error)
 	UpdateUserName(ctx context.Context, arg *UpdateUserNameParams) (*User, error)
