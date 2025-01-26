@@ -3,8 +3,6 @@ package model
 import (
 	"time"
 	"github.com/golang-jwt/jwt"
-	"github.com/google/uuid"
-
 )
 
 const (
@@ -28,7 +26,7 @@ const (
 
 type (
 	TaskID     int64
-	PokerID    uuid.UUID
+	PokerID    string
 	UserID     int64
 	Estimate   int64
 	CommentID  int64

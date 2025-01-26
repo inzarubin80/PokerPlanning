@@ -9,8 +9,6 @@ import (
 	"inzarubin80/PokerPlanning/internal/model"
 	"net/http"
 	"time"
-
-	"github.com/google/uuid"
 )
 
 type (
@@ -48,18 +46,11 @@ func (h *GetPokerHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	
 
-	strPokerID, err := uhttp.ValidatePatchStringParameter(r, defenitions.ParamPokerID)
+	pokerID, err := uhttp.ValidatePatchStringParameter(r, defenitions.ParamPokerID)
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
-
-
-	pokerID, err := uuid.Parse(strPokerID)
-    if err != nil {
-		uhttp.SendErrorResponse(w, http.StatusBadRequest,"Error parsing UUID:")
-		     return
-    }
 
 
 	ctx := r.Context()

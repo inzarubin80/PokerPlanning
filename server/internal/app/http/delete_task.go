@@ -8,7 +8,6 @@ import (
 	"math"
 	"net/http"
 
-	"github.com/google/uuid"
 )
 
 type (
@@ -31,18 +30,12 @@ func NewDeleteTaskHandler(service serviceDeleteTask, name string) *DeleteTaskHan
 func (h *DeleteTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
-	strPokerID, err := uhttp.ValidatePatchStringParameter(r, defenitions.ParamPokerID)
+	pokerID, err := uhttp.ValidatePatchStringParameter(r, defenitions.ParamPokerID)
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-
-	pokerID, err := uuid.Parse(strPokerID)
-    if err != nil {
-		uhttp.SendErrorResponse(w, http.StatusBadRequest,"Error parsing UUID:")
-		     return
-    }
 
 	validateParameters := []uhttp.ValidateParameter{{defenitions.ParamTaskID, 1, math.MaxInt64}}
 	parameterValues, err := uhttp.ValidatePatchNumberParameters(r, validateParameters)

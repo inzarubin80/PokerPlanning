@@ -6,8 +6,6 @@ import (
 	"sync"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
-	"github.com/jackc/pgx/v5/pgtype"
-	"github.com/google/uuid"
 )
 
 type (
@@ -80,9 +78,3 @@ func NewPokerRepository(capacity int, conn DBTX) *Repository {
 	}
 }
 
-func (r *Repository) generatePgUUID(ctx context.Context, uuid uuid.UUID) (pgtype.UUID, error) {
-    return pgtype.UUID{
-		Bytes: [16]byte(uuid),
-		Valid: true,
-	}, nil
-}

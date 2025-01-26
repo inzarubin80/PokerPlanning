@@ -8,8 +8,6 @@ import (
 	"inzarubin80/PokerPlanning/internal/model"
 	"io"
 	"net/http"
-
-	"github.com/google/uuid"
 )
 
 type (
@@ -37,17 +35,11 @@ func NewSetVotingStateHandler(service serviceSetVotingState, name string) *SetVo
 func (h *SetVotingStateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
-	strPokerID, err := uhttp.ValidatePatchStringParameter(r, defenitions.ParamPokerID)
+	pokerID, err := uhttp.ValidatePatchStringParameter(r, defenitions.ParamPokerID)
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
-
-	pokerID, err := uuid.Parse(strPokerID)
-    if err != nil {
-		uhttp.SendErrorResponse(w, http.StatusBadRequest,"Error parsing UUID:")
-		     return
-    }
 
 	votingControlAction, err := uhttp.ValidatePatchStringParameter(r, defenitions.ParamVotingControlAction)
 	if err != nil {

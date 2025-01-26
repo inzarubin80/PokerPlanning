@@ -9,8 +9,8 @@ import (
 
 func (r *Repository) CreatePoker(ctx context.Context, userID model.UserID, pokerSettings *model.PokerSettings) (model.PokerID, error) {
 
-	uid := model.PokerID(uuid.New())
-	
+	uid := model.PokerID(uuid.New().String())
+
 	baseDataPoker := &model.Poker{
 		ID:                 uid,
 		CreatedAt:          time.Now(),

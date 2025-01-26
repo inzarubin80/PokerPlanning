@@ -8,8 +8,6 @@ import (
 	"io"
 	"net/http"
 	"strconv"
-
-	"github.com/google/uuid"
 )
 
 type (
@@ -32,17 +30,11 @@ func NewSetVotingHandler(service serviceSetVoting, name string) *SetVotingHandle
 func (h *SetVotingHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
-	strPokerID, err := uhttp.ValidatePatchStringParameter(r, defenitions.ParamPokerID)
+	pokerID, err := uhttp.ValidatePatchStringParameter(r, defenitions.ParamPokerID)
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
-
-	pokerID, err := uuid.Parse(strPokerID)
-    if err != nil {
-		uhttp.SendErrorResponse(w, http.StatusBadRequest,"Error parsing UUID:")
-		     return
-    }
 
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
