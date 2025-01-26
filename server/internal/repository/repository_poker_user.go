@@ -62,6 +62,20 @@ func (r *Repository) GetUserIDsByPokerID(ctx context.Context, pokerID model.Poke
 
 func (r *Repository) AddPokerUser(ctx context.Context, pokerID model.PokerID, userID model.UserID) error {
 
+	reposqlsc := sqlc_repository.New(r.conn)
+
+	pgUUID := pgtype.UUID{
+		Bytes: uuid.MustParse(string(pokerID)),
+		Valid: true,
+	}
+	arg:=  &sqlc_repository.AddPokerUserParams{
+		UserID: int64(userID),
+		PokerID: pgUUID,
+	}
+	_,err := reposqlsc.AddPokerUser(ctx, arg)
+
+	return err
+	/*
 	r.storage.mx.Lock()
 	defer r.storage.mx.Unlock()
 
@@ -71,8 +85,8 @@ func (r *Repository) AddPokerUser(ctx context.Context, pokerID model.PokerID, us
 		users = make(map[model.UserID]bool, 0)
 		r.storage.pokerUsers[pokerID] = users
 	}
-
 	r.storage.pokerUsers[pokerID][userID] = true
 	return nil
+	*/
 
 }
