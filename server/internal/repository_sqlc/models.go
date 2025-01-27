@@ -16,6 +16,19 @@ type Comment struct {
 	Text      string
 }
 
+type Poker struct {
+	PokerID            pgtype.UUID
+	Name               *string
+	Autor              int64
+	EvaluationStrategy string
+	MaximumScore       int32
+}
+
+type PokerAdmin struct {
+	UserID  int64
+	PokerID pgtype.UUID
+}
+
 type PokerUser struct {
 	UserID  int64
 	PokerID pgtype.UUID

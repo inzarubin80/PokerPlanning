@@ -11,6 +11,28 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const addPokerAdmin = `-- name: AddPokerAdmin :one
+INSERT INTO poker_admins (user_id, poker_id)
+VALUES ($1, $2)
+ON CONFLICT (user_id, poker_id)
+DO UPDATE SET
+    user_id = EXCLUDED.user_id,
+    poker_id = EXCLUDED.poker_id
+RETURNING user_id, poker_id
+`
+
+type AddPokerAdminParams struct {
+	UserID  int64
+	PokerID pgtype.UUID
+}
+
+func (q *Queries) AddPokerAdmin(ctx context.Context, arg *AddPokerAdminParams) (*PokerAdmin, error) {
+	row := q.db.QueryRow(ctx, addPokerAdmin, arg.UserID, arg.PokerID)
+	var i PokerAdmin
+	err := row.Scan(&i.UserID, &i.PokerID)
+	return &i, err
+}
+
 const addPokerUser = `-- name: AddPokerUser :one
 INSERT INTO poker_users (user_id, poker_id)
 VALUES ($1, $2)
@@ -137,6 +159,39 @@ func (q *Queries) CreateComent(ctx context.Context, arg *CreateComentParams) (in
 	return comment_id, err
 }
 
+const createPoker = `-- name: CreatePoker :one
+INSERT INTO poker (poker_id, autor, evaluation_strategy, maximum_score, name)
+VALUES ($1, $2, $3, $4, $5)  
+RETURNING poker_id, name, autor, evaluation_strategy, maximum_score
+`
+
+type CreatePokerParams struct {
+	PokerID            pgtype.UUID
+	Autor              int64
+	EvaluationStrategy string
+	MaximumScore       int32
+	Name               *string
+}
+
+func (q *Queries) CreatePoker(ctx context.Context, arg *CreatePokerParams) (*Poker, error) {
+	row := q.db.QueryRow(ctx, createPoker,
+		arg.PokerID,
+		arg.Autor,
+		arg.EvaluationStrategy,
+		arg.MaximumScore,
+		arg.Name,
+	)
+	var i Poker
+	err := row.Scan(
+		&i.PokerID,
+		&i.Name,
+		&i.Autor,
+		&i.EvaluationStrategy,
+		&i.MaximumScore,
+	)
+	return &i, err
+}
+
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (name)
 VALUES ($1)
@@ -193,6 +248,48 @@ func (q *Queries) GetComments(ctx context.Context, arg *GetCommentsParams) ([]*C
 			return nil, err
 		}
 		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getPoker = `-- name: GetPoker :one
+SELECT poker_id, name, autor, evaluation_strategy, maximum_score FROM poker WHERE poker_id = $1
+`
+
+func (q *Queries) GetPoker(ctx context.Context, pokerID pgtype.UUID) (*Poker, error) {
+	row := q.db.QueryRow(ctx, getPoker, pokerID)
+	var i Poker
+	err := row.Scan(
+		&i.PokerID,
+		&i.Name,
+		&i.Autor,
+		&i.EvaluationStrategy,
+		&i.MaximumScore,
+	)
+	return &i, err
+}
+
+const getPokerAdmins = `-- name: GetPokerAdmins :many
+SELECT user_id FROM poker_admins
+WHERE poker_id = $1
+`
+
+func (q *Queries) GetPokerAdmins(ctx context.Context, pokerID pgtype.UUID) ([]int64, error) {
+	rows, err := q.db.Query(ctx, getPokerAdmins, pokerID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []int64
+	for rows.Next() {
+		var user_id int64
+		if err := rows.Scan(&user_id); err != nil {
+			return nil, err
+		}
+		items = append(items, user_id)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err

@@ -78,4 +78,23 @@ RETURNING *;
 SELECT * FROM poker_users
 WHERE poker_id = $1;
 
+-- name: CreatePoker :one
+INSERT INTO poker (poker_id, autor, evaluation_strategy, maximum_score, name)
+VALUES ($1, $2, $3, $4, $5)  
+RETURNING *;
 
+-- name: GetPoker :one
+SELECT * FROM poker WHERE poker_id = $1;
+
+-- name: AddPokerAdmin :one
+INSERT INTO poker_admins (user_id, poker_id)
+VALUES ($1, $2)
+ON CONFLICT (user_id, poker_id)
+DO UPDATE SET
+    user_id = EXCLUDED.user_id,
+    poker_id = EXCLUDED.poker_id
+RETURNING *;
+
+-- name: GetPokerAdmins :many
+SELECT user_id FROM poker_admins
+WHERE poker_id = $1;
