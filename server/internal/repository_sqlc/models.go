@@ -22,6 +22,9 @@ type Poker struct {
 	Autor              int64
 	EvaluationStrategy string
 	MaximumScore       int32
+	TaskID             *int64
+	StartDate          pgtype.Timestamp
+	EndDate            pgtype.Timestamp
 }
 
 type PokerAdmin struct {

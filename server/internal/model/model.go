@@ -120,7 +120,6 @@ type (
 		TaskID    TaskID
 		PokerID   PokerID
 		StartDate time.Time
-		Duration  time.Duration
 		EndDate   time.Time
 	}
 

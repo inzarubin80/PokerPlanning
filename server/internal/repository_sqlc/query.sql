@@ -98,3 +98,12 @@ RETURNING *;
 -- name: GetPokerAdmins :many
 SELECT user_id FROM poker_admins
 WHERE poker_id = $1;
+
+-- name: UpdatePokerTaskAndDates :exec
+UPDATE poker
+SET
+    task_id = $1,
+    start_date = $2,
+    end_date = $3
+WHERE
+    poker_id = $4;

@@ -5,7 +5,12 @@ CREATE TABLE poker (
     name TEXT,
     autor bigint NOT NULL,
     evaluation_strategy TEXT NOT NULL,
-    maximum_score INT NOT NULL
+    maximum_score INT NOT NULL,
+    task_id BIGINT,
+    start_date TIMESTAMP,
+    end_date TIMESTAMP 
+
+
 );
 -- +goose StatementEnd
 

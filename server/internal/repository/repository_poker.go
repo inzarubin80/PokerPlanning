@@ -10,6 +10,9 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
+
+
+
 )
 
 func (r *Repository) CreatePoker(ctx context.Context, userID model.UserID, pokerSettings *model.PokerSettings) (model.PokerID, error) {
@@ -94,8 +97,9 @@ func (r *Repository) GetPokerAdmins(ctx context.Context, pokerID model.PokerID) 
 	
 	
 	users, err:= reposqlc.GetPokerAdmins(ctx, pgUUID)
-
-
+	if err!= nil {
+		return nil, err
+	}
 	usersRes := make([]model.UserID, len(users))
 	
 	
@@ -103,7 +107,7 @@ func (r *Repository) GetPokerAdmins(ctx context.Context, pokerID model.PokerID) 
 		usersRes[i] = model.UserID(users[i])
 	}
 	
-	return nil, err
+	return usersRes, nil
 	
 
 	/*
@@ -154,4 +158,57 @@ func (r *Repository) GetPoker(ctx context.Context, pokerID model.PokerID) (*mode
 	}
 	return basedata, nil
     */
+}
+
+func (r *Repository) SetVotingState(ctx context.Context, pokerID model.PokerID, state *model.VoteControlState) (*model.VoteControlState, error) {
+	
+	reposqlc := sqlc_repository.New(r.conn)
+
+	// Преобразование time.Time в pgtype.Timestamp
+	startDate := pgtype.Timestamp{
+		Time:   state.StartDate,
+		//InfinityModifier: pgtype.Finite,
+		Valid: true,
+	}
+
+	endDate := pgtype.Timestamp{
+		Time:   state.EndDate,
+		//InfinityModifier: pgtype.Finite,
+		Valid: true,
+	}
+
+	pgUUID := pgtype.UUID{
+		Bytes: uuid.MustParse(string(pokerID)),
+		Valid: true,
+	}
+	
+	arg:= &sqlc_repository.UpdatePokerTaskAndDatesParams{
+		TaskID: (*int64)(&state.TaskID),
+		StartDate: startDate,
+		EndDate: endDate,
+		PokerID: pgUUID,
+		
+	}
+	
+	err:= reposqlc.UpdatePokerTaskAndDates(ctx, arg)
+
+	if err != nil {
+		return nil, err
+	}
+	return state, nil
+
+	/*
+	r.storage.mx.Lock()
+	defer r.storage.mx.Unlock()
+
+	_, ok := r.storage.voteState[pokerID]
+
+	if !ok {
+		return nil, fmt.Errorf("pokerID state %s %w", pokerID, model.ErrorNotFound)
+	}
+	r.storage.voteState[pokerID] = state
+	return r.storage.voteState[pokerID], nil
+    */
+
+
 }

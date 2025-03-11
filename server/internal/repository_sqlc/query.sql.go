@@ -162,7 +162,7 @@ func (q *Queries) CreateComent(ctx context.Context, arg *CreateComentParams) (in
 const createPoker = `-- name: CreatePoker :one
 INSERT INTO poker (poker_id, autor, evaluation_strategy, maximum_score, name)
 VALUES ($1, $2, $3, $4, $5)  
-RETURNING poker_id, name, autor, evaluation_strategy, maximum_score
+RETURNING poker_id, name, autor, evaluation_strategy, maximum_score, task_id, start_date, end_date
 `
 
 type CreatePokerParams struct {
@@ -188,6 +188,9 @@ func (q *Queries) CreatePoker(ctx context.Context, arg *CreatePokerParams) (*Pok
 		&i.Autor,
 		&i.EvaluationStrategy,
 		&i.MaximumScore,
+		&i.TaskID,
+		&i.StartDate,
+		&i.EndDate,
 	)
 	return &i, err
 }
@@ -256,7 +259,7 @@ func (q *Queries) GetComments(ctx context.Context, arg *GetCommentsParams) ([]*C
 }
 
 const getPoker = `-- name: GetPoker :one
-SELECT poker_id, name, autor, evaluation_strategy, maximum_score FROM poker WHERE poker_id = $1
+SELECT poker_id, name, autor, evaluation_strategy, maximum_score, task_id, start_date, end_date FROM poker WHERE poker_id = $1
 `
 
 func (q *Queries) GetPoker(ctx context.Context, pokerID pgtype.UUID) (*Poker, error) {
@@ -268,6 +271,9 @@ func (q *Queries) GetPoker(ctx context.Context, pokerID pgtype.UUID) (*Poker, er
 		&i.Autor,
 		&i.EvaluationStrategy,
 		&i.MaximumScore,
+		&i.TaskID,
+		&i.StartDate,
+		&i.EndDate,
 	)
 	return &i, err
 }
@@ -447,6 +453,33 @@ func (q *Queries) GetUsersByIDs(ctx context.Context, dollar_1 []int64) ([]*User,
 		return nil, err
 	}
 	return items, nil
+}
+
+const updatePokerTaskAndDates = `-- name: UpdatePokerTaskAndDates :exec
+UPDATE poker
+SET
+    task_id = $1,
+    start_date = $2,
+    end_date = $3
+WHERE
+    poker_id = $4
+`
+
+type UpdatePokerTaskAndDatesParams struct {
+	TaskID    *int64
+	StartDate pgtype.Timestamp
+	EndDate   pgtype.Timestamp
+	PokerID   pgtype.UUID
+}
+
+func (q *Queries) UpdatePokerTaskAndDates(ctx context.Context, arg *UpdatePokerTaskAndDatesParams) error {
+	_, err := q.db.Exec(ctx, updatePokerTaskAndDates,
+		arg.TaskID,
+		arg.StartDate,
+		arg.EndDate,
+		arg.PokerID,
+	)
+	return err
 }
 
 const updateTask = `-- name: UpdateTask :one
