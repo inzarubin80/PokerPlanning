@@ -62,7 +62,6 @@ func (h *SetVotingHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	userEstimate := &model.UserEstimate{
-		ID:       -1,
 		PokerID:  model.PokerID(pokerID),
 		UserID:   userID,
 		Estimate: model.Estimate(num),

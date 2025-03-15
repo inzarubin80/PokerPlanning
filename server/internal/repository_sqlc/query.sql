@@ -111,3 +111,27 @@ WHERE
 -- name: GetVotingState :one
 SELECT  task_id, start_date, end_date FROM poker
 WHERE poker_id = $1;
+
+-- name: ClearVote :exec
+DELETE FROM  voting
+WHERE
+poker_id = $1 AND task_id = $2;
+
+-- name: AddVoting :one
+INSERT INTO voting (poker_id, task_id, user_id, estimate)
+VALUES ($1, $2, $3, $4)
+ON CONFLICT (poker_id, task_id, user_id)
+DO UPDATE SET
+    user_id = EXCLUDED.user_id,
+    poker_id = EXCLUDED.poker_id,
+    task_id = EXCLUDED.task_id,
+    estimate = EXCLUDED.estimate   
+RETURNING *;
+
+-- name: GetUserEstimate :one 
+SELECT  estimate FROM voting
+WHERE poker_id = $1 AND task_id = $2 AND user_id = $3;
+
+-- name: GetVotingResults :many
+SELECT user_id, estimate FROM poker_admins
+WHERE poker_id = $1 AND task_id = $2;

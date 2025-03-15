@@ -67,3 +67,10 @@ type UserSetting struct {
 	EvaluationStrategy string
 	MaximumScore       int32
 }
+
+type Voting struct {
+	UserID   int64
+	PokerID  pgtype.UUID
+	TaskID   int64
+	Estimate int32
+}

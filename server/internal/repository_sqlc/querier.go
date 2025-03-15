@@ -15,7 +15,9 @@ type Querier interface {
 	AddPokerUser(ctx context.Context, arg *AddPokerUserParams) (*PokerUser, error)
 	AddTask(ctx context.Context, arg *AddTaskParams) (*Task, error)
 	AddUserAuthProviders(ctx context.Context, arg *AddUserAuthProvidersParams) (*UserAuthProvider, error)
+	AddVoting(ctx context.Context, arg *AddVotingParams) (*Voting, error)
 	ClearTasks(ctx context.Context, pokerID pgtype.UUID) error
+	ClearVote(ctx context.Context, arg *ClearVoteParams) error
 	CreateComent(ctx context.Context, arg *CreateComentParams) (int64, error)
 	CreatePoker(ctx context.Context, arg *CreatePokerParams) (*Poker, error)
 	CreateUser(ctx context.Context, name string) (int64, error)
@@ -27,6 +29,7 @@ type Querier interface {
 	GetTasks(ctx context.Context, pokerID pgtype.UUID) ([]*Task, error)
 	GetUserAuthProvidersByProviderUid(ctx context.Context, arg *GetUserAuthProvidersByProviderUidParams) (*UserAuthProvider, error)
 	GetUserByID(ctx context.Context, userID int64) (*User, error)
+	GetUserEstimate(ctx context.Context, arg *GetUserEstimateParams) (*GetUserEstimateRow, error)
 	GetUserIDsByPokerID(ctx context.Context, pokerID pgtype.UUID) ([]*PokerUser, error)
 	GetUsersByIDs(ctx context.Context, dollar_1 []int64) ([]*User, error)
 	GetVotingState(ctx context.Context, pokerID pgtype.UUID) (*GetVotingStateRow, error)

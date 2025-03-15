@@ -87,9 +87,9 @@ type (
 	}
 
 	UserEstimate struct {
-		ID       EstimateID
 		PokerID  PokerID
 		UserID   UserID
+		TaskID   TaskID
 		Estimate Estimate
 	}
 

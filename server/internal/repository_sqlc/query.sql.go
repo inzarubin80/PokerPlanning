@@ -125,12 +125,64 @@ func (q *Queries) AddUserAuthProviders(ctx context.Context, arg *AddUserAuthProv
 	return &i, err
 }
 
+const addVoting = `-- name: AddVoting :one
+INSERT INTO voting (poker_id, task_id, user_id, estimate)
+VALUES ($1, $2, $3, $4)
+ON CONFLICT (poker_id, task_id, user_id)
+DO UPDATE SET
+    user_id = EXCLUDED.user_id,
+    poker_id = EXCLUDED.poker_id,
+    task_id = EXCLUDED.task_id,
+    estimate = EXCLUDED.estimate   
+RETURNING user_id, poker_id, task_id, estimate
+`
+
+type AddVotingParams struct {
+	PokerID  pgtype.UUID
+	TaskID   int64
+	UserID   int64
+	Estimate int32
+}
+
+func (q *Queries) AddVoting(ctx context.Context, arg *AddVotingParams) (*Voting, error) {
+	row := q.db.QueryRow(ctx, addVoting,
+		arg.PokerID,
+		arg.TaskID,
+		arg.UserID,
+		arg.Estimate,
+	)
+	var i Voting
+	err := row.Scan(
+		&i.UserID,
+		&i.PokerID,
+		&i.TaskID,
+		&i.Estimate,
+	)
+	return &i, err
+}
+
 const clearTasks = `-- name: ClearTasks :exec
 DELETE FROM tasks WHERE poker_id = $1
 `
 
 func (q *Queries) ClearTasks(ctx context.Context, pokerID pgtype.UUID) error {
 	_, err := q.db.Exec(ctx, clearTasks, pokerID)
+	return err
+}
+
+const clearVote = `-- name: ClearVote :exec
+DELETE FROM  voting
+WHERE
+poker_id = $1 AND task_id = $2
+`
+
+type ClearVoteParams struct {
+	PokerID pgtype.UUID
+	TaskID  int64
+}
+
+func (q *Queries) ClearVote(ctx context.Context, arg *ClearVoteParams) error {
+	_, err := q.db.Exec(ctx, clearVote, arg.PokerID, arg.TaskID)
 	return err
 }
 
@@ -397,6 +449,29 @@ func (q *Queries) GetUserByID(ctx context.Context, userID int64) (*User, error) 
 		&i.EvaluationStrategy,
 		&i.MaximumScore,
 	)
+	return &i, err
+}
+
+const getUserEstimate = `-- name: GetUserEstimate :one
+SELECT  user_id, estimate FROM voting
+WHERE poker_id = $1 AND task_id = $2 AND user_id = $3
+`
+
+type GetUserEstimateParams struct {
+	PokerID pgtype.UUID
+	TaskID  int64
+	UserID  int64
+}
+
+type GetUserEstimateRow struct {
+	UserID   int64
+	Estimate int32
+}
+
+func (q *Queries) GetUserEstimate(ctx context.Context, arg *GetUserEstimateParams) (*GetUserEstimateRow, error) {
+	row := q.db.QueryRow(ctx, getUserEstimate, arg.PokerID, arg.TaskID, arg.UserID)
+	var i GetUserEstimateRow
+	err := row.Scan(&i.UserID, &i.Estimate)
 	return &i, err
 }
 

@@ -44,7 +44,7 @@ func (s *PokerService) SetVotingTask(ctx context.Context, pokerID model.PokerID,
 	}
 
 
-	err = s.repository.ClearVote(ctx, pokerID)
+	err = s.repository.ClearVote(ctx, pokerID, taskID)
 	if err != nil {
 		return err
 	}
@@ -73,7 +73,7 @@ func (s *PokerService) SetVoting(ctx context.Context, userEstimate *model.UserEs
 		return err
 	}
 
-	votingResult, err := s.GetVotingResults(ctx, userEstimate.PokerID, userID)
+	votingResult, err := s.GetVotingResults(ctx, userEstimate.PokerID, model.TaskID(userEstimate.TaskID))
 	if err != nil {
 		return err
 	}
@@ -86,10 +86,10 @@ func (s *PokerService) SetVoting(ctx context.Context, userEstimate *model.UserEs
 	return err
 }
 
-func (s *PokerService) GetVotingResults(ctx context.Context, pokerID model.PokerID, userID model.UserID) (*model.VotingResult, error) {
+func (s *PokerService) GetVotingResults(ctx context.Context, pokerID model.PokerID, taskID model.TaskID) (*model.VotingResult, error) {
 
 	// Fetch user estimates
-	userEstimates, err := s.repository.GetVotingResults(ctx, pokerID)
+	userEstimates, err := s.repository.GetVotingResults(ctx, pokerID, taskID)
 	if err != nil {
 		return nil, err
 	}
@@ -152,9 +152,6 @@ func (s *PokerService) GetVotingResults(ctx context.Context, pokerID model.Poker
 		userEstimatesOnlyUser := make([]*model.UserEstimate, len(userEstimates), len(userEstimates))
 		for i, item := range userEstimates {
 			userEstimatesOnlyUser[i] = item
-			if item.UserID != userID {
-				userEstimatesOnlyUser[i].Estimate = -2
-			}
 		}
 
 		votingResult = &model.VotingResult{
