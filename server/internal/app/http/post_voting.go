@@ -12,7 +12,7 @@ import (
 
 type (
 	serviceSetVoting interface {
-		SetVoting(ctx context.Context, userEstimate *model.UserEstimate, userID model.UserID) error
+		SetVoting(ctx context.Context, userEstimate *model.UserEstimateClient, userID model.UserID) error
 	}
 	SetVotingHandler struct {
 		name    string
@@ -61,7 +61,7 @@ func (h *SetVotingHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userEstimate := &model.UserEstimate{
+	userEstimate := &model.UserEstimateClient{
 		PokerID:  model.PokerID(pokerID),
 		UserID:   userID,
 		Estimate: model.Estimate(num),

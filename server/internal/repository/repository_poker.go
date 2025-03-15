@@ -43,14 +43,11 @@ func (r *Repository) AddPokerAdmin(ctx context.Context, pokerID model.PokerID, u
 
 	reposqlc := sqlc_repository.New(r.conn)
 
-	pgUUID := pgtype.UUID{
-		Bytes: uuid.MustParse(string(pokerID)),
-		Valid: true,
-	}
+
 
 	arg := &sqlc_repository.AddPokerAdminParams{
 		UserID:  int64(userID),
-		PokerID: pgUUID,
+		PokerID: pokerID.UUID(),
 	}
 
 	_, err := reposqlc.AddPokerAdmin(ctx, arg)
@@ -63,12 +60,8 @@ func (r *Repository) GetPokerAdmins(ctx context.Context, pokerID model.PokerID) 
 
 	reposqlc := sqlc_repository.New(r.conn)
 
-	pgUUID := pgtype.UUID{
-		Bytes: uuid.MustParse(string(pokerID)),
-		Valid: true,
-	}
 
-	users, err := reposqlc.GetPokerAdmins(ctx, pgUUID)
+	users, err := reposqlc.GetPokerAdmins(ctx, pokerID.UUID())
 	if err != nil {
 		return nil, err
 	}
@@ -87,12 +80,8 @@ func (r *Repository) GetPoker(ctx context.Context, pokerID model.PokerID) (*mode
 
 	sqlc_repository := sqlc_repository.New(r.conn)
 
-	pgUUID := pgtype.UUID{
-		Bytes: uuid.MustParse(string(pokerID)),
-		Valid: true,
-	}
 
-	pokerSql, err := sqlc_repository.GetPoker(ctx, pgUUID)
+	pokerSql, err := sqlc_repository.GetPoker(ctx, pokerID.UUID())
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, fmt.Errorf("%w: %v", model.ErrorNotFound, err)
@@ -123,16 +112,13 @@ func (r *Repository) SetVotingState(ctx context.Context, pokerID model.PokerID, 
 		Valid: true,
 	}
 
-	pgUUID := pgtype.UUID{
-		Bytes: uuid.MustParse(string(pokerID)),
-		Valid: true,
-	}
+
 
 	arg := &sqlc_repository.UpdatePokerTaskAndDatesParams{
 		TaskID:    (*int64)(&state.TaskID),
 		StartDate: startDate,
 		EndDate:   endDate,
-		PokerID:   pgUUID,
+		PokerID:   pokerID.UUID(),
 	}
 
 	err := reposqlc.UpdatePokerTaskAndDates(ctx, arg)
@@ -148,12 +134,8 @@ func (r *Repository) GetVotingState(ctx context.Context, pokerID model.PokerID) 
 
 	reposqlc := sqlc_repository.New(r.conn)
 
-	pgUUID := pgtype.UUID{
-		Bytes: uuid.MustParse(string(pokerID)),
-		Valid: true,
-	}
 
-	getVotingStateRow, err := reposqlc.GetVotingState(ctx, pgUUID)
+	getVotingStateRow, err := reposqlc.GetVotingState(ctx, pokerID.UUID())
 
 	if err != nil {
 		return nil, err

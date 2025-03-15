@@ -4,22 +4,15 @@ import (
 	"context"
 	"inzarubin80/PokerPlanning/internal/model"
 	sqlc_repository "inzarubin80/PokerPlanning/internal/repository_sqlc"
-	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 func (r *Repository) SetVoting(ctx context.Context, userEstimate *model.UserEstimate) error {
 
 	reposqlsc := sqlc_repository.New(r.conn)
 
-	pgUUID := pgtype.UUID{
-		Bytes: uuid.MustParse(string(userEstimate.PokerID)),
-		Valid: true,
-	}
-
 	addVotingParams := &sqlc_repository.AddVotingParams{
-		PokerID: pgUUID,
-		TaskID: int64(userEstimate.UserID),
+		PokerID: userEstimate.PokerID.UUID(),
+		TaskID: int64(userEstimate.TaskID),
 		UserID: int64(userEstimate.UserID),
 		Estimate: int32(userEstimate.Estimate),
 	}
@@ -30,13 +23,9 @@ func (r *Repository) SetVoting(ctx context.Context, userEstimate *model.UserEsti
 func (r *Repository) ClearVote(ctx context.Context, pokerID model.PokerID, taskID model.TaskID) error {
 
 	reposqlsc := sqlc_repository.New(r.conn)
-	pgUUID := pgtype.UUID{
-		Bytes: uuid.MustParse(string(pokerID)),
-		Valid: true,
-	}
 
 	arg := &sqlc_repository.ClearVoteParams{
-		PokerID: pgUUID,
+		PokerID: pokerID.UUID(),
 		TaskID: int64(taskID),
 	} 
 
@@ -46,13 +35,9 @@ func (r *Repository) ClearVote(ctx context.Context, pokerID model.PokerID, taskI
 func (r *Repository) GetUserEstimate(ctx context.Context, pokerID model.PokerID, taskID model.TaskID, userID model.UserID) (model.Estimate, error) {
 
 	reposqlsc := sqlc_repository.New(r.conn)
-	pgUUID := pgtype.UUID{
-		Bytes: uuid.MustParse(string(pokerID)),
-		Valid: true,
-	}
 
 	arg := &sqlc_repository.GetUserEstimateParams{
-		PokerID: pgUUID,
+		PokerID: pokerID.UUID(),
 		TaskID: int64(taskID),
 	}
 
@@ -65,6 +50,9 @@ func (r *Repository) GetUserEstimate(ctx context.Context, pokerID model.PokerID,
 }
 
 func (r *Repository) GetVotingResults(ctx context.Context, pokerID model.PokerID, taskID model.TaskID) ([]*model.UserEstimate, error) {
+
+
+
 
 
 	return nil, nil

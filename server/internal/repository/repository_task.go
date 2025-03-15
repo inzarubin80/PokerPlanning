@@ -8,33 +8,22 @@ import (
 	"inzarubin80/PokerPlanning/internal/model"
 	sqlc_repository "inzarubin80/PokerPlanning/internal/repository_sqlc"
 	"sort"
-
-	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 func (r *Repository) ClearTasks(ctx context.Context, pokerID model.PokerID) error {
 	
 	reposqlsc := sqlc_repository.New(r.conn)
-	pgUUID := pgtype.UUID{
-		Bytes: uuid.MustParse(string(pokerID)),
-		Valid: true,
-	}
 
-	return reposqlsc.ClearTasks(ctx, pgUUID)
+	return reposqlsc.ClearTasks(ctx, pokerID.UUID())
 }
 
 func (r *Repository) GetTask(ctx context.Context, pokerID model.PokerID, taskID model.TaskID) (*model.Task, error) {
 
 	reposqlsc := sqlc_repository.New(r.conn)
 
-	pgUUID := pgtype.UUID{
-		Bytes: uuid.MustParse(string(pokerID)),
-		Valid: true,
-	}
 
 	arg := &sqlc_repository.GetTaskParams{
-		PokerID: pgUUID,
+		PokerID: pokerID.UUID(),
 		TasksID: int64(taskID),
 	} 
 
@@ -65,13 +54,8 @@ func (r *Repository) DeleteTask(ctx context.Context, pokerID model.PokerID, task
 
 	reposqlsc := sqlc_repository.New(r.conn)
 	
-	pgUUID := pgtype.UUID{
-		Bytes: uuid.MustParse(string(pokerID)),
-		Valid: true,
-	}
-
 	arg := &sqlc_repository.DeleteTaskParams{
-		PokerID: pgUUID,
+		PokerID: pokerID.UUID(),
 		TasksID: int64(taskID),
 	} 
 
@@ -83,13 +67,9 @@ func (r *Repository) GetTasks(ctx context.Context, pokerID model.PokerID) ([]*mo
 
 	reposqlsc := sqlc_repository.New(r.conn)
 	
-	pgUUID := pgtype.UUID{
-		Bytes: uuid.MustParse(string(pokerID)),
-		Valid: true,
-	}
 	
 	
-	tasks, err := reposqlsc.GetTasks(ctx, pgUUID)
+	tasks, err := reposqlsc.GetTasks(ctx, pokerID.UUID())
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
             return nil, fmt.Errorf("%w: %v", model.ErrorNotFound, err)
@@ -125,13 +105,10 @@ func (r *Repository) AddTask(ctx context.Context, task *model.Task) (*model.Task
 	storyPoint := int32(task.StoryPoint)
 	estimate := int32(task.Estimate)
 
-	pgUUID := pgtype.UUID{
-		Bytes: uuid.MustParse(string(task.PokerID)),
-		Valid: true,
-	}
+
 
 	arg := &sqlc_repository.AddTaskParams{
-		PokerID: pgUUID,
+		PokerID: task.PokerID.UUID(),
 		Title: task.Title,
 		Description: &task.Description,
 		StoryPoint: &storyPoint,
@@ -165,14 +142,10 @@ func (r *Repository) UpdateTask(ctx context.Context, pokerID model.PokerID, task
 	storyPoint := int32(task.StoryPoint)
 	estimate := int32(task.Estimate)
 
-	pgUUID := pgtype.UUID{
-		Bytes: uuid.MustParse(string(pokerID)),
-		Valid: true,
-	}
 	
 	arg := &sqlc_repository.UpdateTaskParams{
 		TasksID: int64(task.ID),
-		PokerID: pgUUID,
+		PokerID: pokerID.UUID(),
 		Title: task.Title,
 		Description: &task.Description,
 		StoryPoint: &storyPoint,

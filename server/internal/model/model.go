@@ -3,6 +3,8 @@ package model
 import (
 	"time"
 	"github.com/golang-jwt/jwt"
+	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const (
@@ -93,6 +95,12 @@ type (
 		Estimate Estimate
 	}
 
+	UserEstimateClient struct {
+		PokerID  PokerID
+		UserID   UserID
+		Estimate Estimate
+	}
+	
 	PokerSettings struct {
 		EvaluationStrategy string
 		MaximumScore       int
@@ -129,3 +137,10 @@ type (
 		jwt.StandardClaims
 	}
 )
+
+func (p PokerID) UUID() pgtype.UUID {
+	return pgtype.UUID{
+		Bytes: uuid.MustParse(string(p)),
+		Valid: true,
+	}
+}

@@ -4,20 +4,14 @@ import (
 	"context"
 	"inzarubin80/PokerPlanning/internal/model"
 	sqlc_repository "inzarubin80/PokerPlanning/internal/repository_sqlc"
-
-	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 func (r *Repository) GetUserIDsByPokerID(ctx context.Context, pokerID model.PokerID) ([]model.UserID, error) {
 	
 	reposqlsc := sqlc_repository.New(r.conn)
 	
-	pgUUID := pgtype.UUID{
-		Bytes: uuid.MustParse(string(pokerID)),
-		Valid: true,
-	}
-	usersSql, err :=reposqlsc.GetUserIDsByPokerID(ctx, pgUUID)
+	
+	usersSql, err :=reposqlsc.GetUserIDsByPokerID(ctx, pokerID.UUID())
 
 	if err != nil {
 		return nil, err
@@ -37,13 +31,9 @@ func (r *Repository) AddPokerUser(ctx context.Context, pokerID model.PokerID, us
 
 	reposqlsc := sqlc_repository.New(r.conn)
 
-	pgUUID := pgtype.UUID{
-		Bytes: uuid.MustParse(string(pokerID)),
-		Valid: true,
-	}
 	arg:=  &sqlc_repository.AddPokerUserParams{
 		UserID: int64(userID),
-		PokerID: pgUUID,
+		PokerID: pokerID.UUID(),
 	}
 	_,err := reposqlsc.AddPokerUser(ctx, arg)
 

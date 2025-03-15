@@ -65,9 +65,21 @@ func (s *PokerService) SetVotingTask(ctx context.Context, pokerID model.PokerID,
 	return nil
 }
 
-func (s *PokerService) SetVoting(ctx context.Context, userEstimate *model.UserEstimate, userID model.UserID) error {
+func (s *PokerService) SetVoting(ctx context.Context, userEstimateClient *model.UserEstimateClient, userID model.UserID) error {
 
-	err := s.repository.SetVoting(ctx, userEstimate)
+	state, err := s.repository.GetVotingState(ctx, userEstimateClient.PokerID)
+	if err != nil {
+		return err
+	}
+	
+	userEstimate := &model.UserEstimate{
+		PokerID: userEstimateClient.PokerID,
+		UserID: userEstimateClient.UserID,
+		Estimate: userEstimateClient.Estimate,
+		TaskID: state.TaskID,
+	}
+
+	err = s.repository.SetVoting(ctx, userEstimate)
 
 	if err != nil {
 		return err

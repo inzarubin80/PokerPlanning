@@ -6,21 +6,14 @@ import (
 	sqlc_repository "inzarubin80/PokerPlanning/internal/repository_sqlc"
 	"sort"
 
-	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 func (r *Repository) GetComments(ctx context.Context, pokerID model.PokerID, taskID model.TaskID) ([]*model.Comment, error) {
 
 	reposqlsc := sqlc_repository.New(r.conn)
 
-	pgUUID := pgtype.UUID{
-		Bytes: uuid.MustParse(string(pokerID)),
-		Valid: true,
-	}
-
 	arg := &sqlc_repository.GetCommentsParams{
-		PokerID: pgUUID,
+		PokerID: pokerID.UUID(),
 		TaskID: int64(taskID),
 	}
 
@@ -53,13 +46,9 @@ func (r *Repository) CreateComent(ctx context.Context, comment *model.Comment) (
 
 	reposqlsc := sqlc_repository.New(r.conn)
 
-	pgUUID := pgtype.UUID{
-		Bytes: uuid.MustParse(string(comment.PokerID)),
-		Valid: true,
-	}
-
+	
 	arg := &sqlc_repository.CreateComentParams{
-		PokerID: pgUUID,
+		PokerID: comment.PokerID.UUID(),
 		UserID: int64(comment.UserID),
 		TaskID: int64(comment.TaskID),
 		Text: comment.Text,
