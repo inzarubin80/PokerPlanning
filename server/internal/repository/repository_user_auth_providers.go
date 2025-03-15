@@ -35,18 +35,6 @@ func (r *Repository) GetUserAuthProvidersByProviderUid(ctx context.Context, Prov
 		Name: *UserAuthProvider.Name,
 	}, nil
 
-
-	/*
-	r.storage.mx.RLock()
-	defer r.storage.mx.RUnlock()
-
-	userAuthProviders, ok := r.storage.userAuthProviders[ProviderUid]
-	if !ok {
-		return nil, model.ErrorNotFound
-	}
-	return userAuthProviders, nil
-	*/
-
 }
 
 func (r *Repository) AddUserAuthProviders(ctx context.Context, userProfileFromProvide *model.UserProfileFromProvider, userID model.UserID) (*model.UserAuthProviders, error) {
@@ -74,21 +62,5 @@ func (r *Repository) AddUserAuthProviders(ctx context.Context, userProfileFromPr
 		Provider: UserAuthProvider.Provider,
 		Name: *UserAuthProvider.Name,
 	}, nil
-
-  
-
-/*
-	r.storage.mx.RLock()
-	defer r.storage.mx.RUnlock()
-	userAuthProviders := &model.UserAuthProviders{
-		UserID:      userID,
-		ProviderUid: userProfileFromProvide.ProviderID,
-		Provider:    userProfileFromProvide.ProviderName,
-	}
-	r.storage.nextAuthProvidersID++
-	r.storage.userAuthProviders[userProfileFromProvide.ProviderID] = userAuthProviders
-	return userAuthProviders, nil
-
-	  */
-
+	
 }

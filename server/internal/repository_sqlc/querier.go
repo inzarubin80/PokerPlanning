@@ -29,6 +29,7 @@ type Querier interface {
 	GetUserByID(ctx context.Context, userID int64) (*User, error)
 	GetUserIDsByPokerID(ctx context.Context, pokerID pgtype.UUID) ([]*PokerUser, error)
 	GetUsersByIDs(ctx context.Context, dollar_1 []int64) ([]*User, error)
+	GetVotingState(ctx context.Context, pokerID pgtype.UUID) (*GetVotingStateRow, error)
 	UpdatePokerTaskAndDates(ctx context.Context, arg *UpdatePokerTaskAndDatesParams) error
 	UpdateTask(ctx context.Context, arg *UpdateTaskParams) (*Task, error)
 	UpdateUserName(ctx context.Context, arg *UpdateUserNameParams) (*User, error)

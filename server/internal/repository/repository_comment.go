@@ -46,26 +46,6 @@ func (r *Repository) GetComments(ctx context.Context, pokerID model.PokerID, tas
 	})
 
 	return commentsRes, nil
-
-	/*
-	r.storage.mx.RLock()
-	defer r.storage.mx.RUnlock()
-
-	comments := []*model.Comment{}
-	commentsRepo, ok := r.storage.comments[pokerID]
-	if ok {
-		for _, value := range commentsRepo {
-			comments = append(comments, value)
-		}
-	}
-
-	sort.Slice(comments, func(i, j int) bool {
-		return comments[i].ID < comments[j].ID
-	})
-
-	return comments, nil
-	*/
-
 }
 
 
@@ -97,22 +77,6 @@ func (r *Repository) CreateComent(ctx context.Context, comment *model.Comment) (
 		PokerID: comment.PokerID,
 		Text: comment.Text,
 	}, nil
-
-
-	/*
-	r.storage.mx.Lock()
-	defer r.storage.mx.Unlock()
-
-	comment.ID = r.storage.nextCommentID
-	commentsRepo, ok := r.storage.comments[comment.PokerID]
-	if !ok {
-		commentsRepo = make(map[model.CommentID]*model.Comment)
-		r.storage.comments[comment.PokerID] = commentsRepo
-	}
-	commentsRepo[r.storage.nextCommentID] = comment
-	r.storage.nextCommentID++
-	return comment, nil
-    */
 
 }
 

@@ -455,6 +455,24 @@ func (q *Queries) GetUsersByIDs(ctx context.Context, dollar_1 []int64) ([]*User,
 	return items, nil
 }
 
+const getVotingState = `-- name: GetVotingState :one
+SELECT  task_id, start_date, end_date FROM poker
+WHERE poker_id = $1
+`
+
+type GetVotingStateRow struct {
+	TaskID    *int64
+	StartDate pgtype.Timestamp
+	EndDate   pgtype.Timestamp
+}
+
+func (q *Queries) GetVotingState(ctx context.Context, pokerID pgtype.UUID) (*GetVotingStateRow, error) {
+	row := q.db.QueryRow(ctx, getVotingState, pokerID)
+	var i GetVotingStateRow
+	err := row.Scan(&i.TaskID, &i.StartDate, &i.EndDate)
+	return &i, err
+}
+
 const updatePokerTaskAndDates = `-- name: UpdatePokerTaskAndDates :exec
 UPDATE poker
 SET

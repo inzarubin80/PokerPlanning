@@ -19,6 +19,7 @@ func (s *PokerService) GetVotingState(ctx context.Context, pokerID model.PokerID
 
 }
 
+
 func (s *PokerService) SetVotingTask(ctx context.Context, pokerID model.PokerID, taskID model.TaskID) error {
 
 	task, err := s.repository.GetTask(ctx, pokerID, taskID)
@@ -30,10 +31,18 @@ func (s *PokerService) SetVotingTask(ctx context.Context, pokerID model.PokerID,
 		return fmt.Errorf("taskID %w", model.ErrorNotFound)
 	}
 
-	state, err := s.repository.SetVotingTask(ctx, pokerID, taskID)
+	state := &model.VoteControlState{
+		TaskID: taskID,
+		PokerID: pokerID,
+		StartDate: time.Time{},
+		EndDate: time.Time{},
+	}
+
+	newState, err := s.repository.SetVotingState(ctx, pokerID, state)
 	if err != nil {
 		return err
 	}
+
 
 	err = s.repository.ClearVote(ctx, pokerID)
 	if err != nil {
@@ -42,7 +51,7 @@ func (s *PokerService) SetVotingTask(ctx context.Context, pokerID model.PokerID,
 
 	s.hub.AddMessage(task.PokerID, &VOTE_STATE_CHANGE_MESSAGE{
 		Action: model.VOTE_STATE_CHANGE,
-		State:  state,
+		State:  newState,
 	})
 
 	s.hub.AddMessage(pokerID, &USER_ESTIMATE_MESSAGE{
@@ -102,7 +111,9 @@ func (s *PokerService) GetVotingResults(ctx context.Context, pokerID model.Poker
 	var votingResult *model.VotingResult
 
 	if !state.EndDate.IsZero() {
+
 		switch poker.EvaluationStrategy {
+
 		case "maximum":
 			// Find the maximum estimate
 			for _, item := range userEstimates {

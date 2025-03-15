@@ -22,16 +22,16 @@ func (r *Repository) SetVoting(ctx context.Context, userEstimate *model.UserEsti
 func (r *Repository) ClearVote(ctx context.Context, pokerID model.PokerID) error {
 
 	r.storage.mx.Lock()
-	defer r.storage.mx.Unlock()
 
+	defer r.storage.mx.Unlock()
+	
 	_, ok := r.storage.voting[pokerID]
 
 	if ok {
 		delete(r.storage.voting, pokerID)
 	}
-
+	
 	return nil
-
 }
 
 func (r *Repository) GetUserEstimate(ctx context.Context, pokerID model.PokerID, userID model.UserID) (model.Estimate, error) {

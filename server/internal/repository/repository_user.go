@@ -23,21 +23,6 @@ func (r *Repository) CreateUser(ctx context.Context, userData *model.UserProfile
 		ID:   model.UserID(userID),
 		Name: userData.Name,
 	}, nil
-
-	/*
-		r.storage.mx.Lock()
-		defer r.storage.mx.Unlock()
-
-		user := &model.User{
-			ID:   r.storage.nextUsererID,
-			Name: userData.Name,
-		}
-
-		r.storage.users[r.storage.nextUsererID] = user
-		r.storage.nextUsererID++
-		return user, nil
-	*/
-
 }
 
 func (r *Repository) SetUserName(ctx context.Context, userID model.UserID, name string) error {
@@ -50,19 +35,6 @@ func (r *Repository) SetUserName(ctx context.Context, userID model.UserID, name 
 	_, err := reposqlsc.UpdateUserName(ctx, arg)
 
 	return err
-
-	/*
-		r.storage.mx.Lock()
-		defer r.storage.mx.Unlock()
-
-		user, ok := r.storage.users[userID]
-		if !ok {
-			return model.ErrorNotFound
-		}
-
-		user.Name = name
-		return nil
-	*/
 
 }
 
@@ -77,21 +49,6 @@ func (r *Repository) SetUserSettings(ctx context.Context, userID model.UserID, u
 	reposqlsc := sqlc_repository.New(r.conn)
 	_, err := reposqlsc.UpsertUserSettings(ctx, arg)
 	return err
-
-	/*
-		r.storage.mx.Lock()
-		defer r.storage.mx.Unlock()
-
-		user, ok := r.storage.users[userID]
-		if !ok {
-			return model.ErrorNotFound
-		}
-
-		user.EvaluationStrategy = userSettings.EvaluationStrategy
-		user.MaximumScore = userSettings.MaximumScore
-
-		return nil
-	*/
 
 }
 
@@ -111,20 +68,9 @@ func (r *Repository) GetUser(ctx context.Context, userID model.UserID) (*model.U
 	return &model.User{
 		ID:   model.UserID(user.UserID),
 		Name: user.Name,
-		//	EvaluationStrategy: *user.EvaluationStrategy,
-		//	MaximumScore:       int(*user.MaximumScore),
+
 	}, nil
 
-	/*
-		r.storage.mx.Lock()
-		defer r.storage.mx.Unlock()
-
-		user, ok := r.storage.users[userID]
-		if !ok {
-			return nil, model.ErrorNotFound
-		}
-		return user, nil
-	*/
 
 }
 
@@ -150,34 +96,9 @@ func (r *Repository) GetUsersByIDs(ctx context.Context, userIDs []model.UserID) 
 		usersRes[i] = &model.User{
 			ID:   model.UserID(value.UserID),
 			Name: value.Name,
-			//EvaluationStrategy: *value.EvaluationStrategy,
-			//MaximumScore:       int(*value.MaximumScore),
 		}
 	}
 
 	return usersRes, nil
-	/*
-		r.storage.mx.Lock()
-		defer r.storage.mx.Unlock()
-
-		users := make([]*model.User, len(userIDs))
-
-		i := 0
-
-		for _, userID := range userIDs {
-
-			user, ok := r.storage.users[userID]
-
-			if !ok {
-				return nil, fmt.Errorf("UserID %d %w", userID, model.ErrorNotFound)
-			}
-
-			users[i] = user
-			i++
-
-		}
-
-		return users, nil
-	*/
 
 }

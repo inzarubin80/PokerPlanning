@@ -107,3 +107,7 @@ SET
     end_date = $3
 WHERE
     poker_id = $4;
+
+-- name: GetVotingState :one
+SELECT  task_id, start_date, end_date FROM poker
+WHERE poker_id = $1;

@@ -16,25 +16,12 @@ import (
 func (r *Repository) ClearTasks(ctx context.Context, pokerID model.PokerID) error {
 	
 	reposqlsc := sqlc_repository.New(r.conn)
-
 	pgUUID := pgtype.UUID{
 		Bytes: uuid.MustParse(string(pokerID)),
 		Valid: true,
 	}
 
 	return reposqlsc.ClearTasks(ctx, pgUUID)
-
-	/*
-	r.storage.mx.Lock()
-	defer r.storage.mx.Unlock()
-	_, ok := r.storage.tasks[pokerID]
-	if !ok {
-		return nil
-	}
-	delete(r.storage.tasks, pokerID)
-	return nil
-	*/
-
 }
 
 func (r *Repository) GetTask(ctx context.Context, pokerID model.PokerID, taskID model.TaskID) (*model.Task, error) {
@@ -50,8 +37,6 @@ func (r *Repository) GetTask(ctx context.Context, pokerID model.PokerID, taskID 
 		PokerID: pgUUID,
 		TasksID: int64(taskID),
 	} 
-
-
 
 	task, err := reposqlsc.GetTask(ctx, arg)
 
@@ -73,21 +58,7 @@ func (r *Repository) GetTask(ctx context.Context, pokerID model.PokerID, taskID 
 		Estimate: model.Estimate(*task.Estimate),
 	}, nil
 
-	/*
-	r.storage.mx.RLock()
-	defer r.storage.mx.RUnlock()
-
-	tasksRepo, ok := r.storage.tasks[pokerID]
-	if !ok {
-		return nil, fmt.Errorf("poker %s %w", pokerID, model.ErrorNotFound)
-	}
-
-	task, ok := tasksRepo[taskID]
-	if !ok {
-		return nil, fmt.Errorf("task %d %w", taskID, model.ErrorNotFound)
-	}
-	return task, nil
-     */
+	
 }
 
 func (r *Repository) DeleteTask(ctx context.Context, pokerID model.PokerID, taskID model.TaskID) error {
@@ -105,18 +76,6 @@ func (r *Repository) DeleteTask(ctx context.Context, pokerID model.PokerID, task
 	} 
 
 	return reposqlsc.DeleteTask(ctx, arg)
-	
-	/*
-	r.storage.mx.RLock()
-	defer r.storage.mx.RUnlock()
-	tasksRepo, ok := r.storage.tasks[pokerID]
-	if !ok {
-		return nil
-	}
-
-	delete(tasksRepo, taskID)
-	return nil
-    */
 
 }
 
@@ -158,24 +117,6 @@ func (r *Repository) GetTasks(ctx context.Context, pokerID model.PokerID) ([]*mo
 
 	return tasksRes, nil
 
-	/*
-	r.storage.mx.Lock()
-	defer r.storage.mx.Unlock()
-
-	tasks := []*model.Task{}
-	tasksRepo, ok := r.storage.tasks[pokerID]
-	if ok {
-		for _, value := range tasksRepo {
-			tasks = append(tasks, value)
-		}
-	}
-
-	sort.Slice(tasks, func(i, j int) bool {
-		return tasks[i].ID < tasks[j].ID
-	})
-
-	return tasks, nil
-	*/
 }
 
 func (r *Repository) AddTask(ctx context.Context, task *model.Task) (*model.Task, error) {
@@ -216,24 +157,6 @@ func (r *Repository) AddTask(ctx context.Context, task *model.Task) (*model.Task
 		Estimate: model.Estimate(*taskSqlc.Estimate),
 
 	}, nil
-
-	/*
-	r.storage.mx.Lock()
-	defer r.storage.mx.Unlock()
-
-	taskRepo, ok := r.storage.tasks[task.PokerID]
-	if !ok {
-		taskRepo = make(map[model.TaskID]*model.Task)
-		r.storage.tasks[task.PokerID] = taskRepo
-	}
-
-	task.ID = r.storage.nextTaskID
-	taskRepo[r.storage.nextTaskID] = task
-	r.storage.nextTaskID++
-
-	return task, nil
-    */
-
 }
 
 func (r *Repository) UpdateTask(ctx context.Context, pokerID model.PokerID, task *model.Task) (*model.Task, error) {
@@ -277,21 +200,5 @@ func (r *Repository) UpdateTask(ctx context.Context, pokerID model.PokerID, task
 		Estimate: model.Estimate(*taskSqlc.Estimate),
 
 	}, nil
-
-	/*
-	r.storage.mx.Lock()
-	defer r.storage.mx.Unlock()
-
-	taskRepo, ok := r.storage.tasks[pokerID]
-	if !ok {
-		return nil, fmt.Errorf("poker %s %w", pokerID, model.ErrorNotFound)
-	}
-	_, ok = taskRepo[task.ID]
-	if !ok {
-		return nil, fmt.Errorf("task %d %w", task.ID, model.ErrorNotFound)
-	}
-	taskRepo[task.ID] = task
-	return task, nil
-    */
 
 }
