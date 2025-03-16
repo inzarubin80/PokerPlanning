@@ -65,6 +65,7 @@ func (r *Repository) CreateComent(ctx context.Context, comment *model.Comment) (
 		TaskID: comment.TaskID,
 		PokerID: comment.PokerID,
 		Text: comment.Text,
+		UserID: comment.UserID,
 	}, nil
 
 }
