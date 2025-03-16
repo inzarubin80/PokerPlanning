@@ -85,7 +85,7 @@ func (s *PokerService) SetVoting(ctx context.Context, userEstimateClient *model.
 		return err
 	}
 
-	votingResult, err := s.GetVotingResults(ctx, userEstimate.PokerID, model.TaskID(userEstimate.TaskID))
+	votingResult, err := s.GetVotingResults(ctx, userEstimate.PokerID)
 	if err != nil {
 		return err
 	}
@@ -98,10 +98,16 @@ func (s *PokerService) SetVoting(ctx context.Context, userEstimateClient *model.
 	return err
 }
 
-func (s *PokerService) GetVotingResults(ctx context.Context, pokerID model.PokerID, taskID model.TaskID) (*model.VotingResult, error) {
+func (s *PokerService) GetVotingResults(ctx context.Context, pokerID model.PokerID) (*model.VotingResult, error) {
+
+	// Fetch voting state
+	state, err := s.repository.GetVotingState(ctx, pokerID)
+	if err != nil {
+		return nil, err
+	}
 
 	// Fetch user estimates
-	userEstimates, err := s.repository.GetVotingResults(ctx, pokerID, taskID)
+	userEstimates, err := s.repository.GetVotingResults(ctx, pokerID, state.TaskID)
 	if err != nil {
 		return nil, err
 	}
@@ -112,11 +118,7 @@ func (s *PokerService) GetVotingResults(ctx context.Context, pokerID model.Poker
 		return nil, err
 	}
 
-	// Fetch voting state
-	state, err := s.repository.GetVotingState(ctx, pokerID)
-	if err != nil {
-		return nil, err
-	}
+	
 
 	finalResult := 0
 
@@ -244,7 +246,7 @@ func (s *PokerService) SetVotingState(ctx context.Context, pokerID model.PokerID
 		return nil, err
 	}
 
-	votingResult, err := s.GetVotingResults(ctx, pokerID, -1)
+	votingResult, err := s.GetVotingResults(ctx, pokerID)
 	if err != nil {
 		return nil, err
 	}

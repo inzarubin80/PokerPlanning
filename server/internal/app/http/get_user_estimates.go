@@ -12,7 +12,7 @@ import (
 
 type (
 	serviceGetUserEstimates interface {
-		GetVotingResults(ctx context.Context, pokerID model.PokerID, taskID model.TaskID) (*model.VotingResult, error)
+		GetVotingResults(ctx context.Context, pokerID model.PokerID) (*model.VotingResult, error)
 	}
 
 	GetUserEstimatesHandler struct {
@@ -45,7 +45,7 @@ func (h *GetUserEstimatesHandler) ServeHTTP(w http.ResponseWriter, r *http.Reque
 
 	fmt.Println(userID)
 
-	votingResults, err := h.service.GetVotingResults(ctx, model.PokerID(pokerID), -1)
+	votingResults, err := h.service.GetVotingResults(ctx, model.PokerID(pokerID))
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return

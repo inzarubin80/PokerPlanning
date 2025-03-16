@@ -52,7 +52,7 @@ type (
 		RefreshToken(ctx context.Context, refreshToken string) (*model.AuthData, error)
 		GetPokerUsers(ctx context.Context, pokerID model.PokerID) ([]*model.User, error)
 		SetVoting(ctx context.Context, userEstimate *model.UserEstimateClient, userID model.UserID) error
-		GetVotingResults(ctx context.Context, pokerID model.PokerID, taskID model.TaskID) (*model.VotingResult, error)
+		GetVotingResults(ctx context.Context, pokerID model.PokerID) (*model.VotingResult, error)
 		UserIsAdmin(ctx context.Context, pokerID model.PokerID, userID model.UserID) (bool, error)
 		SetUserName(ctx context.Context, userID model.UserID, name string) error
 		SetUserSettings(ctx context.Context, userID model.UserID, userSettings *model.UserSettings) error
