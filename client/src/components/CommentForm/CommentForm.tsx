@@ -3,6 +3,8 @@ import { Box, TextField, Button } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import { SaveCommentParams } from '../../features/comment/commentSlice';
 import { useParams } from 'react-router-dom';
+import { AppDispatch, RootState } from '../../app/store';
+import { useSelector } from 'react-redux';
 
 interface CommentFormProps {
   onAddComment: (saveCommentParams: SaveCommentParams) => void;
@@ -11,6 +13,8 @@ interface CommentFormProps {
 const CommentForm: React.FC<CommentFormProps> = ({ onAddComment }) => {
   const [text, setText] = useState('');
   const { pokerId } = useParams<{ pokerId: string }>();
+
+  const taskID = useSelector((state: RootState) => state.volumeReducer.taskID);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,6 +26,7 @@ const CommentForm: React.FC<CommentFormProps> = ({ onAddComment }) => {
           PokerID: pokerId,
           Text: text,
           UserID:-1,
+          TaskID:taskID
         },
         pokerID: '',
       };

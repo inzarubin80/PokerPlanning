@@ -21,8 +21,15 @@ func (s *PokerService) CreateComent(ctx context.Context, comment *model.Comment)
 
 }
 
-func (s *PokerService) GetComments(ctx context.Context, pokerID model.PokerID, taskID model.TaskID) ([]*model.Comment, error) {
-	comments, err := s.repository.GetComments(ctx, pokerID, taskID)
+func (s *PokerService) GetComments(ctx context.Context, pokerID model.PokerID) ([]*model.Comment, error) {
+
+
+	state, err := s.repository.GetVotingState(ctx, pokerID)
+		if err != nil {
+			return nil, err
+		}
+
+	comments, err := s.repository.GetComments(ctx, pokerID, state.TaskID)
 
 	if err != nil {
 		return nil, err

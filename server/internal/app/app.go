@@ -42,7 +42,7 @@ type (
 		UpdateTask(ctx context.Context, pokerID model.PokerID, task *model.Task) (*model.Task, error)
 		DeleteTask(ctx context.Context, pokerID model.PokerID, taskID model.TaskID) error
 		CreateComent(ctx context.Context, comment *model.Comment) (*model.Comment, error)
-		GetComments(ctx context.Context, pokerID model.PokerID, taskID model.TaskID) ([]*model.Comment, error)
+		GetComments(ctx context.Context, pokerID model.PokerID) ([]*model.Comment, error)
 		GetVotingState(ctx context.Context, pokerID model.PokerID, userID model.UserID) (*model.VoteControlState, error)
 		SetVotingTask(ctx context.Context, pokerID model.PokerID, taskID model.TaskID) error
 		SetVotingState(ctx context.Context, pokerID model.PokerID, actionVotingState string, estimate ...model.Estimate) (*model.VoteControlState, error)

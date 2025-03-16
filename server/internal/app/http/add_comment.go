@@ -24,6 +24,7 @@ type (
 	CommentFrontend struct {
 		PokerID model.PokerID
 		Text    string
+		TaskID model.TaskID
 	}
 )
 
@@ -65,7 +66,7 @@ func (h *AddCommentHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = h.service.CreateComent(ctx, &model.Comment{ID: -1, PokerID: comment.PokerID, UserID: model.UserID(userID), Text: comment.Text})
+	_, err = h.service.CreateComent(ctx, &model.Comment{ID: -1, PokerID: comment.PokerID, UserID: model.UserID(userID), Text: comment.Text, TaskID: comment.TaskID})
 	if err != nil {
 		uhttp.SendErrorResponse(w, http.StatusInternalServerError, err.Error())
 	} else {
