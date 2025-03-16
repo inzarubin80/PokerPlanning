@@ -46,37 +46,35 @@ func (r *Repository) GetUserEstimate(ctx context.Context, pokerID model.PokerID,
 		return 0, err
 	}
 
-	return model.Estimate(res.Estimate), nil
+	return model.Estimate(res), nil
 }
 
 func (r *Repository) GetVotingResults(ctx context.Context, pokerID model.PokerID, taskID model.TaskID) ([]*model.UserEstimate, error) {
 
+	reposqlsc := sqlc_repository.New(r.conn)
 
-
-
-
-	return nil, nil
-	
-	/*
-	r.storage.mx.Lock()
-	defer r.storage.mx.Unlock()
-
-	results := make([]*model.UserEstimate, 0)
-
-	usersVoting, ok := r.storage.voting[pokerID]
-	if !ok {
-		return results, nil
+	arg := &sqlc_repository.GetVotingResultsParams{
+		PokerID: pokerID.UUID(),
+		TaskID: int64(taskID),	
 	}
 
-	for v, k := range usersVoting {
-		results = append(results, &model.UserEstimate{
-			PokerID:  pokerID,
-			UserID:   v,
-			Estimate: k,
-		})
+	res, err := reposqlsc.GetVotingResults(ctx, arg)
+
+	if err!= nil {
+		return nil, err
 	}
+
+	userEstimates := make([]*model.UserEstimate, len(res))
 	
-	return results, nil
-	*/
+	for i, item := range res {
+		userEstimates[i] = &model.UserEstimate{
+			PokerID: pokerID,
+			UserID: model.UserID(item.UserID),
+			TaskID: taskID,
+			Estimate: model.Estimate(item.Estimate),
+		}
+	}
+
+	return userEstimates, nil
 
 }

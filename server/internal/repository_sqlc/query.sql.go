@@ -453,7 +453,7 @@ func (q *Queries) GetUserByID(ctx context.Context, userID int64) (*User, error) 
 }
 
 const getUserEstimate = `-- name: GetUserEstimate :one
-SELECT  user_id, estimate FROM voting
+SELECT  estimate FROM voting
 WHERE poker_id = $1 AND task_id = $2 AND user_id = $3
 `
 
@@ -463,16 +463,11 @@ type GetUserEstimateParams struct {
 	UserID  int64
 }
 
-type GetUserEstimateRow struct {
-	UserID   int64
-	Estimate int32
-}
-
-func (q *Queries) GetUserEstimate(ctx context.Context, arg *GetUserEstimateParams) (*GetUserEstimateRow, error) {
+func (q *Queries) GetUserEstimate(ctx context.Context, arg *GetUserEstimateParams) (int32, error) {
 	row := q.db.QueryRow(ctx, getUserEstimate, arg.PokerID, arg.TaskID, arg.UserID)
-	var i GetUserEstimateRow
-	err := row.Scan(&i.UserID, &i.Estimate)
-	return &i, err
+	var estimate int32
+	err := row.Scan(&estimate)
+	return estimate, err
 }
 
 const getUserIDsByPokerID = `-- name: GetUserIDsByPokerID :many
@@ -520,6 +515,41 @@ func (q *Queries) GetUsersByIDs(ctx context.Context, dollar_1 []int64) ([]*User,
 			&i.EvaluationStrategy,
 			&i.MaximumScore,
 		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getVotingResults = `-- name: GetVotingResults :many
+SELECT user_id, estimate FROM voting
+WHERE poker_id = $1 AND task_id = $2
+`
+
+type GetVotingResultsParams struct {
+	PokerID pgtype.UUID
+	TaskID  int64
+}
+
+type GetVotingResultsRow struct {
+	UserID   int64
+	Estimate int32
+}
+
+func (q *Queries) GetVotingResults(ctx context.Context, arg *GetVotingResultsParams) ([]*GetVotingResultsRow, error) {
+	rows, err := q.db.Query(ctx, getVotingResults, arg.PokerID, arg.TaskID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*GetVotingResultsRow
+	for rows.Next() {
+		var i GetVotingResultsRow
+		if err := rows.Scan(&i.UserID, &i.Estimate); err != nil {
 			return nil, err
 		}
 		items = append(items, &i)
