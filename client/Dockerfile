@@ -1,23 +1,15 @@
-# Используем официальный образ Node.js
-FROM node:16
+FROM node:21.0.0-alpine
 
-# Устанавливаем рабочую директорию
-WORKDIR /app
+WORKDIR /usr/src/app
 
-# Копируем package.json и package-lock.json
 COPY package*.json ./
 
-# Устанавливаем зависимости
+RUN npm install punycode
+
 RUN npm install
 
-# Копируем исходный код
 COPY . .
 
-# Собираем проект
 RUN npm run build
 
-# Указываем порт, который будет использовать приложение
-EXPOSE 3000
-
-# Запускаем приложение
-CMD ["npm", "start"]
+RUN npm install -g serve

@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/joho/godotenv"
+	//"github.com/joho/godotenv"
 	"inzarubin80/PokerPlanning/internal/app"
 	"os"
 )
@@ -12,11 +12,13 @@ import (
 // мое исправление
 func main() {
 
+	/*
 	err := godotenv.Load()
 	if err != nil {
 		fmt.Printf("Error loading .env file")
 		return
 	}
+	*/
 
 	ctx := context.Background()
 	options := app.Options{

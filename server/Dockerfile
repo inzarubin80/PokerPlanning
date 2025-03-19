@@ -1,5 +1,5 @@
 # Используем официальный образ Golang
-FROM golang:1.23
+FROM golang:1.23 AS builder
 
 # Устанавливаем рабочую директорию
 WORKDIR /app
@@ -16,14 +16,29 @@ COPY . .
 # Устанавливаем goose
 RUN go install github.com/pressly/goose/v3/cmd/goose@latest
 
-# Собираем приложение
-RUN go build -o main ./cmd/server
+# Собираем приложение (статически линкованный бинарник)
+RUN CGO_ENABLED=0 GOOS=linux go build -o main ./cmd/server/
+# Проверяем, что файл создан
 
-# Накатываем миграции
-# RUN /go/bin/goose -dir ./migrations postgres "postgresql://user:password@127.0.0.1:5432/poker?sslmode=disable" up   
+RUN ls -l /app/main
+
+# Этап запуска
+FROM alpine:latest
+
+
+# Устанавливаем зависимости для goose (если требуется)
+RUN apk add --no-cache libc6-compat
+
+# Копируем бинарный файл и миграции из этапа сборки
+COPY --from=builder /app/main .
+COPY --from=builder /app/migrations ./migrations
+
+# Копируем goose из этапа сборки
+COPY --from=builder /go/bin/goose /usr/local/bin/goose
 
 # Указываем порт, который будет использовать приложение
 EXPOSE 8080
 
-# Запускаем приложение
-CMD ["./main"]
+
+# Запускаем миграции и приложение
+ CMD ["sh", "-c", "/usr/local/bin/goose -dir /app/migrations postgres \"$DATABASE_URL\" up && ./main"]
