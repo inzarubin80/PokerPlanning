@@ -1,15 +1,18 @@
-FROM node:21.0.0-alpine
-
-WORKDIR /usr/src/app
-
+# Build Stage
+FROM node:21-alpine AS build
+WORKDIR /app
 COPY package*.json ./
-
-RUN npm install punycode
-
 RUN npm install
-
 COPY . .
-
 RUN npm run build
 
-RUN npm install -g serve
+# Production Stage
+FROM nginx:stable-alpine AS production
+# Копируем кастомную конфигурацию Nginx
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Копируем собранные файлы
+COPY --from=build /app/build /usr/share/nginx/html
+# Открываем порт 3000
+EXPOSE 3000
+# Запускаем Nginx
+CMD ["nginx", "-g", "daemon off;"]

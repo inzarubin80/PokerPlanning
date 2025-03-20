@@ -15,12 +15,14 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - app-network
 
   client:
     container_name: client
     build: ./client
     ports:
-      - "3000:3000"
+      - "3000:3000"  # Пробрасываем порт 3000
     depends_on:
       - server
     environment:
@@ -28,6 +30,8 @@ services:
     volumes:
       - ./client:/app
       - /app/node_modules
+    networks:
+      - app-network
 
   server:
     container_name: server
@@ -41,6 +45,8 @@ services:
       - DATABASE_URL=postgresql://user:password@postgres:5432/poker
     volumes:
       - ./server:/app
+    networks:
+      - app-network
 
   nginx:
     container_name: nginx
@@ -52,5 +58,12 @@ services:
     depends_on:
       - client
       - server
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
 volumes:
   postgres_data:
