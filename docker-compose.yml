@@ -43,6 +43,11 @@ services:
         condition: service_healthy
     environment:
       - DATABASE_URL=postgresql://user:password@postgres:5432/poker
+      - STORE_SECRET=asd973hkalkjhx97asdl
+      - ACCESS_TOKEN_SECRET=asd973hkalkjhx97asdl
+      - REFRESH_TOKEN_SECRET=38e9ujdlm,nfknelkfblaefnlenflaenf
+      - CLIENT_ID_YANDEX=415d2aa8f8e6453f92f050b937588b25
+      - CLIENT_SECRET_YANDEX=1d4a98b4709146e19f138fee68b9d46f
     volumes:
       - ./server:/app
     networks:
