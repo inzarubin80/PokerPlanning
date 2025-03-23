@@ -36,7 +36,7 @@ const YandexAuthButton: React.FC = () => {
     size="medium"
     onClick={handleAuth}
   >
-    Войти с Яндекс
+    Войти с Яндекс!
   </StyledButton>
   );
 };
