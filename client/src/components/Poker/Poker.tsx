@@ -62,7 +62,7 @@ const App: React.FC = () => {
       return;
     }
 
-    const wsClient = new WebSocketClient(`ws://localhost:8080/ws/${pokerId}?accessToken=${accessToken}`, socketOnMessage);
+    const wsClient = new WebSocketClient(`ws://localhost:8090/ws/${pokerId}?accessToken=${accessToken}`, socketOnMessage);
     return () => {
       wsClient.closeConnection()
     };

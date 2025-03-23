@@ -22,7 +22,7 @@ func main() {
 
 	ctx := context.Background()
 	options := app.Options{
-		Addr: ":8080",
+		Addr: ":8090",
 	}
 
 	conf := app.NewConfig(options)

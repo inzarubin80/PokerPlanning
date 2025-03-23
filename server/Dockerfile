@@ -37,7 +37,7 @@ COPY --from=builder /app/migrations ./migrations
 COPY --from=builder /go/bin/goose /usr/local/bin/goose
 
 # Указываем порт, который будет использовать приложение
-EXPOSE 8080
+EXPOSE 8090
 
 
 # Запускаем миграции и приложение

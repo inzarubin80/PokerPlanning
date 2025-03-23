@@ -37,7 +37,7 @@ services:
     container_name: server
     build: ./server
     ports:
-      - "8080:8080"
+      - "8090:8090"
     depends_on:
       postgres:
         condition: service_healthy
