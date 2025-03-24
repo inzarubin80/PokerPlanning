@@ -1,68 +1,14 @@
 services:
-  postgres:
-    container_name: postgres
-    image: postgres:13
-    environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: poker
-    ports:
-      - "5432:5432"
-    volumes:
-      - ./postgresql_data:/docker-entrypoint-initdb.d
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U user -d poker" ]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    networks:
-      - app-network
-
   client:
     container_name: client
     build: ./client
     ports:
       - "3000:3000"  # Пробрасываем порт 3000
-    depends_on:
-      - server
     environment:
       - CHOKIDAR_USEPOLLING=true
     volumes:
       - ./client:/app
       - /app/node_modules
-    networks:
-      - app-network
-
-  server:
-    container_name: server
-    build: ./server
-    ports:
-      - "8090:8090"
-    depends_on:
-      postgres:
-        condition: service_healthy
-    environment:
-      - DATABASE_URL=postgresql://user:password@postgres:5432/poker
-      - STORE_SECRET=asd973hkalkjhx97asdl
-      - ACCESS_TOKEN_SECRET=asd973hkalkjhx97asdl
-      - REFRESH_TOKEN_SECRET=38e9ujdlm,nfknelkfblaefnlenflaenf
-      - CLIENT_ID_YANDEX=415d2aa8f8e6453f92f050b937588b25
-      - CLIENT_SECRET_YANDEX=1d4a98b4709146e19f138fee68b9d46f
-    volumes:
-      - ./server:/app
-    networks:
-      - app-network
-
-  nginx:
-    container_name: nginx
-    image: nginx:alpine
-    ports:
-      - "88:88"
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
-    depends_on:
-      - client
-      - server
     networks:
       - app-network
 
