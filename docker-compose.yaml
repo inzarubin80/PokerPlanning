@@ -22,7 +22,7 @@ services:
     container_name: client
     build: ./client
     ports:
-      - "80:80"  # Пробрасываем порт 3000
+      - "3000:3000"  # Пробрасываем порт 3000
     depends_on:
       - server
     environment:
