@@ -15,8 +15,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-    networks:
-      - app-network
+  
 
   client:
     container_name: client
@@ -30,8 +29,7 @@ services:
     volumes:
       - ./client:/app
       - /app/node_modules
-    networks:
-      - app-network
+
 
   server:
     container_name: server
@@ -50,12 +48,6 @@ services:
       - CLIENT_SECRET_YANDEX=1d4a98b4709146e19f138fee68b9d46f
     volumes:
       - ./server:/app
-    networks:
-      - app-network
-
-networks:
-  app-network:
-    driver: bridge
-
+      
 volumes:
   postgres_data:
