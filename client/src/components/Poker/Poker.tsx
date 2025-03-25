@@ -132,7 +132,6 @@ const App: React.FC = () => {
     }
   }
 
-  //setActiveUsers
 
   const handleEditTask = (taskId: number) => {
     navigate(`/poker/${pokerId}/task/${taskId}`);
