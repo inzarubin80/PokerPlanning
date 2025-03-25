@@ -1,6 +1,0 @@
-{
-  "dependencies": {
-    "react-circular-progressbar": "^2.1.0",
-    "react-countdown-circle-timer": "^3.2.1"
-  }
-}
