@@ -3,6 +3,8 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { setLoginData } from '../../features/user/userSlice';
 import { AppDispatch } from '../../app/store';
 import { useDispatch } from 'react-redux';
+import {baseURL} from '../../service/http-common'
+
 
 const AuthCallback: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -31,7 +33,7 @@ const AuthCallback: React.FC = () => {
           };
 
           try {
-            const response = await fetch(`/api/user/login`, {
+            const response = await fetch(`${baseURL}//user/login`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
