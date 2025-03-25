@@ -22,6 +22,20 @@ import WebSocketClient from '../../api/WebSocketClient'
 import UserCardBUtton from '../generic/UserCardButton'
 
 
+export const getWebSocketUrl = (pokerId: string, accessToken: string | null) => {
+  const isProduction = process.env.NODE_ENV === 'production';
+  
+  const protocol = isProduction 
+    ? process.env.REACT_APP_WS_PROTOCOL || 'wss'
+    : 'ws';
+
+  const domain = isProduction
+    ? process.env.REACT_APP_WS_DOMAIN || 'api.poker-planning.ru'
+    : 'localhost:8090';
+
+  return `${protocol}://${domain}/ws/${pokerId}?accessToken=${accessToken}`;
+};
+
 const App: React.FC = () => {
 
   const previousPokerIdRef = useRef<WebSocketClient | null>(null);
@@ -55,20 +69,16 @@ const App: React.FC = () => {
     
   }, [pokerId]);
 
-
   useEffect(() => {
-
     if (!pokerId) {
       return;
     }
-
-    const wsClient = new WebSocketClient(`ws://localhost:8090/ws/${pokerId}?accessToken=${accessToken}`, socketOnMessage);
+    const wsClient = new WebSocketClient(getWebSocketUrl(pokerId, accessToken), socketOnMessage);
     return () => {
       wsClient.closeConnection()
     };
 
   }, [pokerId, accessToken]);
-
 
   const socketOnMessage = (msgEvent: any) => {
 
