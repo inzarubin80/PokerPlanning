@@ -31,7 +31,9 @@ RUN apk add --no-cache libc6-compat
 
 # Копируем бинарный файл и миграции из этапа сборки
 COPY --from=builder /app/main .
-COPY --from=builder /app/migrations ./migrations
+#COPY --from=builder /app/migrations ./migrations
+COPY --from=builder /app/migrations /app/migrations/  
+
 
 # Копируем goose из этапа сборки
 COPY --from=builder /go/bin/goose /usr/local/bin/goose
