@@ -14,7 +14,7 @@ import (
 	service "inzarubin80/PokerPlanning/internal/service"
 	"net/http"
 	"time"
-	//"github.com/rs/cors" 
+	"github.com/rs/cors" 
 	"github.com/gorilla/sessions"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"golang.org/x/oauth2"
@@ -145,17 +145,7 @@ func NewApp(ctx context.Context, config config, dbConn *pgxpool.Pool) (*App, err
 	pokerService := service.NewPokerService(pokerRepository, hub, accessTokenService, refreshTokenService, providers)
 
 
-	return &App{
-		mux:                        mux,
-		server:                     &http.Server{Addr: config.addr, Handler: middleware.NewLogMux(mux), ReadHeaderTimeout: readHeaderTimeoutSeconds * time.Second},
-		pokerService:               pokerService,
-		config:                     config,
-		hub:                        hub,
-		store:                      store,
-		providersOauthConfFrontend: providerOauthConfFrontend,
-	}, nil
-
-	/*
+	
    // Создаем CORS middleware
    corsMiddleware := cors.New(cors.Options{
     // Явно разрешаем оба домена (без точки в начале)
@@ -190,6 +180,5 @@ handler := corsMiddleware.Handler(middleware.NewLogMux(mux))
 		store:                      store,
 		providersOauthConfFrontend: providerOauthConfFrontend,
 	}, nil
-*/
 
 }
