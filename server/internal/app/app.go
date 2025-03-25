@@ -147,10 +147,27 @@ func NewApp(ctx context.Context, config config, dbConn *pgxpool.Pool) (*App, err
 
    // Создаем CORS middleware
    corsMiddleware := cors.New(cors.Options{
-	AllowedOrigins:     []string{"https://poker-planning.ru"},
-	AllowedMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-	AllowedHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
-	AllowCredentials: true,
+    // Явно разрешаем оба домена (без точки в начале)
+    AllowedOrigins:   []string{
+        "https://poker-planning.ru", 
+        "https://api.poker-planning.ru",
+        "http://localhost:3000", 
+    },
+    // Добавляем все необходимые методы
+    AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"},
+    // Разрешаем все стандартные заголовки + кастомные
+    AllowedHeaders:   []string{
+        "Origin", 
+        "Content-Type", 
+        "Accept",
+        "Authorization", 
+        "X-Requested-With",
+        "X-CSRF-Token",
+    },
+    // Разрешаем куки и авторизацию
+    AllowCredentials: true,
+    // Опционально: максимальное время кеширования preflight-запросов
+    MaxAge:           86400,
 })
 
 // Обертываем основной обработчик
