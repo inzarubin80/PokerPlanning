@@ -40,9 +40,5 @@ COPY --from=builder /go/bin/goose /usr/local/bin/goose
 EXPOSE 8090
 
 
-# Скрипт для запуска с проверкой переменных
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
-
-# Запускаем через entrypoint
-ENTRYPOINT ["/entrypoint.sh"]
+# Запускаем миграции и приложениеы
+ CMD ["sh", "-c", "/usr/local/bin/goose -dir /app/migrations postgres \"${DATABASE_URL}\" up && ./main"]
