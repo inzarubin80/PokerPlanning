@@ -41,4 +41,4 @@ EXPOSE 8090
 
 
 # Запускаем миграции и приложение
- CMD ["sh", "-c", "/usr/local/bin/goose -dir /app/migrations postgres \"$DATABASE_URL\" up && ./main"]
+ CMD ["sh", "-c", "/usr/local/bin/goose -dir /app/migrations postgres \"${DATABASE_URL}\" up && ./main"]
