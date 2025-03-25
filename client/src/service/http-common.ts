@@ -4,7 +4,7 @@ import { store } from '../app/store';
 import { refreshAccessToken, logout } from '../features/user/userSlice'; 
 
 export const baseURL = process.env.NODE_ENV === 'production'
-  ? process.env.REACT_APP_API_BASE_URL || '/api'
+  ? process.env.REACT_APP_API_BASE_URL + '/api'
   : '/api';
 
 

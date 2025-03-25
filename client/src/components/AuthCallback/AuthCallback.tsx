@@ -33,7 +33,7 @@ const AuthCallback: React.FC = () => {
           };
 
           try {
-            const response = await fetch(`${baseURL}//user/login`, {
+            const response = await fetch(`${baseURL}/user/login`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
