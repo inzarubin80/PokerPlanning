@@ -157,7 +157,6 @@ func NewApp(ctx context.Context, config config, dbConn *pgxpool.Pool) (*App, err
     AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"},
     // Разрешаем все стандартные заголовки + кастомные
     AllowedHeaders:   []string{
-        "*", 
         "Origin", "Content-Type", "Accept", "Authorization",
         "X-Requested-With", "X-CSRF-Token", "Custom-Header",
     },
