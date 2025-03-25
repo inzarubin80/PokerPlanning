@@ -14,7 +14,7 @@ import (
 	service "inzarubin80/PokerPlanning/internal/service"
 	"net/http"
 	"time"
-
+	"github.com/rs/cors" 
 	"github.com/gorilla/sessions"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"golang.org/x/oauth2"
@@ -144,9 +144,22 @@ func NewApp(ctx context.Context, config config, dbConn *pgxpool.Pool) (*App, err
 
 	pokerService := service.NewPokerService(pokerRepository, hub, accessTokenService, refreshTokenService, providers)
 
+
+   // Создаем CORS middleware
+   corsMiddleware := cors.New(cors.Options{
+	AllowedOrigins:     []string{"https://poker-planning.ru"},
+	AllowedMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+	AllowedHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
+	AllowCredentials: true,
+})
+
+// Обертываем основной обработчик
+handler := corsMiddleware.Handler(middleware.NewLogMux(mux))
+
+
 	return &App{
 		mux:                        mux,
-		server:                     &http.Server{Addr: config.addr, Handler: middleware.NewLogMux(mux), ReadHeaderTimeout: readHeaderTimeoutSeconds * time.Second},
+		server:                     &http.Server{Addr: config.addr, Handler: handler, ReadHeaderTimeout: readHeaderTimeoutSeconds * time.Second},
 		pokerService:               pokerService,
 		config:                     config,
 		hub:                        hub,

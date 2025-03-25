@@ -24,5 +24,6 @@ require (
 	github.com/gorilla/sessions v1.4.0
 	github.com/gorilla/websocket v1.5.3 // indirect
 	github.com/joho/godotenv v1.5.1
+	github.com/rs/cors v1.11.1
 	golang.org/x/oauth2 v0.24.0
 )
