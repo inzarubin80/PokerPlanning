@@ -43,11 +43,13 @@ const App: React.FC = () => {
 
   const accessToken = useSelector((state: RootState) => state.userReducer.accessToken);
 
+  
+
   const tasks = useSelector((state: RootState) => state.taskReducer.tasks);
   const taskID = useSelector((state: RootState) => state.volumeReducer.taskID);
 
 
-  const evaluationStrategy = useSelector((state: RootState) => state.pokerReducer.evaluationStrategy);
+  const isAdmin = useSelector((state: RootState) => state.pokerReducer.isAdmin);
   
   const activeUsersID = useSelector((state: RootState) => state.pokerReducer.activeUsersID);
   const [showSettings, setShowSettings] = useState(false);
@@ -116,8 +118,11 @@ const App: React.FC = () => {
           dispatch(setNumberVoters(msg.Count));
           break;
         case 'ADD_VOTING':
-          dispatch(setUserEstimates(msg.VotingResult));
-          break;
+          dispatch(setUserEstimates(msg.VotingResult));  
+          if (pokerId) {
+            dispatch(getComments(pokerId));
+          }
+          break;    
         case 'CHANGE_ACTIVE_USERS_POKER':
           dispatch(setActiveUsers(msg.Users));
           break;
@@ -201,18 +206,21 @@ const App: React.FC = () => {
         <Grid2 size={taskID > 0 ? { xs: 5 } : { xs: 6 }} style={{ display: 'flex', flexDirection: 'column' }}>
           <TaskList
             tasks={tasks}
+            isAdmin ={isAdmin}
             handleEditTask={handleEditTask}
             handleDeleteTask={handleDeleteTask}
             handleSetVotingTask={handleSetVotingTask}
-            setEditingTask={() => { }} />
+            setEditingTask={() => { }} 
+            
+            />
 
         </Grid2>
 
         <Grid2 size={taskID > 0 ? { xs: 4 } : { xs: 6 }} style={{ display: 'flex', flexDirection: 'column' }}>
           <Voting
-            // selectedTask={selectedTask}
             averageEstimate={1}
             averageMethod={""}
+            isAdmin ={isAdmin}
             showSettings={showSettings}
             handleSettingsToggle={handleSettingsToggle}
             handleEndVoting={handleEndVoting} />

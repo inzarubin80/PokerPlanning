@@ -37,6 +37,7 @@ const StyledRating = styled(Rating)({
 });
 
 interface VotingProps {
+    isAdmin: boolean;
     handleSettingsToggle: () => void;
     averageEstimate: number;
     handleEndVoting: () => void;
@@ -53,6 +54,7 @@ interface Action {
 const Voting: React.FC<VotingProps> = ({
     handleSettingsToggle,
     handleEndVoting,
+    isAdmin
 }) => {
 
     const tasks: Task[] = useSelector((state: RootState) => state.taskReducer.tasks);
@@ -60,7 +62,6 @@ const Voting: React.FC<VotingProps> = ({
     const userEstimates: UserEstimate[] = useSelector((state: RootState) => state.volumeReducer.userEstimates);
     const userID: number = useSelector((state: RootState) => state.userReducer.userID);
     const possibleEstimates: number[] = useSelector((state: RootState) => state.pokerReducer.possibleEstimates);
-    const progress: number = useSelector((state: RootState) => state.volumeReducer.progress);
     const action: string = useSelector((state: RootState) => state.volumeReducer.action);
     const actionName: string = useSelector((state: RootState) => state.volumeReducer.actionName);
     const activeUsersID = useSelector((state: RootState) => state.pokerReducer.activeUsersID);
@@ -89,9 +90,14 @@ const Voting: React.FC<VotingProps> = ({
                     )
                 }
             }
-            return [...userEstimatesRes].sort((a, b) => a.Estimate - b.Estimate);
+         
+            if (action === 'end') {
+                return [...userEstimatesRes].sort((a, b) => a.Estimate - b.Estimate);
+            } else {
+                return [...userEstimatesRes];
+            }     
         },
-        [activeUsersID, users, userEstimates]
+        [activeUsersID, users, userEstimates, action]
     );
 
 
@@ -195,15 +201,22 @@ const Voting: React.FC<VotingProps> = ({
 
                                 <Box p={0} sx={{ overflowY: 'auto' }}>
                                     <List dense>
-                                        {userEstimatesRes.map((userEstimate: UserEstimate) => (
+                                        {userEstimatesRes.map((userEstimate: UserEstimate) => action === 'end' ? (
                                             <ListItem key={userEstimate.UserID.toString()} sx={{ py: 0.5 }}>
                                                 <ListItemText
                                                     primary={`${users.find(item => item.ID == userEstimate.UserID)?.Name}`}
-                                                    secondary={`Оценка: ${userEstimate.Estimate}`}
-                                                    primaryTypographyProps={{ variant: 'body2' }}
+                                                    secondary={`Оценка: ${userEstimate.Estimate<0?"-":userEstimate.Estimate}`}
+                                                    primaryTypographyProps={{
+                                                        variant: 'body2',
+                                                        sx: {
+                                                            color: userEstimate.Estimate > 0 ? 'green' : 'inherit',
+                                                            fontWeight: userEstimate.Estimate > 0 ? 'bold' : 'normal'
+                                                        }
+                                                    }}
                                                     secondaryTypographyProps={{ variant: 'body2', color: 'text.secondary' }}
                                                 />
                                                 <StyledRating
+                                                    disabled
                                                     name="customized-color"
                                                     getLabelText={(value: number) => `${value} Heart${value !== 1 ? 's' : ''}`}
                                                     precision={1}
@@ -213,6 +226,24 @@ const Voting: React.FC<VotingProps> = ({
                                                     value={possibleEstimates.findIndex(item => item == userEstimate.Estimate) + 1}
                                                 />
                                             </ListItem>
+                                        ) : (
+                                            <ListItem
+                                            sx={{ py: 0.5 }}
+                                            >
+                                                <ListItemText
+                                                    primary={`${users.find(item => item.ID == userEstimate.UserID)?.Name}`}
+                                                    primaryTypographyProps={{
+                                                        variant: 'body2',
+                                                        sx: {
+                                                            color: userEstimate.Estimate > 0 ? 'green' : 'inherit',
+                                                            fontWeight: userEstimate.Estimate > 0 ? 'bold' : 'normal'
+                                                        }
+                                                    }}
+                                                    secondaryTypographyProps={{ variant: 'body2', color: 'text.secondary' }}
+                                                />
+                                            </ListItem>
+
+
                                         ))}
                                     </List>
                                 </Box>
@@ -251,7 +282,7 @@ const Voting: React.FC<VotingProps> = ({
                 )}
 
                 <Box p={2} display="flex" flexDirection="column" justifyContent="flex-start">
-                    {action !== '' && (
+                    {isAdmin == true && action !== '' && (
                         <Button variant="contained" color="primary" onClick={handleSetStateVoting}>
                             {actionName}
                         </Button>

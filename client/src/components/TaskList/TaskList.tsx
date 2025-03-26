@@ -13,13 +13,14 @@ import TaskCard from '../TaskCard/TaskCard'
 
 interface TaskListProps {
   tasks: Task[];
+  isAdmin:boolean;
   handleEditTask: (id: number) => void
   handleDeleteTask: (id: number) => void
   handleSetVotingTask: (id: number) => void
   setEditingTask: (task: Task | null) => void
 }
 
-const TaskList: React.FC<TaskListProps> = ({ tasks, handleEditTask, handleDeleteTask, handleSetVotingTask, setEditingTask }) => {
+const TaskList: React.FC<TaskListProps> = ({ tasks, handleEditTask, handleDeleteTask, handleSetVotingTask, isAdmin }) => {
   
   return(
   <Paper elevation={3}>
@@ -33,6 +34,7 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, handleEditTask, handleDelete
             <Box key={task.ID.toString()} mb={2}>
               <TaskCard
                 task={task}
+                isAdmin={isAdmin}
                 onEdit={handleEditTask}
                 onDelete={handleDeleteTask}
                 onVote={handleSetVotingTask}
@@ -42,7 +44,7 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, handleEditTask, handleDelete
         </List>
       </Box>
       <Box p={2} display="flex" flexDirection="column" justifyContent="flex-start">
-        <Button
+       {isAdmin && <Button
           variant="contained"
           color="primary"
           startIcon={<Add />}
@@ -50,7 +52,7 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, handleEditTask, handleDelete
        
         >
           Добавить задачу
-        </Button>
+        </Button>}
       </Box>
     </Box>
   </Paper>

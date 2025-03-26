@@ -12,19 +12,20 @@ import { Task } from '../../model/model'
 
 interface TaskCardProps {
   task: Task;
+  isAdmin:boolean;
   onEdit: (id:number)=>void
   onDelete: (id:number)=>void
   onVote: (id:number)=>void
 }
 
-const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete, onVote }) => (
+const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete, onVote, isAdmin }) => (
     <Card>
       <CardContent>
         <Typography variant="h6"> ID {task.ID} {task.Title}</Typography>
         <Typography variant="body2">{task.Description}</Typography>
         <Typography variant="subtitle2">Оценка: {task.Estimate}</Typography>
       </CardContent>
-      <CardActions>
+      {isAdmin && <CardActions>
         <IconButton edge="end" aria-label="edit" onClick={() => onEdit(task.ID)}>
           <Edit />
         </IconButton>
@@ -34,7 +35,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete, onVote }) =
         <IconButton edge="end" aria-label="vote" onClick={() => onVote(task.ID)}>
           <ThumbUp />
         </IconButton>
-      </CardActions>
+      </CardActions>}
     </Card>
   );
 
