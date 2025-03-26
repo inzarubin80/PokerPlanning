@@ -87,3 +87,5 @@ go.work.sum.lock.tmp
 
 # Игнорировать все файлы, начинающиеся с __debug_bin
 __debug_bin*
+
+.env

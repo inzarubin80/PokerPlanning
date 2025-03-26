@@ -6,9 +6,10 @@ import (
 	"inzarubin80/PokerPlanning/internal/app/defenitions"
 	"os"
 
+	authinterface "inzarubin80/PokerPlanning/internal/app/authinterface"
+
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/yandex"
-	authinterface "inzarubin80/PokerPlanning/internal/app/authinterface"
 )
 
 type (

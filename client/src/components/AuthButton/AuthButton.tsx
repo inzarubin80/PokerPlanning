@@ -21,7 +21,7 @@ const YandexIcon = () => (
 const YandexAuthButton: React.FC = () => {
   
   
-  const clientId = '415d2aa8f8e6453f92f050b937588b25'; 
+  const clientId = process.env.REACT_APP_YANDEX_OAUTH_CLIENT_ID;
   const authUrl = `https://oauth.yandex.ru/authorize?response_type=code&client_id=${clientId}`;
 
 
