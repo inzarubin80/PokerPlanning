@@ -19,7 +19,6 @@ func (s *PokerService) GetVotingState(ctx context.Context, pokerID model.PokerID
 
 }
 
-
 func (s *PokerService) SetVotingTask(ctx context.Context, pokerID model.PokerID, taskID model.TaskID) error {
 
 	task, err := s.repository.GetTask(ctx, pokerID, taskID)

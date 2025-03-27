@@ -113,15 +113,18 @@ const App: React.FC = () => {
           break;
         case 'VOTE_STATE_CHANGE':
           dispatch(setVoteChange(msg.State));
+
+          if (pokerId) {
+            dispatch(getComments(pokerId));
+          }
+          
           break;
         case 'CHANGE_NUMBER_VOTERS':
           dispatch(setNumberVoters(msg.Count));
           break;
         case 'ADD_VOTING':
           dispatch(setUserEstimates(msg.VotingResult));  
-          if (pokerId) {
-            dispatch(getComments(pokerId));
-          }
+         
           break;    
         case 'CHANGE_ACTIVE_USERS_POKER':
           dispatch(setActiveUsers(msg.Users));
