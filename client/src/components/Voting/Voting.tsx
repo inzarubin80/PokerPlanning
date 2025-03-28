@@ -149,9 +149,7 @@ const Voting: React.FC<VotingProps> = ({
                 <Box flex={1} display="flex" justifyContent="center">
                     <Typography variant="h6">Голосование</Typography>
                 </Box>
-                <IconButton onClick={handleSettingsToggle}>
-                    <Settings />
-                </IconButton>
+  
             </Box>
 
             <Box display="flex" height="80vh" flexDirection="column" justifyContent="space-between">

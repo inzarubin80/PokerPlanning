@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"inzarubin80/PokerPlanning/internal/model"
+	"time"
 )
 
 func (s *PokerService) AddTask(ctx context.Context, task *model.Task) (*model.Task, error) {
@@ -52,10 +53,46 @@ func (s *PokerService) DeleteTask(ctx context.Context, pokerID model.PokerID, ta
 		return err
 	}
 
+
+	state, err := s.repository.GetVotingState(ctx, pokerID)
+	if err != nil {
+		return err
+	}
+
+	if err != nil {
+		return err
+	}
+
+	if state.TaskID == taskID {
+
+
+		state := &model.VoteControlState{
+			TaskID: 0,
+			PokerID: pokerID,
+			StartDate: time.Time{},
+			EndDate: time.Time{},
+		}
+
+		newState, err := s.repository.SetVotingState(ctx, pokerID, state)
+	
+		if err != nil {
+			return err
+		}
+
+		s.hub.AddMessage(pokerID, &VOTE_STATE_CHANGE_MESSAGE{
+			Action: model.VOTE_STATE_CHANGE,
+			State: newState,
+		})
+
+
+	}
+
 	s.hub.AddMessage(pokerID, &TASK_MESSAGE{
 		Action: model.REMOVE_TASK,
 		TaskID: taskID,
 	})
+
+	
 
 	return nil
 }

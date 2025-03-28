@@ -77,8 +77,15 @@ func (s *PokerService) SetVoting(ctx context.Context, userEstimateClient *model.
 		Estimate: userEstimateClient.Estimate,
 		TaskID: state.TaskID,
 	}
+	
+	estimate, _ := s.repository.GetUserEstimate(ctx, userEstimateClient.PokerID, state.TaskID, userEstimateClient.UserID) 
 
-	err = s.repository.SetVoting(ctx, userEstimate)
+	if estimate ==  userEstimateClient.Estimate {
+		err = s.repository.RemoveVote(ctx,  userEstimateClient.PokerID, state.TaskID, userEstimateClient.UserID) 
+	} else {
+		err = s.repository.SetVoting(ctx, userEstimate)
+	}
+
 
 	if err != nil {
 		return err

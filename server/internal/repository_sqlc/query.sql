@@ -135,3 +135,8 @@ WHERE poker_id = $1 AND task_id = $2 AND user_id = $3;
 -- name: GetVotingResults :many
 SELECT user_id, estimate FROM voting
 WHERE poker_id = $1 AND task_id = $2;
+
+-- name: RemoveVote :exec
+DELETE FROM  voting
+WHERE
+poker_id = $1 AND task_id = $2 AND user_id = $3;

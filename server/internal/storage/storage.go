@@ -53,6 +53,7 @@ type Repository interface {
 	//Voting
 	SetVoting(ctx context.Context, userEstimate *model.UserEstimate) error
 	ClearVote(ctx context.Context, pokerID model.PokerID, taskID model.TaskID) error
+	RemoveVote(ctx context.Context, pokerID model.PokerID, taskID model.TaskID, userID model.UserID) error 
 	GetVotingResults(ctx context.Context, pokerID model.PokerID, taskID model.TaskID) ([]*model.UserEstimate, error)
 	GetUserEstimate(ctx context.Context, pokerID model.PokerID, taskID model.TaskID, userID model.UserID) (model.Estimate, error)
 	SetVotingState(ctx context.Context, pokerID model.PokerID, state *model.VoteControlState) (*model.VoteControlState, error)

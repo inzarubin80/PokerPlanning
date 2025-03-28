@@ -578,6 +578,23 @@ func (q *Queries) GetVotingState(ctx context.Context, pokerID pgtype.UUID) (*Get
 	return &i, err
 }
 
+const removeVote = `-- name: RemoveVote :exec
+DELETE FROM  voting
+WHERE
+poker_id = $1 AND task_id = $2 AND user_id = $3
+`
+
+type RemoveVoteParams struct {
+	PokerID pgtype.UUID
+	TaskID  int64
+	UserID  int64
+}
+
+func (q *Queries) RemoveVote(ctx context.Context, arg *RemoveVoteParams) error {
+	_, err := q.db.Exec(ctx, removeVote, arg.PokerID, arg.TaskID, arg.UserID)
+	return err
+}
+
 const updatePokerTaskAndDates = `-- name: UpdatePokerTaskAndDates :exec
 UPDATE poker
 SET

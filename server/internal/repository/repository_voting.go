@@ -32,6 +32,19 @@ func (r *Repository) ClearVote(ctx context.Context, pokerID model.PokerID, taskI
 	return reposqlsc.ClearVote(ctx, arg)
 }
 
+func (r *Repository)  RemoveVote(ctx context.Context, pokerID model.PokerID, taskID model.TaskID, userID model.UserID) error  {
+
+	reposqlsc := sqlc_repository.New(r.conn)
+
+	arg := &sqlc_repository.RemoveVoteParams{
+		PokerID: pokerID.UUID(),
+		TaskID: int64(taskID),
+		UserID: int64(userID),
+	} 
+
+	return reposqlsc.RemoveVote(ctx, arg)
+}
+
 func (r *Repository) GetUserEstimate(ctx context.Context, pokerID model.PokerID, taskID model.TaskID, userID model.UserID) (model.Estimate, error) {
 
 	reposqlsc := sqlc_repository.New(r.conn)
@@ -39,6 +52,7 @@ func (r *Repository) GetUserEstimate(ctx context.Context, pokerID model.PokerID,
 	arg := &sqlc_repository.GetUserEstimateParams{
 		PokerID: pokerID.UUID(),
 		TaskID: int64(taskID),
+		UserID: int64(userID),
 	}
 
 	res, err := reposqlsc.GetUserEstimate(ctx, arg)
