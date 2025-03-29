@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { Paper, Typography, List, ListItem, ListItemText, Box } from '@mui/material';
+import { List, ListItem, ListItemText, Box } from '@mui/material';
 import CommentForm from '../CommentForm/CommentForm';
 import { RootState } from '../../app/store';
 import { useSelector } from 'react-redux';

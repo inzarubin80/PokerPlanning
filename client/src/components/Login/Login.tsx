@@ -1,8 +1,8 @@
 import React from 'react';
 import { Box, Container, Typography } from '@mui/material';
 import YandexAuthButton from '../AuthButton/AuthButton';
-import { Google, Facebook, GitHub, Twitter } from '@mui/icons-material';
-import { useNavigate, useLocation } from 'react-router-dom';
+
+import { useLocation } from 'react-router-dom';
 
 
 const Login: React.FC = () => {

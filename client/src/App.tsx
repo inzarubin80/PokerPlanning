@@ -11,7 +11,7 @@ import Login from './components/Login/Login';
 import PrivateRoute from './components/PrivateRoute/PrivateRoute';
 
 import YandexAuthCallback from './components/AuthCallback/AuthCallback';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { RootState } from './app/store';
 
 
