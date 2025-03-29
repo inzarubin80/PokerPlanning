@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"inzarubin80/PokerPlanning/internal/model"
+	"sync"
 )
 
 // Hub maintains the set of active clients and broadcasts messages to the
@@ -24,8 +25,8 @@ type (
 	}
 
 	Hub struct {
-		// Registered clients.
-		clients map[model.PokerID]map[*Client]bool
+		// Registered clients with sync.Map for concurrent access
+		clients   sync.Map // map[model.PokerID]map[*Client]bool
 		// Inbound messages from the clients.
 		broadcast chan *Message
 		// Register requests from the clients.
@@ -45,12 +46,10 @@ func NewHub() *Hub {
 		broadcast:  make(chan *Message),
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
-		clients:    make(map[model.PokerID]map[*Client]bool),
 	}
 }
 
 func (h *Hub) Run() {
-
 	fmt.Println("Run Hub")
 
 	defer func() {
@@ -60,58 +59,58 @@ func (h *Hub) Run() {
 	for {
 		select {
 		case client := <-h.register:
-
-			clientsPoker, ok := h.clients[client.pokerID]
-			if !ok {
-				clientsPoker = make(map[*Client]bool)
-				h.clients[client.pokerID] = clientsPoker
-			}
-			clientsPoker[client] = true
+			// Load or create the poker room's client map
+			value, _ := h.clients.LoadOrStore(client.pokerID, &sync.Map{})
+			clientsPoker := value.(*sync.Map)
+			clientsPoker.Store(client, true)
 
 			go h.SendActiveUsers(client.pokerID)
 
 		case client := <-h.unregister:
+			if value, ok := h.clients.Load(client.pokerID); ok {
+				clientsPoker := value.(*sync.Map)
+				clientsPoker.Delete(client)
+				close(client.send)
 
-			if clientsPoker, ok := h.clients[client.pokerID]; ok {
-
-				if _, ok := clientsPoker[client]; ok {
-
-					delete(clientsPoker, client)
-					close(client.send)
-					if len(clientsPoker) == 0 {
-						delete(h.clients, client.pokerID)
-					}
-
+				// Check if poker room is empty and delete it
+				isEmpty := true
+				clientsPoker.Range(func(_, _ interface{}) bool {
+					isEmpty = false
+					return false
+				})
+				if isEmpty {
+					h.clients.Delete(client.pokerID)
 				}
 			}
 
 			go h.SendActiveUsers(client.pokerID)
 
 		case message := <-h.broadcast:
-
-			if clientsPoker, ok := h.clients[message.pokerID]; ok {
-				for client := range clientsPoker {
-
+			if value, ok := h.clients.Load(message.pokerID); ok {
+				clientsPoker := value.(*sync.Map)
+				
+				// Process all clients in the poker room
+				clientsPoker.Range(func(key, _ interface{}) bool {
+					client := key.(*Client)
+					
 					if message.userID != 0 && client.userID != message.userID {
-						continue
+						return true // continue
 					}
 
 					select {
 					case client.send <- message:
 					default:
+						clientsPoker.Delete(client)
 						close(client.send)
-						delete(clientsPoker, client)
 					}
-
-				}
+					return true
+				})
 			}
-
 		}
 	}
 }
 
 func (h *Hub) AddMessage(pokerID model.PokerID, payload any) error {
-
 	data, err := json.Marshal(payload)
 	if err != nil {
 		return err
@@ -120,11 +119,9 @@ func (h *Hub) AddMessage(pokerID model.PokerID, payload any) error {
 	message := &Message{pokerID: pokerID, data: data}
 	h.broadcast <- message
 	return nil
-
 }
 
 func (h *Hub) AddMessageForUser(pokerID model.PokerID, userID model.UserID, payload any) error {
-
 	data, err := json.Marshal(payload)
 	if err != nil {
 		return err
@@ -133,33 +130,29 @@ func (h *Hub) AddMessageForUser(pokerID model.PokerID, userID model.UserID, payl
 	message := &Message{pokerID: pokerID, userID: userID, data: data}
 	h.broadcast <- message
 	return nil
-
 }
 
 func (h *Hub) GetActiveUsersID(pokerID model.PokerID) ([]model.UserID, error) {
-
 	usersID := make([]model.UserID, 0)
-
 	IDs := make(map[model.UserID]bool)
-	clients, ok := h.clients[pokerID]
 
-	if !ok {
-		return usersID, nil
-	}
-
-	for k, _ := range clients {
-		_, ok := IDs[k.userID]
-		if !ok {
-			usersID = append(usersID, k.userID)
-			IDs[k.userID] = true
-		}
+	if value, ok := h.clients.Load(pokerID); ok {
+		clientsPoker := value.(*sync.Map)
+		
+		clientsPoker.Range(func(key, _ interface{}) bool {
+			client := key.(*Client)
+			if _, ok := IDs[client.userID]; !ok {
+				usersID = append(usersID, client.userID)
+				IDs[client.userID] = true
+			}
+			return true
+		})
 	}
 
 	return usersID, nil
 }
 
 func (h *Hub) SendActiveUsers(pokerID model.PokerID) {
-
 	usersID, err := h.GetActiveUsersID(pokerID)
 	if err != nil {
 		return
@@ -167,6 +160,6 @@ func (h *Hub) SendActiveUsers(pokerID model.PokerID) {
 
 	h.AddMessage(pokerID, &USERS_MESSAGE{
 		Action: model.CHANGE_ACTIVE_USERS_POKER,
-		Users:  usersID})
-
+		Users:  usersID,
+	})
 }

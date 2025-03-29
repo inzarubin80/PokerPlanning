@@ -1,154 +1,161 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { authAxios } from '../../service/http-common';
-import { User, Poker, PokerSettings } from '../../model/model'
-import FibonacciNumbers from '../../utils/FibonacciNumbers'
+import { User, Poker, PokerSettings } from '../../model/model';
+import FibonacciNumbers from '../../utils/FibonacciNumbers';
 
-// Тип для состояния
+// Типы
 interface PokerState {
   pokerId: string;
-  isAdmin: boolean; // Добавлено поле для isAdmin
-  createdAt: string | null; // Добавлено поле для даты создания
+  isAdmin: boolean;
+  createdAt: string | null;
   loading: boolean;
   error: string | null;
-  users: User[]
+  users: User[];
   activeUsersID: number[];
   maximumScore: number;
   evaluationStrategy: string;
   possibleEstimates: number[];
-
 }
+
+// Константы
+const SLICE_NAME = 'poker';
+const INITIAL_ERROR = null;
+const INITIAL_LOADING = false;
 
 // Начальное состояние
 const initialState: PokerState = {
-  pokerId: "",
+  pokerId: '',
   isAdmin: false,
   createdAt: null,
-  loading: false,
-  error: null,
+  loading: INITIAL_LOADING,
+  error: INITIAL_ERROR,
   users: [],
   activeUsersID: [],
   maximumScore: 0,
   evaluationStrategy: '',
-  possibleEstimates: []
+  possibleEstimates: [],
 };
 
-// Функция для обработки ошибок Axios
+// Вспомогательные функции
 const handleAxiosError = (error: any): string => {
   if (error.response) {
     return error.response.data.message || 'Ошибка сервера';
-  } else if (error.request) {
-    return 'Нет ответа от сервера';
-  } else {
-    return 'Произошла ошибка при выполнении запроса';
   }
+  if (error.request) {
+    return 'Нет ответа от сервера';
+  }
+  return 'Произошла ошибка при выполнении запроса';
 };
 
-// Асинхронное действие для создания покера
+const calculatePossibleEstimates = (maximumScore: number): number[] => {
+  return FibonacciNumbers(maximumScore);
+};
+
+// Асинхронные действия
 export const createPoker = createAsyncThunk<
-  string, // Тип возвращаемого значения (ID покера)
-  PokerSettings, // Тип параметра (ничего)
-  { rejectValue: string } // Тип ошибки
->('poker/create', async (params, { rejectWithValue }) => {
+  string,
+  PokerSettings,
+  { rejectValue: string }
+>(`${SLICE_NAME}/create`, async (params, { rejectWithValue }) => {
   try {
-    const response = await authAxios.post<string>('/poker', params); // Указываем тип ответа
-    return response.data; // Возвращаем ID созданного покера
+    const response = await authAxios.post<string>('/poker', params);
+    return response.data;
   } catch (error) {
-    const errorMessage = handleAxiosError(error);
-    return rejectWithValue(errorMessage); // Возвращаем обработанную ошибку
+    return rejectWithValue(handleAxiosError(error));
   }
 });
 
-
-
-// Асинхронное действие для получения данных покера
 export const fetchPokerDetails = createAsyncThunk<
-  Poker, // Тип возвращаемого значения
-  string, // Тип параметра (pokerId)
-  { rejectValue: string } // Тип ошибки
->('poker/fetchDetails', async (pokerId, { rejectWithValue }) => {
+  Poker,
+  string,
+  { rejectValue: string }
+>(`${SLICE_NAME}/fetchDetails`, async (pokerId, { rejectWithValue }) => {
   try {
-    const response = await authAxios.get<Poker>(
-      `/poker/${pokerId}`
-    );
-    return response.data; // Возвращаем данные покера
+    const response = await authAxios.get<Poker>(`/poker/${pokerId}`);
+    return response.data;
   } catch (error) {
-    const errorMessage = handleAxiosError(error);
-    return rejectWithValue(errorMessage);
+    return rejectWithValue(handleAxiosError(error));
   }
 });
-
 
 export const getPokerUsers = createAsyncThunk(
-  'pokerUsers/get',
-  async (params: { pokerID: string, action: string }, { rejectWithValue }) => {
+  `${SLICE_NAME}/getUsers`,
+  async (params: { pokerID: string; action: string }, { rejectWithValue }) => {
     const { pokerID, action } = params;
     try {
-      const response = await authAxios.post(`/poker/${pokerID}/voting-control/${action}`);
+      const response = await authAxios.post(
+        `/poker/${pokerID}/voting-control/${action}`
+      );
       return response.data;
     } catch (error) {
-      const errorMessage = handleAxiosError(error);
-      return rejectWithValue(errorMessage);
+      return rejectWithValue(handleAxiosError(error));
     }
   }
 );
 
-
-// Создаем slice
+// Создание slice
 const pokerSlice = createSlice({
-  name: 'poker',
+  name: SLICE_NAME,
   initialState,
   reducers: {
     setActiveUsers: (state, action: PayloadAction<number[]>) => {
-      state.activeUsersID = action.payload
+      state.activeUsersID = action.payload;
     },
-
     setUsers: (state, action: PayloadAction<User[]>) => {
-      state.users = action.payload
-    }
-
+      state.users = action.payload;
+    },
+    resetPokerState: () => initialState,
   },
   extraReducers: (builder) => {
-    // Обработка состояния для createPoker
+    // Общие обработчики состояний
+    const handlePending = (state: PokerState) => {
+      state.loading = true;
+      state.error = INITIAL_ERROR;
+    };
+
+    const handleRejected = (state: PokerState, action: any) => {
+      state.loading = INITIAL_LOADING;
+      state.error = action.payload as string;
+    };
+
+    // Обработчики для createPoker
     builder
-      .addCase(createPoker.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
+      .addCase(createPoker.pending, handlePending)
       .addCase(createPoker.fulfilled, (state, action: PayloadAction<string>) => {
-        state.loading = false;
-        state.pokerId = action.payload; // Сохраняем ID созданного покера
+        state.loading = INITIAL_LOADING;
+        state.pokerId = action.payload;
       })
-      .addCase(createPoker.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string; // Сохраняем ошибку
-      });
+      .addCase(createPoker.rejected, handleRejected);
 
+    // Обработчики для fetchPokerDetails
     builder
+      .addCase(fetchPokerDetails.pending, handlePending)
+      .addCase(fetchPokerDetails.fulfilled, (state, action: PayloadAction<Poker>) => {
+        const {
+          IsAdmin,
+          CreatedAt,
+          ID,
+          ActiveUsersID,
+          Users,
+          MaximumScore,
+          EvaluationStrategy,
+        } = action.payload;
 
-      .addCase(fetchPokerDetails.pending, (state) => {
-        state.loading = true;
-        state.error = null;
+        state.loading = INITIAL_LOADING;
+        state.isAdmin = IsAdmin;
+        state.createdAt = CreatedAt;
+        state.pokerId = ID;
+        state.activeUsersID = ActiveUsersID;
+        state.users = Users;
+        state.maximumScore = MaximumScore;
+        state.evaluationStrategy = EvaluationStrategy;
+        state.possibleEstimates = calculatePossibleEstimates(MaximumScore);
       })
+      .addCase(fetchPokerDetails.rejected, handleRejected);
 
-      .addCase(fetchPokerDetails.fulfilled, (state, action) => {
-        state.loading = false;
-        state.isAdmin = action.payload.IsAdmin;
-        state.createdAt = action.payload.CreatedAt;
-        state.pokerId = action.payload.ID;
-        state.activeUsersID = action.payload.ActiveUsersID;
-        state.users = action.payload.Users;
-        state.maximumScore = action.payload.MaximumScore;
-        state.evaluationStrategy = action.payload.EvaluationStrategy;
-        state.possibleEstimates = FibonacciNumbers(state.maximumScore)
-      })
-
-      .addCase(fetchPokerDetails.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string; // Сохраняем ошибку
-      });
-
+    // Обработчики для getPokerUsers могут быть добавлены здесь
   },
 });
 
-export const { setActiveUsers, setUsers } = pokerSlice.actions;
+export const { setActiveUsers, setUsers, resetPokerState } = pokerSlice.actions;
 export default pokerSlice.reducer;

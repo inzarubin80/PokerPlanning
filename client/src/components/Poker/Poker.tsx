@@ -1,247 +1,218 @@
-import React, { useState, useRef, useEffect } from 'react';
-import {
-  Container,
-  Grid2,
-  Typography,
-  Box,
-} from '@mui/material';
-
-import Voting from '../Voting/Voting'
-import TaskList from '../TaskList/TaskList'
-import Comments from '../Comments/Comments'
-import { useNavigate } from "react-router-dom";
-import { useParams } from 'react-router-dom';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { Container, Box, useMediaQuery, useTheme , Typography} from '@mui/material';
+import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchTasks, taskAdded, taskRemoved, tasksUpdating, deleteTask } from '../../features/task/taskSlice';
+
+// Components
+import DesktopView from './DesktopView';
+import MobileView from './MobileView';
+import UserCardButton from '../generic/UserCardButton';
+
+// Redux actions
+import { fetchTasks, updateTaskLocally, removeTaskLocally, deleteTask } from '../../features/task/taskSlice';
 import { getUser } from '../../features/user/userSlice';
-import { addComment, commentAdded, getComments, SaveCommentParams } from '../../features/comment/commentSlice';
-import { setVoteChange, fetchSetVotingTask, fetchVotingControl, setNumberVoters, setUserEstimates, getUserEstimates } from '../../features/voting/votingSlice';
-import { fetchPokerDetails, setActiveUsers, setUsers } from '../../features/poker/pokerSlice';
+import { getComments, commentAdded } from '../../features/comment/commentSlice';
+import { fetchVotingData, fetchUserEstimations, updateVotingStatusLocal, updateVotersCountAction, updateUserEstimatesAction, setActiveVotingTask } from '../../features/voting/votingSlice';
+import { fetchPokerDetails, setUsers, setActiveUsers } from '../../features/poker/pokerSlice';
+
+// Types and utilities
 import { AppDispatch, RootState } from '../../app/store';
-import WebSocketClient from '../../api/WebSocketClient'
-import UserCardBUtton from '../generic/UserCardButton'
+import WebSocketClient from '../../api/WebSocketClient';
 
 
-export const getWebSocketUrl = (pokerId: string, accessToken: string | null) => {
+const getWebSocketUrl = (pokerId: string, accessToken: string | null): string => {
   const isProduction = process.env.NODE_ENV === 'production';
-  
-  const protocol = isProduction 
-    ? process.env.REACT_APP_WS_PROTOCOL || 'wss'
-    : 'ws';
-
-  const domain = isProduction
-    ? process.env.REACT_APP_WS_DOMAIN || 'api.poker-planning.ru'
-    : 'localhost:8090';
+  const protocol = isProduction ? process.env.REACT_APP_WS_PROTOCOL || 'wss' : 'ws';
+  const domain = isProduction ? process.env.REACT_APP_WS_DOMAIN || 'api.poker-planning.ru' : 'localhost:8090';
 
   return `${protocol}://${domain}/ws/${pokerId}?accessToken=${accessToken}`;
 };
 
-const App: React.FC = () => {
-
-  const previousPokerIdRef = useRef<WebSocketClient | null>(null);
+const PokerPlanningApp: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-
-  const accessToken = useSelector((state: RootState) => state.userReducer.accessToken);
-
-  
-
-  const tasks = useSelector((state: RootState) => state.taskReducer.tasks);
-  const taskID = useSelector((state: RootState) => state.volumeReducer.taskID);
-
-
-  const isAdmin = useSelector((state: RootState) => state.pokerReducer.isAdmin);
-  
-  const activeUsersID = useSelector((state: RootState) => state.pokerReducer.activeUsersID);
-  const [showSettings, setShowSettings] = useState(false);
-  const navigate = useNavigate();
   const { pokerId } = useParams<{ pokerId: string }>();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
-  useEffect(() => {
+  const taskData = useSelector((state: RootState) => state.volumeReducer.taskData);
+  const tasks = useSelector((state: RootState) => state.taskReducer.tasks);
 
-    if (!pokerId) {
-      return;
+
+  
+  const wsClientRef = useRef<WebSocketClient | null>(null);
+
+  // Selectors
+  const accessToken = useSelector((state: RootState) => state.userReducer.accessToken);
+  const activeUsersID = useSelector((state: RootState) => state.pokerReducer.activeUsersID);
+  const isAdmin = useSelector((state: RootState) => state.pokerReducer.isAdmin);
+
+
+  const navigate = useNavigate();
+
+
+  const handleDeleteTask = useCallback((taskId: number) => {
+    if (taskId && pokerId) {
+      dispatch(deleteTask({ pokerID: pokerId, taskID: taskId }));
     }
+  }, [dispatch, pokerId]);
 
-    dispatch(getUser());
-    dispatch(fetchTasks(pokerId));
-    dispatch(getComments(pokerId));
-    dispatch(fetchVotingControl(pokerId));
-    dispatch(fetchPokerDetails(pokerId));
-    dispatch(getUserEstimates(pokerId));
-    
-  }, [pokerId]);
-
-  useEffect(() => {
-    if (!pokerId) {
-      return;
-    }
-    const wsClient = new WebSocketClient(getWebSocketUrl(pokerId, accessToken), socketOnMessage);
-    return () => {
-      wsClient.closeConnection()
-    };
-
-  }, [pokerId, accessToken]);
-
-  const socketOnMessage = (msgEvent: any) => {
+  const handleEditTask = useCallback((taskId: number) => {
+    navigate(`/poker/${pokerId}/task/${taskId}`);
+  }, [navigate, pokerId]);
 
 
-    const newMessages = msgEvent.data.split("\n").map((message: string) => {
-      try {
-        return JSON.parse(message);
-      } catch (e) {
-        console.error("Ошибка парсинга сообщения:", message, e);
-        return null; // Если не удалось, возвращаем null
-      }
-    });
+  // WebSocket message handler
+// WebSocket message handler
+  const handleWebSocketMessage = useCallback((msgEvent: MessageEvent) => {
+    const messages = msgEvent.data.split("\n")
+      .map((message: string) => {
+        try {
+          return JSON.parse(message);
+        } catch (e) {
+          console.error("Error parsing message:", message, e);
+          return null;
+        }
+      })
+      .filter(Boolean);
 
-
-    for (let i = 0; i < newMessages.length; i++) {
-      const msg = newMessages[i];
+    messages.forEach((msg: any) => {
       switch (msg.Action) {
-        
         case 'ADD_TASK':
-          dispatch(taskAdded(msg.Task));
+          dispatch(updateTaskLocally(msg.Task));
           break;
         case 'UPDATE_TASK':
-          dispatch(tasksUpdating(msg.Task));
+          dispatch(updateTaskLocally(msg.Task));
           break;
         case 'REMOVE_TASK':
-          dispatch(taskRemoved(msg.taskID));
+          dispatch(removeTaskLocally(msg.taskID));
           break;
         case 'ADD_COMMENT':
           dispatch(commentAdded(msg.Comment));
           break;
         case 'VOTE_STATE_CHANGE':
-          dispatch(setVoteChange(msg.State));
-
-          if (pokerId) {
-            dispatch(getComments(pokerId));
-          }
-          
+          dispatch(updateVotingStatusLocal(msg.State));
+          if (pokerId) dispatch(getComments(pokerId));
           break;
         case 'CHANGE_NUMBER_VOTERS':
-          dispatch(setNumberVoters(msg.Count));
+          dispatch(updateVotersCountAction(msg.Count));
           break;
         case 'ADD_VOTING':
-          dispatch(setUserEstimates(msg.VotingResult));  
-         
-          break;    
+          dispatch(updateUserEstimatesAction(msg.VotingResult));
+          break;
         case 'CHANGE_ACTIVE_USERS_POKER':
           dispatch(setActiveUsers(msg.Users));
           break;
-
         case 'ADD_POKER_USER':
           dispatch(setUsers(msg.Users));
           break;
-
         default:
           console.warn("Unknown message type:", msg);
       }
-    }
+    });
+  }, [dispatch, pokerId]);
+
+    // Event handlers
+
+    const handleSetVotingTask = useCallback((taskID: number) => {
+      if (pokerId) {
+        dispatch(setActiveVotingTask({ pokerId, taskId: taskID}));
+      }
+    }, [dispatch, pokerId, isMobile]);
+    
+  // Initialize app data
+  useEffect(() => {
+    if (!pokerId) return;
+
+    dispatch(getUser());
+    dispatch(fetchTasks(pokerId));
+    dispatch(getComments(pokerId));
+    dispatch(fetchVotingData(pokerId));
+    dispatch(fetchPokerDetails(pokerId));
+    dispatch(fetchUserEstimations(pokerId));
+  }, [pokerId, dispatch]);
+
+  // WebSocket connection management
+  useEffect(() => {
+    if (!pokerId || !accessToken) return;
+
+    const wsUrl = getWebSocketUrl(pokerId, accessToken);
+    wsClientRef.current = new WebSocketClient(wsUrl, handleWebSocketMessage);
+
+    return () => {
+      wsClientRef.current?.closeConnection();
+      wsClientRef.current = null;
+    };
+  }, [pokerId, accessToken, handleWebSocketMessage]);
+
+  if (!pokerId) {
+    return <div>Invalid poker session ID</div>;
   }
 
-
-  const handleEditTask = (taskId: number) => {
-    navigate(`/poker/${pokerId}/task/${taskId}`);
-  };
-
-
-  const handleDeleteTask = (taskId: number) => {
-    if (taskId && pokerId) {
-      dispatch(deleteTask({ pokerID: pokerId, taskID: taskId }));
-    }
-  };
-
-  const handleSetVotingTask = (taskID: number) => {
-    if (pokerId) {
-      dispatch(fetchSetVotingTask({ pokerID: pokerId, taskID }));
-    }
-  };
-
-  const handleAddComment = (saveCommentParams: SaveCommentParams) => {
-    if (!pokerId) {
-      return
-    }
-    saveCommentParams.pokerID = pokerId
-    dispatch(addComment(saveCommentParams))
-  };
-
-  const handleEndVoting = () => {
-
-  };
-
-  const handleSettingsToggle = () => {
-    setShowSettings(!showSettings);
-  };
-
-  //maxWidth="lg" 
-
   return (
-    <Container maxWidth={false}>
-
-
-      <Box mt={4} mb={4}> {/* Добавлен marginBottom для отступа от элементов ниже */}
-        <Box display="flex" justifyContent="space-between" alignItems="center">
-          {/* Центрированный текст */}
-          <Box
-            display="flex"
-            flexGrow={1}
-            justifyContent="center"
-            alignItems="center"
-            sx={{ gap: 2 }} // Добавляем отступ между элементами
-          >
-            <Typography variant="h4" gutterBottom>
-              Покер планирования
-            </Typography>
-            <Typography variant="subtitle1" color="textSecondary">
-              Участники: {activeUsersID.length}
-            </Typography>
-          </Box>
-
-          <UserCardBUtton />
-
+    <Container 
+      maxWidth={false} 
+      disableGutters
+      sx={{ 
+        height: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden'
+      }}
+    >
+      {/* Header */}
+      <Box 
+        sx={{
+          p: 1,
+          flexShrink: 0,
+          position: 'sticky',
+          top: 0,
+          zIndex: 10,
+          backgroundColor: 'background.paper',
+          borderBottom: '1px solid',
+          borderColor: 'divider',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}
+      >
+        <Box display="flex" alignItems="center" gap={1}>
+          <Typography variant={isMobile ? 'subtitle1' : 'h6'} noWrap>
+            Покер планирования
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            ({activeUsersID.length})
+          </Typography>
         </Box>
+        <UserCardButton />
       </Box>
 
-      <Grid2 container spacing={1} style={{ height: 'calc(100vh - 120px)', display: 'flex' }}>
+      {/* Main content */}
+      {isMobile ? (
+        <MobileView 
+        pokerId={pokerId} 
+        isAdmin={isAdmin} 
+        handleDeleteTask={handleDeleteTask}
+        handleEditTask={handleEditTask}
+        handleSetVotingTask={handleSetVotingTask}
+        taskId={taskData.id}
+        tasks={tasks}
+        />
 
-
-        <Grid2 size={taskID > 0 ? { xs: 5 } : { xs: 6 }} style={{ display: 'flex', flexDirection: 'column' }}>
-          <TaskList
-            tasks={tasks}
-            isAdmin ={isAdmin}
-            handleEditTask={handleEditTask}
-            handleDeleteTask={handleDeleteTask}
-            handleSetVotingTask={handleSetVotingTask}
-            setEditingTask={() => { }} 
-            
-            />
-
-        </Grid2>
-
-        <Grid2 size={taskID > 0 ? { xs: 4 } : { xs: 6 }} style={{ display: 'flex', flexDirection: 'column' }}>
-          <Voting
-            averageEstimate={1}
-            averageMethod={""}
-            isAdmin ={isAdmin}
-            showSettings={showSettings}
-            handleSettingsToggle={handleSettingsToggle}
-            handleEndVoting={handleEndVoting} />
-        </Grid2>
-
-
-
-        {taskID > 0 && <Grid2 size={{ xs: 3 }} style={{ display: 'flex', flexDirection: 'column' }}>
-          <Comments
-
-            handleAddComment={handleAddComment} />
-        </Grid2>}
-
-      </Grid2>
-
-
+      ) : (
+        <DesktopView 
+        
+        pokerId={pokerId} 
+        isAdmin={isAdmin} 
+        handleDeleteTask={handleDeleteTask}
+        handleEditTask={handleEditTask}
+        handleSetVotingTask={handleSetVotingTask}
+        taskId={taskData.id}
+        tasks={tasks}
+        
+        />
+      )}
     </Container>
   );
 };
 
-export default App;
+export default PokerPlanningApp;

@@ -1,294 +1,242 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo } from 'react';
 import {
-    Paper,
-    Typography,
-    Button,
-    IconButton,
-    Box,
-    Card,
-    CardContent,
-    CardActions,
-    List,
-    ListItem,
-    ListItemText,
-    LinearProgress,
-    Rating,
-    TextField,
+  Paper,
+  Typography,
+  Button,
+  Box,
+  Card,
+  CardContent,
+  CardActions,
+  List,
+  ListItem,
+  ListItemText,
+  LinearProgress,
+  Rating,
+  TextField,
 } from '@mui/material';
-
 import { styled } from '@mui/material/styles';
-import { Settings } from '@mui/icons-material';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '../../app/store';
-import { fetchAddVote, setVotingState, setFinalResult } from '../../features/voting/votingSlice';
+import { submitUserVote, updateFinalResultAction,  updateVotingStatus} from '../../features/voting/votingSlice';
 import { useParams } from 'react-router-dom';
-import 'react-circular-progressbar/dist/styles.css';
-import { Task, UserEstimate } from "../../model/model"
 import FavoriteIcon from '@mui/icons-material/StarOutline';
 import FavoriteBorderIcon from '@mui/icons-material/StarOutline';
+import { Task, UserEstimate } from '../../model/model';
 
 const StyledRating = styled(Rating)({
-    '& .MuiRating-iconFilled': {
-        color: '#ff6d75',
-    },
-    '& .MuiRating-iconHover': {
-        color: '#ff3d47',
-    },
+  '& .MuiRating-iconFilled': {
+    color: '#ff6d75',
+  },
+  '& .MuiRating-iconHover': {
+    color: '#ff3d47',
+  },
 });
 
 interface VotingProps {
-    isAdmin: boolean;
-    handleSettingsToggle: () => void;
-    averageEstimate: number;
-    handleEndVoting: () => void;
-    averageMethod: string;
-    showSettings: boolean;
+  isAdmin: boolean;
+  handleSettingsToggle: () => void;
+  averageEstimate: number;
+  averageMethod: string;
 }
 
-interface Action {
-    id: string;
-    name: string;
-}
+const Voting: React.FC<VotingProps> = ({ isAdmin }) => {
+  const tasks: Task[] = useSelector((state: RootState) => state.taskReducer.tasks);
+  const votingTask: number | null = useSelector((state: RootState) => state.volumeReducer.taskData.id);
+  const userEstimates: UserEstimate[] = useSelector((state: RootState) => state.volumeReducer.taskData.estimates);
+  const userID: number = useSelector((state: RootState) => state.userReducer.userID);
+  const possibleEstimates: number[] = useSelector((state: RootState) => state.pokerReducer.possibleEstimates);
+  const action: string = useSelector((state: RootState) => state.volumeReducer.taskData.votingAction);
+  const actionName: string = useSelector((state: RootState) => state.volumeReducer.taskData.votingActionName);
+  const activeUsersID = useSelector((state: RootState) => state.pokerReducer.activeUsersID);
+  const users = useSelector((state: RootState) => state.pokerReducer.users);
+  const finalResult: number = useSelector((state: RootState) => state.volumeReducer.taskData.finalResult);
+  const dispatch: AppDispatch = useDispatch();
+  const { pokerId } = useParams<{ pokerId: string }>();
 
+  const selectedTask: Task | undefined = useMemo(
+    () => tasks.find(item => item.ID === votingTask),
+    [tasks, votingTask]
+  );
 
-const Voting: React.FC<VotingProps> = ({
-    handleSettingsToggle,
-    handleEndVoting,
-    isAdmin
-}) => {
-
-    const tasks: Task[] = useSelector((state: RootState) => state.taskReducer.tasks);
-    const votingTask: number | null = useSelector((state: RootState) => state.volumeReducer.taskID);
-    const userEstimates: UserEstimate[] = useSelector((state: RootState) => state.volumeReducer.userEstimates);
-    const userID: number = useSelector((state: RootState) => state.userReducer.userID);
-    const possibleEstimates: number[] = useSelector((state: RootState) => state.pokerReducer.possibleEstimates);
-    const action: string = useSelector((state: RootState) => state.volumeReducer.action);
-    const actionName: string = useSelector((state: RootState) => state.volumeReducer.actionName);
-    const activeUsersID = useSelector((state: RootState) => state.pokerReducer.activeUsersID);
-    const users = useSelector((state: RootState) => state.pokerReducer.users);
-    const finalResult: number = useSelector((state: RootState) => state.volumeReducer.finalResult);
-    const dispatch: AppDispatch = useDispatch();
-    const { pokerId } = useParams<{ pokerId: string }>();
-
-    const selectedTask: Task | undefined = useMemo(
-        () => tasks.find(item => item.ID === votingTask),
-        [tasks, votingTask]
-    );
-
-    const userEstimatesRes: UserEstimate[] = useMemo(
-        () => {
-            let userEstimatesRes = [...userEstimates]
-            for (let i = 0; i < activeUsersID.length; i++) {
-                if (!userEstimatesRes.find(item => item.UserID == activeUsersID[i])) {
-                    userEstimatesRes.push(
-                        {
-                            Estimate: -1,
-                            UserID: activeUsersID[i],
-                            PokerID: "",
-                            ID: -1
-                        }
-                    )
-                }
-            }
-         
-            if (action === 'end') {
-                return [...userEstimatesRes].sort((a, b) => a.Estimate - b.Estimate);
-            } else {
-                return [...userEstimatesRes];
-            }     
-        },
-        [activeUsersID, users, userEstimates, action]
-    );
-
-
-    const currentEstimate: UserEstimate | undefined = useMemo(
-        () => userEstimates.find(item => item.UserID === userID),
-        [userEstimates, userID]
-    );
-
-    const onTimerComplete = () => {
-        handleSetStateVoting();
-    };
-
-    if (!pokerId) {
-        return <div>pokerId is missing in the URL</div>;
+  const userEstimatesRes: UserEstimate[] = useMemo(() => {
+    let userEstimatesRes = [...userEstimates];
+    for (let i = 0; i < activeUsersID.length; i++) {
+      if (!userEstimatesRes.find(item => item.UserID === activeUsersID[i])) {
+        userEstimatesRes.push({
+          Estimate: -1,
+          UserID: activeUsersID[i],
+          PokerID: "",
+          ID: -1
+        });
+      }
     }
+    
+    if (action === 'end') {
+      return [...userEstimatesRes].sort((a, b) => a.Estimate - b.Estimate);
+    }
+    return [...userEstimatesRes];
+  }, [activeUsersID, userEstimates, action]);
 
-    const handleAddVote = (taskID: number, estimate: number) => {
-        dispatch(fetchAddVote({
-            estimate,
-            pokerID: pokerId
-        }));
-    };
+  const currentEstimate: UserEstimate | undefined = useMemo(
+    () => userEstimates.find(item => item.UserID === userID),
+    [userEstimates, userID]
+  );
 
-    const handleSetStateVoting = () => {
-        if (action == '') {
-            return;
-        }
-        dispatch(setVotingState({ pokerID: pokerId, action: action, result: finalResult }));
-    };
+  if (!pokerId) {
+    return <div>pokerId is missing in the URL</div>;
+  }
 
-    const handleFinalResultChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const value = event.target.value;
-        dispatch(setFinalResult(Number(value))); // Обновление состояния финального результата
-    };
+  const handleAddVote = (taskID: number, estimate: number) => {
+    dispatch(submitUserVote({
+      estimate,
+      pokerId
+    }));
+  };
 
-    return (
-        <Paper elevation={3}>
-            <Box
-                position="sticky"
-                top={0}
-                bgcolor="grey.200"
-                zIndex={1}
-                p={2}
-                display="flex"
-                justifyContent="space-between"
-                alignItems="center"
-                height={"4vh"}
-            >
-                <Box flex={1} display="flex" justifyContent="center">
-                    <Typography variant="h6">Голосование</Typography>
+  const handleSetStateVoting = () => {
+    if (action === '') {
+      return;
+    }
+    dispatch(updateVotingStatus({ pokerId: pokerId, action: action, result: finalResult }));
+  };
+
+  const handleFinalResultChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    dispatch(updateFinalResultAction(Number(value)));
+  };
+
+  return (
+    <>
+
+      <Box flex={1} display="flex" flexDirection="column" overflow="hidden">
+        {selectedTask ? (
+          <Box flex={1} overflow="auto" p={2}>
+            <Card variant="outlined">
+              <CardContent>
+                <Typography variant="h6">ID {selectedTask.ID} {selectedTask.Title}</Typography>
+              </CardContent>
+
+              <CardActions sx={{ justifyContent: 'center', gap: 3, flexWrap: 'wrap', padding: 2 }}>
+                {action === 'stop' && possibleEstimates.map((estimate: number) => (
+                  <Button
+                    key={estimate.toString()}
+                    variant={currentEstimate?.Estimate === estimate ? 'contained' : 'outlined'}
+                    color="primary"
+                    onClick={() => handleAddVote(selectedTask.ID, estimate)}
+                  >
+                    {estimate}
+                  </Button>
+                ))}
+              </CardActions>
+            </Card>
+
+            <Box mt={2}>
+              <Card variant="outlined">
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="space-between"
+                  p={2}
+                  borderBottom="1px solid rgba(0, 0, 0, 0.12)"
+                  flexDirection="column"
+                  rowGap={2}
+                >
+                  <Typography variant="subtitle1">
+                    Проголосовало: {userEstimates.length || 0}
+                  </Typography>
+
+                  {action === 'stop' && (
+                    <Box sx={{ width: '100%' }}>
+                      <LinearProgress />
+                    </Box>
+                  )}
                 </Box>
-  
+
+                <Box p={0} sx={{ overflowY: 'auto' }}>
+                  <List dense>
+                    {userEstimatesRes.map((userEstimate: UserEstimate) => action === 'end' ? (
+                      <ListItem key={userEstimate.UserID.toString()} sx={{ py: 0.5 }}>
+                        <ListItemText
+                          primary={`${users.find(item => item.ID === userEstimate.UserID)?.Name}`}
+                          secondary={`Оценка: ${userEstimate.Estimate < 0 ? "-" : userEstimate.Estimate}`}
+                          primaryTypographyProps={{
+                            variant: 'body2',
+                            sx: {
+                              color: userEstimate.Estimate > 0 ? 'green' : 'inherit',
+                              fontWeight: userEstimate.Estimate > 0 ? 'bold' : 'normal'
+                            }
+                          }}
+                          secondaryTypographyProps={{ variant: 'body2', color: 'text.secondary' }}
+                        />
+                        <StyledRating
+                          disabled
+                          name="customized-color"
+                          getLabelText={(value: number) => `${value} Heart${value !== 1 ? 's' : ''}`}
+                          precision={1}
+                          icon={<FavoriteIcon fontSize="inherit" />}
+                          emptyIcon={<FavoriteBorderIcon fontSize="inherit" />}
+                          max={possibleEstimates.length}
+                          value={possibleEstimates.findIndex(item => item === userEstimate.Estimate) + 1}
+                        />
+                      </ListItem>
+                    ) : (
+                      <ListItem sx={{ py: 0.5 }} key={userEstimate.UserID.toString()}  >
+                        <ListItemText
+                          primary={`${users.find(item => item.ID === userEstimate.UserID)?.Name}`}
+                          primaryTypographyProps={{
+                            variant: 'body2',
+                            sx: {
+                              color: userEstimate.Estimate > 0 ? 'green' : 'inherit',
+                              fontWeight: userEstimate.Estimate > 0 ? 'bold' : 'normal'
+                            }
+                          }}
+                          secondaryTypographyProps={{ variant: 'body2', color: 'text.secondary' }}
+                        />
+                      </ListItem>
+                    ))}
+                  </List>
+                </Box>
+              </Card>
             </Box>
 
-            <Box display="flex" height="80vh" flexDirection="column" justifyContent="space-between">
-                {selectedTask ? (
-                    <Box p={1} overflow="auto">
-                        <Card variant="outlined">
-                            <CardContent>
-                                <Typography variant="h6"> ID {selectedTask.ID} {selectedTask.Title}</Typography>
-                            </CardContent>
+            {action === 'end' && (
+              <Box mt={2}>
+                <TextField
+                  fullWidth
+                  label="Финальный результат"
+                  type="number"
+                  value={finalResult}
+                  onChange={handleFinalResultChange}
+                  InputLabelProps={{ shrink: true }}
+                />
+              </Box>
+            )}
+          </Box>
+        ) : (
+          <Box
+            flex={1}
+            display="flex"
+            flexDirection="column"
+            justifyContent="center"
+            alignItems="center"
+            p={2}
+          >
+            <Typography variant="body1" align="center">
+              Выберите задачу для голосования
+            </Typography>
+          </Box>
+        )}
 
-                            <CardActions sx={{ justifyContent: 'center', gap: 3, flexWrap: 'wrap', padding: 2 }}>
-                                {action == 'stop' && possibleEstimates.map((estimate: number) => (
-                                    <Button
-                                        key={estimate.toString()}
-                                        variant={currentEstimate && estimate === currentEstimate?.Estimate ? 'contained' : 'outlined'}
-                                        color="primary"
-                                        onClick={() => handleAddVote(selectedTask.ID, estimate)}
-                                    >
-                                        {estimate}
-                                    </Button>
-                                ))}
-                            </CardActions>
-                        </Card>
-
-                        <Box mt={2}>
-
-                            <Card variant="outlined">
-                                <Box
-                                    display="flex"
-                                    alignItems="center"
-                                    justifyContent="space-between"
-                                    p={2}
-                                    borderBottom="1px solid rgba(0, 0, 0, 0.12)"
-                                    flexDirection="column"
-                                    rowGap={2}
-                                >
-                                    <Typography variant="subtitle1">
-                                        Проголосовало: {userEstimates.length || 0}
-                                    </Typography>
-
-                                    {action === 'stop' && (
-                                        <Box sx={{ width: '100%' }}>
-                                            <LinearProgress />
-                                        </Box>
-                                    )}
-                                </Box>
-
-                                <Box p={0} sx={{ overflowY: 'auto' }}>
-                                    <List dense>
-                                        {userEstimatesRes.map((userEstimate: UserEstimate) => action === 'end' ? (
-                                            <ListItem key={userEstimate.UserID.toString()} sx={{ py: 0.5 }}>
-                                                <ListItemText
-                                                    primary={`${users.find(item => item.ID == userEstimate.UserID)?.Name}`}
-                                                    secondary={`Оценка: ${userEstimate.Estimate<0?"-":userEstimate.Estimate}`}
-                                                    primaryTypographyProps={{
-                                                        variant: 'body2',
-                                                        sx: {
-                                                            color: userEstimate.Estimate > 0 ? 'green' : 'inherit',
-                                                            fontWeight: userEstimate.Estimate > 0 ? 'bold' : 'normal'
-                                                        }
-                                                    }}
-                                                    secondaryTypographyProps={{ variant: 'body2', color: 'text.secondary' }}
-                                                />
-                                                <StyledRating
-                                                    disabled
-                                                    name="customized-color"
-                                                    getLabelText={(value: number) => `${value} Heart${value !== 1 ? 's' : ''}`}
-                                                    precision={1}
-                                                    icon={<FavoriteIcon fontSize="inherit" />}
-                                                    emptyIcon={<FavoriteBorderIcon fontSize="inherit" />}
-                                                    max={possibleEstimates.length}
-                                                    value={possibleEstimates.findIndex(item => item == userEstimate.Estimate) + 1}
-                                                />
-                                            </ListItem>
-                                        ) : (
-                                            <ListItem
-                                            sx={{ py: 0.5 }}
-                                            >
-                                                <ListItemText
-                                                    primary={`${users.find(item => item.ID == userEstimate.UserID)?.Name}`}
-                                                    primaryTypographyProps={{
-                                                        variant: 'body2',
-                                                        sx: {
-                                                            color: userEstimate.Estimate > 0 ? 'green' : 'inherit',
-                                                            fontWeight: userEstimate.Estimate > 0 ? 'bold' : 'normal'
-                                                        }
-                                                    }}
-                                                    secondaryTypographyProps={{ variant: 'body2', color: 'text.secondary' }}
-                                                />
-                                            </ListItem>
-
-
-                                        ))}
-                                    </List>
-                                </Box>
-                            </Card>
-                        </Box>
-
-                        {/* Поле выбора финального результата */}
-                        {(action === 'end') && (
-                            <Box mt={2}>
-                                <TextField
-                                    fullWidth
-                                    label="Финальный результат"
-                                    type="number"
-                                    value={finalResult}
-                                    onChange={handleFinalResultChange}
-                                    slotProps={{ inputLabel: { shrink: true } }}
-
-                                />
-
-                            </Box>
-                        )}
-                    </Box>
-                ) : (
-                    <Box
-                        display="flex"
-                        flexDirection="column"
-                        justifyContent="center"
-                        alignItems="center"
-                        height="100%"
-                        p={2}
-                    >
-                        <Typography variant="body1" align="center">
-                            Выберите задачу для голосования
-                        </Typography>
-                    </Box>
-                )}
-
-                <Box p={2} display="flex" flexDirection="column" justifyContent="flex-start">
-                    {isAdmin == true && action !== '' && (
-                        <Button variant="contained" color="primary" onClick={handleSetStateVoting}>
-                            {actionName}
-                        </Button>
-                    )}
-                </Box>
-            </Box>
-        </Paper>
-    );
+        {isAdmin && action !== '' && (
+          <Box p={2} borderTop={1} borderColor="divider">
+            <Button variant="contained" color="primary" onClick={handleSetStateVoting} fullWidth>
+              {actionName}
+            </Button>
+          </Box>
+        )}
+      </Box>
+    </>
+  );
 };
 
 export default Voting;

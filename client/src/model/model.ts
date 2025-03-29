@@ -13,9 +13,8 @@ export interface CommentItem {
   ID: number;
   Text: string;
   UserID: number;
-  PokerID: string;
+  PokerID: string;  
   TaskID: number;
-  
 }
 
 export interface VoteControlState {

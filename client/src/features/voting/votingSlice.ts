@@ -1,287 +1,309 @@
-import { createSlice, createAsyncThunk, PayloadAction, Dispatch } from '@reduxjs/toolkit';
-import { authAxios } from '../../service/http-common'; // Убедитесь, что путь к authAxios правильный
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import { authAxios } from '../../service/http-common';
 import { AxiosError } from 'axios';
 import { VoteControlState, UserEstimate, VotingResult } from '../../model/model';
-import { store } from '../../app/store';
-import ArrayUtils from '../../utils/ArrayUtils'
 
-
-
-export interface SetVotingTaskParams {
-    pokerID: string;
-    taskID: number;
-}
-
-export interface AddVoteParams {
-    pokerID: string;
-    estimate: number
-}
-
-const isZeroDate = (date: string | null): boolean => {
-    return (date == null) || (date == "0001-01-01T00:00:00Z");
-};
+// Типы и интерфейсы
+type LoadingStatus = 'idle' | 'loading' | 'succeeded' | 'failed';
+type VotingActionType = 'start' | 'stop' | 'end' | '';
+type VotingActionName = 'Начать голосование' | 'Остановить голосование' | 'Завершить голосование' | '';
 
 interface VotingState {
-
-    taskID: number;
-    statusGetVotingTask: 'idle' | 'loading' | 'succeeded' | 'failed';
-    errorGetVotingTask: string | null;
-    statusSetVotingTask: 'idle' | 'loading' | 'succeeded' | 'failed';
-    errorSetVotingTask: string | null;
-    statusUserEstimates: 'idle' | 'loading' | 'succeeded' | 'failed';
-    errorUserEstimates: string | null;
-    statusSetVoting: 'idle' | 'loading' | 'succeeded' | 'failed';
-    errorSetVoting: string | null;
-    statusSetVotingState: 'idle' | 'loading' | 'succeeded' | 'failed';
-    errorSetVotingState: string | null;
-    vote: number;
-    numberVoters: number;
+  taskData: {
+    id: number;
+    currentVote: number;
+    votersCount: number;
     startDate: string | null;
     duration: number;
     endDate: string | null;
-    userEstimates: UserEstimate[];
+    estimates: UserEstimate[];
     progress: number;
-    durationVoiceSec: number;
-    remainingSec: number;
-    finalResult: number
-    action: 'start' | 'stop' | 'end' | '';
-    actionName: 'Начать голосование' | 'Остановить голосование' | 'Завершить голосование' | '';
+    durationSeconds: number;
+    remainingSeconds: number;
+    finalResult: number;
+    votingAction: VotingActionType;
+    votingActionName: VotingActionName;
+  };
+  status: Record<VotingAction, LoadingStatus>;
+  error: Record<VotingAction, string | null>;
 }
 
-interface Action {
-    id: string;
-    name: string;
+type VotingAction = 
+  | 'fetchVotingControl' 
+  | 'setVotingTask' 
+  | 'fetchUserEstimates' 
+  | 'submitVote' 
+  | 'updateVotingState';
+
+interface VotingTaskParams {
+  pokerId: string;
+  taskId: number;
 }
 
+interface VoteParams {
+  pokerId: string;
+  estimate: number;
+}
+
+interface VotingStateParams {
+  pokerId: string;
+  action: string;
+  result: number;
+}
+
+// Константы
+const SLICE_NAME = 'voting';
+const DEFAULT_VOTING_DURATION = 30;
+const INITIAL_STATUS = 'idle';
+const INITIAL_ERROR = null;
+
+const VOTING_ACTIONS: Record<VotingActionType, VotingActionName> = {
+  'start': 'Начать голосование',
+  'stop': 'Остановить голосование',
+  'end': 'Завершить голосование',
+  '': ''
+};
+
+// Начальное состояние
 const initialState: VotingState = {
-
-    taskID: 0,
-    statusGetVotingTask: 'idle',
-    errorGetVotingTask: null,
-    statusSetVotingTask: 'idle',
-    errorSetVotingTask: null,
-    statusSetVoting: 'idle',
-    errorSetVoting: null,
-    statusUserEstimates: 'idle',
-    errorUserEstimates: null,
-    statusSetVotingState: 'idle',
-    errorSetVotingState: null,
-    vote: 0,
-    numberVoters: 0,
+  taskData: {
+    id: 0,
+    currentVote: 0,
+    votersCount: 0,
     duration: 0,
     endDate: null,
     startDate: null,
-    userEstimates: [],
+    estimates: [],
     progress: 0,
-    durationVoiceSec: 30,
-    remainingSec: 0,
-    action: '',
-    actionName: '',
+    durationSeconds: DEFAULT_VOTING_DURATION,
+    remainingSeconds: 0,
     finalResult: 0,
+    votingAction: '',
+    votingActionName: '',
+  },
+  status: {
+    fetchVotingControl: INITIAL_STATUS,
+    setVotingTask: INITIAL_STATUS,
+    fetchUserEstimates: INITIAL_STATUS,
+    submitVote: INITIAL_STATUS,
+    updateVotingState: INITIAL_STATUS,
+  },
+  error: {
+    fetchVotingControl: INITIAL_ERROR,
+    setVotingTask: INITIAL_ERROR,
+    fetchUserEstimates: INITIAL_ERROR,
+    submitVote: INITIAL_ERROR,
+    updateVotingState: INITIAL_ERROR,
+  },
 };
 
-// Функция для обработки ошибок Axios
-const handleAxiosError = (error: unknown): string => {
-    if (error instanceof AxiosError && error.response && error.response.data) {
-        return error.response.data.message;
-    }
-    return 'Something went wrong';
+// Вспомогательные функции
+const isZeroDate = (date: string | null): boolean => {
+  return !date || date === "0001-01-01T00:00:00Z";
 };
 
-export const fetchVotingControl = createAsyncThunk(
-    'votingTask/get',
-    async (pokerID: string, { rejectWithValue }) => {
-        try {
-            const response = await authAxios.get(`/poker/${pokerID}/voting-control`);
-            return response.data;
-        } catch (error) {
-            const errorMessage = handleAxiosError(error);
-            return rejectWithValue(errorMessage);
-        }
-    }
-);
-
-export const getUserEstimates = createAsyncThunk(
-    'userEstimates/get',
-    async (pokerID:string, { rejectWithValue }) => {
-        try {
-            const response = await authAxios.get(`/poker/${pokerID}/user-estimates`);
-            return response.data;
-        } catch (error) {
-            const errorMessage = handleAxiosError(error);
-            return rejectWithValue(errorMessage);
-        }
-    }
-);
-
-export const fetchSetVotingTask = createAsyncThunk(
-    'votingTask/add',
-    async (params: SetVotingTaskParams, { rejectWithValue }) => {
-        const { pokerID, taskID } = params;
-        try {
-            const response = await authAxios.post(`/poker/${pokerID}/voting-control/task/${taskID}`);
-            return taskID;
-        } catch (error) {
-            const errorMessage = handleAxiosError(error);
-            return rejectWithValue(errorMessage);
-        }
-    }
-);
-
-export const fetchAddVote = createAsyncThunk(
-    'vote/add',
-    async (params: AddVoteParams, { rejectWithValue }) => {
-
-
-        const { pokerID, estimate } = params
-
-        try {
-            const response = await authAxios.post(`/poker/${pokerID}/vote`, estimate);
-            return estimate;
-        } catch (error) {
-            const errorMessage = handleAxiosError(error);
-            return rejectWithValue(errorMessage);
-        }
-    }
-);
-
-export const setVotingState = createAsyncThunk(
-    'votingState/set',
-    async (params: { pokerID: string, action: string, result: number }, { rejectWithValue }) => {
-        const { pokerID, action, result } = params;
-        try {
-            const response = await authAxios.post(`/poker/${pokerID}/voting-control/${action}`, { result });
-            return response.data;
-        } catch (error) {
-            const errorMessage = handleAxiosError(error);
-            return rejectWithValue(errorMessage);
-        }
-    }
-);
-
-
-
-const updateVoteState = (state: VotingState, payload: VoteControlState) => {
-
-    state.taskID = payload.TaskID;
-    state.endDate = payload.EndDate;
-    state.startDate = payload.StartDate;
-
-    if (state.taskID > 0 && isZeroDate(state.startDate)) {
-        state.action = 'start'
-        state.actionName = 'Начать голосование'
-    } else if (state.taskID > 0 && !isZeroDate(state.startDate) && isZeroDate(state.endDate)) {
-        state.action = 'stop'
-        state.actionName = 'Остановить голосование'
-    } else if (state.taskID > 0 && !isZeroDate(state.startDate) && !isZeroDate(state.endDate)) {
-        state.action = 'end'
-        state.actionName = 'Завершить голосование'
-    } else {
-        state.action = ''
-        state.actionName = ''
-    }
+const handleApiError = (error: unknown): string => {
+  if (error instanceof AxiosError && error.response?.data?.message) {
+    return error.response.data.message;
+  }
+  return error instanceof Error ? error.message : 'Неизвестная ошибка';
 };
 
+const getVotingAction = (
+  taskId: number, 
+  startDate: string | null, 
+  endDate: string | null
+): { action: VotingActionType, name: VotingActionName } => {
+  if (taskId <= 0) return { action: '', name: '' };
+  
+  if (isZeroDate(startDate)) {
+    return { action: 'start', name: VOTING_ACTIONS.start };
+  }
+  if (!isZeroDate(startDate) && isZeroDate(endDate)) {
+    return { action: 'stop', name: VOTING_ACTIONS.stop };
+  }
+  if (!isZeroDate(startDate) && !isZeroDate(endDate)) {
+    return { action: 'end', name: VOTING_ACTIONS.end };
+  }
+  
+  return { action: '', name: '' };
+};
 
-const votingTaskSlice = createSlice({
-    name: 'VotingTask',
-    initialState,
-    reducers: {
-        setVoteChange: (state, action: PayloadAction<VoteControlState>) => {
-            updateVoteState(state, action.payload)
-        },
+const updateVotingData = (state: VotingState, payload: VoteControlState) => {
+  const { TaskID, StartDate, EndDate } = payload;
+  
+  state.taskData.id = TaskID;
+  state.taskData.endDate = EndDate;
+  state.taskData.startDate = StartDate;
+  
+  const { action, name } = getVotingAction(TaskID, StartDate, EndDate);
+  state.taskData.votingAction = action;
+  state.taskData.votingActionName = name;
+};
 
-        setNumberVoters: (state, action: PayloadAction<number>) => {
-            state.numberVoters = action.payload;
-        },
+// Асинхронные действия
+export const fetchVotingData = createAsyncThunk<VoteControlState, string>(
+  `${SLICE_NAME}/fetchControl`,
+  async (pokerId: string, { rejectWithValue }) => {
+    try {
+      const response = await authAxios.get(`/poker/${pokerId}/voting-control`);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(handleApiError(error));
+    }
+  }
+);
 
-        setFinalResult: (state, action: PayloadAction<number>) => {
-            state.finalResult = action.payload;
-        },
+export const fetchUserEstimations = createAsyncThunk<VotingResult, string>(
+  `${SLICE_NAME}/fetchEstimates`,
+  async (pokerId: string, { rejectWithValue }) => {
+    try {
+      const response = await authAxios.get(`/poker/${pokerId}/user-estimates`);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(handleApiError(error));
+    }
+  }
+);
 
-        setUserEstimates: (state, action: PayloadAction< VotingResult >) => {
+export const setActiveVotingTask = createAsyncThunk<number, VotingTaskParams>(
+  `${SLICE_NAME}/setTask`,
+  async ({ pokerId, taskId }, { rejectWithValue }) => {
+    try {
+      await authAxios.post(`/poker/${pokerId}/voting-control/task/${taskId}`);
+      return taskId;
+    } catch (error) {
+      return rejectWithValue(handleApiError(error));
+    }
+  }
+);
 
-            state.userEstimates = action.payload.UserEstimates
-            state.finalResult = action.payload.FinalResult
+export const submitUserVote = createAsyncThunk<number, VoteParams>(
+  `${SLICE_NAME}/submitVote`,
+  async ({ pokerId, estimate }, { rejectWithValue }) => {
+    try {
+      await authAxios.post(`/poker/${pokerId}/vote`, estimate );
+      return estimate;
+    } catch (error) {
+      return rejectWithValue(handleApiError(error));
+    }
+  }
+);
 
-        },
+export const updateVotingStatus = createAsyncThunk<void, VotingStateParams>(
+  `${SLICE_NAME}/updateState`,
+  async ({ pokerId, action, result }, { rejectWithValue }) => {
+    try {
+      await authAxios.post(`/poker/${pokerId}/voting-control/${action}`, { result });
+    } catch (error) {
+      return rejectWithValue(handleApiError(error));
+    }
+  }
+);
+
+// Создание slice
+const votingSlice = createSlice({
+  name: SLICE_NAME,
+  initialState,
+  reducers: {
+    updateVotingStatusLocal: (state, action: PayloadAction<VoteControlState>) => {
+      updateVotingData(state, action.payload);
     },
-    extraReducers: (builder) => {
-        builder
-            // 'votingTask/get'
-            .addCase(fetchVotingControl.pending, (state) => {
-                state.statusGetVotingTask = 'loading';
-                state.errorGetVotingTask = '';
-            })
-            .addCase(fetchVotingControl.fulfilled, (state, action: PayloadAction<VoteControlState>) => {
-                state.statusGetVotingTask = 'succeeded';
-                updateVoteState(state, action.payload)
-            }
-            )
-
-            .addCase(fetchVotingControl.rejected, (state, action) => {
-                state.statusGetVotingTask = 'failed';
-                state.errorGetVotingTask = action.payload as string;
-            })
-
-            // 'votingTask/add'
-            .addCase(fetchSetVotingTask.pending, (state) => {
-                state.statusSetVotingTask = 'loading';
-                state.errorSetVotingTask = '';
-            })
-            .addCase(fetchSetVotingTask.fulfilled, (state, action: PayloadAction<number>) => {
-                state.statusSetVotingTask = 'succeeded';
-            })
-            .addCase(fetchSetVotingTask.rejected, (state, action) => {
-                state.statusSetVotingTask = 'failed';
-                state.errorSetVotingTask = action.payload as string;
-            })
-
-
-            // 'vote/add'
-            .addCase(fetchAddVote.pending, (state) => {
-                state.statusSetVoting = 'loading';
-                state.errorSetVoting = '';
-            })
-            .addCase(fetchAddVote.fulfilled, (state, action: PayloadAction<number>) => {
-                state.statusSetVoting = 'succeeded';
-                state.vote = action.payload
-            })
-            .addCase(fetchAddVote.rejected, (state, action) => {
-                state.statusSetVoting = 'failed';
-                state.errorSetVoting = action.payload as string;
-            })
-
-            // 'userEstimates/get'
-            .addCase(getUserEstimates.pending, (state) => {
-                state.statusUserEstimates = 'loading';
-                state.errorUserEstimates = '';
-            })
-            .addCase(getUserEstimates.fulfilled, (state, action: PayloadAction<VotingResult>) => {
-
-                state.statusUserEstimates = 'succeeded';
-                state.userEstimates = action.payload.UserEstimates
-                state.finalResult = action.payload.FinalResult
-            })
-            .addCase(getUserEstimates.rejected, (state, action) => {
-                state.statusUserEstimates = 'failed';
-                state.errorUserEstimates = action.payload as string;
-            })
-
-            // 'votingState/set'
-            .addCase(setVotingState.pending, (state) => {
-                state.statusSetVotingState = 'loading';
-                state.errorSetVotingState = '';
-            })
-            .addCase(setVotingState.fulfilled, (state, action: any) => {
-                state.statusSetVotingState = 'succeeded';
-            })
-            .addCase(setVotingState.rejected, (state, action) => {
-                state.statusSetVotingState = 'failed';
-                state.errorSetVotingState = action.payload as string;
-            });
+    updateVotersCount: (state, action: PayloadAction<number>) => {
+      state.taskData.votersCount = action.payload;
     },
+    updateVotingResult: (state, action: PayloadAction<number>) => {
+      state.taskData.finalResult = action.payload;
+    },
+    updateEstimations: (state, action: PayloadAction<VotingResult>) => {
+      state.taskData.estimates = action.payload.UserEstimates;
+      state.taskData.finalResult = action.payload.FinalResult;
+    },
+    resetVoting: () => initialState,
+  },
+  extraReducers: (builder) => {
+    // Обработчики для fetchVotingData
+    builder
+      .addCase(fetchVotingData.pending, (state) => {
+        state.status.fetchVotingControl = 'loading';
+        state.error.fetchVotingControl = null;
+      })
+      .addCase(fetchVotingData.fulfilled, (state, action: PayloadAction<VoteControlState>) => {
+        state.status.fetchVotingControl = 'succeeded';
+        updateVotingData(state, action.payload);
+      })
+      .addCase(fetchVotingData.rejected, (state, action) => {
+        state.status.fetchVotingControl = 'failed';
+        state.error.fetchVotingControl = action.payload as string;
+      });
+
+    // Обработчики для fetchUserEstimations
+    builder
+      .addCase(fetchUserEstimations.pending, (state) => {
+        state.status.fetchUserEstimates = 'loading';
+        state.error.fetchUserEstimates = null;
+      })
+      .addCase(fetchUserEstimations.fulfilled, (state, action: PayloadAction<VotingResult>) => {
+        state.status.fetchUserEstimates = 'succeeded';
+        state.taskData.estimates = action.payload.UserEstimates;
+        state.taskData.finalResult = action.payload.FinalResult;
+      })
+      .addCase(fetchUserEstimations.rejected, (state, action) => {
+        state.status.fetchUserEstimates = 'failed';
+        state.error.fetchUserEstimates = action.payload as string;
+      });
+
+    // Обработчики для setActiveVotingTask
+    builder
+      .addCase(setActiveVotingTask.pending, (state) => {
+        state.status.setVotingTask = 'loading';
+        state.error.setVotingTask = null;
+      })
+      .addCase(setActiveVotingTask.fulfilled, (state) => {
+        state.status.setVotingTask = 'succeeded';
+      })
+      .addCase(setActiveVotingTask.rejected, (state, action) => {
+        state.status.setVotingTask = 'failed';
+        state.error.setVotingTask = action.payload as string;
+      });
+
+    // Обработчики для submitUserVote
+    builder
+      .addCase(submitUserVote.pending, (state) => {
+        state.status.submitVote = 'loading';
+        state.error.submitVote = null;
+      })
+      .addCase(submitUserVote.fulfilled, (state, action: PayloadAction<number>) => {
+        state.status.submitVote = 'succeeded';
+        state.taskData.currentVote = action.payload;
+      })
+      .addCase(submitUserVote.rejected, (state, action) => {
+        state.status.submitVote = 'failed';
+        state.error.submitVote = action.payload as string;
+      });
+
+    // Обработчики для updateVotingStatus
+    builder
+      .addCase(updateVotingStatus.pending, (state) => {
+        state.status.updateVotingState = 'loading';
+        state.error.updateVotingState = null;
+      })
+      .addCase(updateVotingStatus.fulfilled, (state) => {
+        state.status.updateVotingState = 'succeeded';
+      })
+      .addCase(updateVotingStatus.rejected, (state, action) => {
+        state.status.updateVotingState = 'failed';
+        state.error.updateVotingState = action.payload as string;
+      });
+  },
 });
 
-export const { setVoteChange, setNumberVoters, setUserEstimates, setFinalResult } = votingTaskSlice.actions;
-export default votingTaskSlice.reducer;
+export const { 
+  updateVotingStatusLocal,
+  updateVotersCount: updateVotersCountAction,
+  updateEstimations: updateUserEstimatesAction,
+  updateVotingResult: updateFinalResultAction,
+  resetVoting: resetVotingAction,
+} = votingSlice.actions;
+
+export default votingSlice.reducer;

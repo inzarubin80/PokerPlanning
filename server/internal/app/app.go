@@ -122,8 +122,8 @@ func NewApp(ctx context.Context, config config, dbConn *pgxpool.Pool) (*App, err
 		store           = sessions.NewCookieStore([]byte(config.sectrets.storeSecret))
 	)
 
-	accessTokenService := tokenservice.NewtokenService([]byte(config.sectrets.accessTokenSecret), 10000*time.Hour, model.Access_Token_Type)
-	refreshTokenService := tokenservice.NewtokenService([]byte(config.sectrets.refreshTokenSecret), 10000*time.Hour, model.Refresh_Token_Type)
+	accessTokenService := tokenservice.NewtokenService([]byte(config.sectrets.accessTokenSecret), 2*time.Hour, model.Access_Token_Type)
+	refreshTokenService := tokenservice.NewtokenService([]byte(config.sectrets.refreshTokenSecret), 24*time.Hour, model.Refresh_Token_Type)
 
 	providerOauthConfFrontend := []authinterface.ProviderOauthConfFrontend{}
 	providers := make(authinterface.ProvidersUserData)

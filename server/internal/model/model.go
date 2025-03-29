@@ -136,6 +136,9 @@ type (
 		TokenType string `json:"token_type"` // Добавляем поле для типа токена
 		jwt.StandardClaims
 	}
+
+
+	
 )
 
 func (p PokerID) UUID() pgtype.UUID {

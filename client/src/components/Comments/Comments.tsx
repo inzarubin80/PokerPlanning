@@ -1,29 +1,18 @@
 import React, { useRef, useEffect } from 'react';
-import {
-  Paper,
-  Typography,
-  List,
-  ListItem,
-  ListItemText,
-  Box,
-} from '@mui/material';
-import { CommentItem } from '../../model/model';
+import { Paper, Typography, List, ListItem, ListItemText, Box } from '@mui/material';
 import CommentForm from '../CommentForm/CommentForm';
-import { SaveCommentParams } from '../../features/comment/commentSlice';
-import { AppDispatch, RootState } from '../../app/store';
-
-import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../../app/store';
+import { useSelector } from 'react-redux';
 
 interface CommentsProps {
-  handleAddComment: (saveCommentParams: SaveCommentParams) => void;
+  pokerID: string;
 }
 
-const Comments: React.FC<CommentsProps> = ({ handleAddComment }) => {
+const Comments: React.FC<CommentsProps> = ({ pokerID }) => {
   const commentsEndRef = useRef<HTMLDivElement>(null);
-
-    const comments = useSelector((state: RootState) => state.commentReducer.comments);
-    const users = useSelector((state: RootState) => state.pokerReducer.users);
-
+  const listContainerRef = useRef<HTMLDivElement>(null);
+  const { comments } = useSelector((state: RootState) => state.commentReducer);
+  const { users } = useSelector((state: RootState) => state.pokerReducer);
 
   useEffect(() => {
     if (commentsEndRef.current) {
@@ -32,58 +21,80 @@ const Comments: React.FC<CommentsProps> = ({ handleAddComment }) => {
   }, [comments]);
 
   return (
-    <Paper elevation={3}>
-      {/* Header */}
+    <Box 
+      display="flex" 
+      flexDirection="column" 
+      height="100%" // Занимаем всю доступную высоту
+      sx={{
+        overflow: 'hidden', // Скрываем переполнение основного контейнера
+      }}
+    >
+      {/* Контейнер для списка комментариев с возможностью прокрутки */}
       <Box
-        position="sticky"
-        top={0}
-        bgcolor="grey.200"
-        zIndex={1}
-        p={2}
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        height={"4vh"}
+        ref={listContainerRef}
+        flex={1} // Занимает все доступное пространство
+        overflow="auto"
+        sx={{
+          '&::-webkit-scrollbar': {
+            width: '6px',
+          },
+          '&::-webkit-scrollbar-track': {
+            background: '#f1f1f1',
+          },
+          '&::-webkit-scrollbar-thumb': {
+            background: '#888',
+            borderRadius: '3px',
+          },
+          '&::-webkit-scrollbar-thumb:hover': {
+            background: '#555',
+          }
+        }}
       >
-        <Typography variant="h6">Комментарии</Typography>
-      </Box>
-
-      {/* Main Content */}
-      <Box display="flex" height="80vh" flexDirection="column" justifyContent="space-between">
-        {/* Comments List */}
-        <Box p={1} overflow="auto">
-          <List>
-            {comments.map((comment) => (
-              <ListItem
-                key={comment.ID}
-                sx={{
-                  bgcolor: 'background.paper',
-                  mb: 1,
-                  borderRadius: 1,
-                  '& .MuiListItemText-primary': {
-                    whiteSpace: 'pre-wrap', // Перенос строк
-                    overflowWrap: 'break-word', // Перенос слов
-                  },
+        <List disablePadding sx={{ p: 2 }}>
+          {comments.map((comment) => (
+            <ListItem
+              key={comment.ID}
+              sx={{
+                bgcolor: 'background.paper',
+                mb: 1,
+                borderRadius: 1,
+                boxShadow: 1,
+                alignItems: 'flex-start',
+              }}
+            >
+              <ListItemText
+                primary={comment.Text}
+                secondary={`Автор: ${users.find(user => user.ID === comment.UserID)?.Name || 'Неизвестный'}`}
+                primaryTypographyProps={{ 
+                  variant: 'body1',
+                  sx: { whiteSpace: 'pre-wrap', wordBreak: 'break-word' }
                 }}
-              >
-                <ListItemText
-                  primary={comment.Text}
-                  secondary={`Автор: ${users.find(item=>comment.UserID==item.ID)?.Name}`}
-                  primaryTypographyProps={{ variant: 'body1' }}
-                  secondaryTypographyProps={{ variant: 'caption' }}
-                />
-              </ListItem>
-            ))}
-            <div ref={commentsEndRef} />
-          </List>
-        </Box>
-
-        {/* Comment Form */}
-        <Box p={2}>
-          <CommentForm onAddComment={handleAddComment} />
-        </Box>
+                secondaryTypographyProps={{ 
+                  variant: 'caption',
+                  color: 'text.secondary'
+                }}
+              />
+            </ListItem>
+          ))}
+          <div ref={commentsEndRef} />
+        </List>
       </Box>
-    </Paper>
+
+      {/* Форма комментария, прижатая к низу */}
+      <Box 
+        p={2} 
+        borderTop={1} 
+        borderColor="divider"
+        flexShrink={0} // Запрещаем сжатие
+        sx={{
+          backgroundColor: 'background.paper', // Фон для формы
+          position: 'sticky',
+          bottom: 0,
+        }}
+      >
+        <CommentForm pokerID={pokerID}/>
+      </Box>
+    </Box>
   );
 };
 

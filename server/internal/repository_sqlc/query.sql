@@ -79,8 +79,8 @@ SELECT * FROM poker_users
 WHERE poker_id = $1;
 
 -- name: CreatePoker :one
-INSERT INTO poker (poker_id, autor, evaluation_strategy, maximum_score, name)
-VALUES ($1, $2, $3, $4, $5)  
+INSERT INTO poker (poker_id, autor, evaluation_strategy, maximum_score, name, task_id)
+VALUES ($1, $2, $3, $4, $5, 0)  
 RETURNING *;
 
 -- name: GetPoker :one

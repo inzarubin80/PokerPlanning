@@ -212,8 +212,8 @@ func (q *Queries) CreateComent(ctx context.Context, arg *CreateComentParams) (in
 }
 
 const createPoker = `-- name: CreatePoker :one
-INSERT INTO poker (poker_id, autor, evaluation_strategy, maximum_score, name)
-VALUES ($1, $2, $3, $4, $5)  
+INSERT INTO poker (poker_id, autor, evaluation_strategy, maximum_score, name, task_id)
+VALUES ($1, $2, $3, $4, $5, 0)  
 RETURNING poker_id, name, autor, evaluation_strategy, maximum_score, task_id, start_date, end_date
 `
 

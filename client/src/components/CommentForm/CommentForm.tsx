@@ -1,36 +1,46 @@
 import React, { useState } from 'react';
 import { Box, TextField, Button } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
-import { SaveCommentParams } from '../../features/comment/commentSlice';
 import { useParams } from 'react-router-dom';
-import { AppDispatch, RootState } from '../../app/store';
-import { useSelector } from 'react-redux';
+import {  AppDispatch, RootState } from '../../app/store';
+import { addComment, SaveCommentParams} from '../../features/comment/commentSlice';
+import { useDispatch, useSelector } from 'react-redux';
 
 interface CommentFormProps {
-  onAddComment: (saveCommentParams: SaveCommentParams) => void;
+  pokerID: string
 }
 
-const CommentForm: React.FC<CommentFormProps> = ({ onAddComment }) => {
+const CommentForm: React.FC<CommentFormProps> = ({pokerID}) => {
   const [text, setText] = useState('');
   const { pokerId } = useParams<{ pokerId: string }>();
+  const dispatch = useDispatch<AppDispatch>();
+  const taskID = useSelector((state: RootState) => state.volumeReducer.taskData.id);
 
-  const taskID = useSelector((state: RootState) => state.volumeReducer.taskID);
+
+    // Метод добавления комментария
+    const handleAddComment = (text: string) => {
+      if (!text.trim()) return;
+      
+      const commentData: SaveCommentParams = {
+        pokerID:  pokerID, // ID покера (из пропсов)
+         comment: {
+          ID: -1,
+          Text: text,
+          UserID: -1, 
+          PokerID: pokerID,
+          TaskID: taskID
+        },
+        callback:()=>{setText('')}
+      };
+      dispatch(addComment(commentData));
+    };
+
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (text.trim() && pokerId) {
-      const saveCommentParams: SaveCommentParams = {
-        callback: () => setText(''),
-        comment: {
-          ID: -1,
-          PokerID: pokerId,
-          Text: text,
-          UserID:-1,
-          TaskID:taskID
-        },
-        pokerID: '',
-      };
-      onAddComment(saveCommentParams);
+      
+      handleAddComment(text.trim())
     }
   };
 

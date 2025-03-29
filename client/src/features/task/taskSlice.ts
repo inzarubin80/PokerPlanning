@@ -3,42 +3,25 @@ import { Task } from '../../model/model';
 import { authAxios } from '../../service/http-common';
 import { AxiosError } from 'axios';
 
-interface ErrorResponse {
-  error: boolean;
-  message: string;
-}
+// ===== Типы =====
+type StatusType = 'idle' | 'loading' | 'succeeded' | 'failed';
 
 interface TaskState {
-  curentTask: Task | null;
+  currentTask: Task | null;
   tasks: Task[];
-
-  statusFetchTasks: 'idle' | 'loading' | 'succeeded' | 'failed';
-  errorFetchTasks: string | null;
-
-  statusGetTask: 'idle' | 'loading' | 'succeeded' | 'failed';
-  errorGetTask: string | null;
-
-  statusSaveTask: 'idle' | 'loading' | 'succeeded' | 'failed';
-  errorSaveTask: string | null;
-
-  statusDeleteTask: 'idle' | 'loading' | 'succeeded' | 'failed';
-  errorDeleteTask: string | null;
-  
+  status: {
+    fetch: StatusType;
+    get: StatusType;
+    save: StatusType;
+    delete: StatusType;
+  };
+  error: {
+    fetch: string | null;
+    get: string | null;
+    save: string | null;
+    delete: string | null;
+  };
 }
-
-const initialState: TaskState = {
-  tasks: [],
-  statusFetchTasks: 'idle',
-  statusGetTask: 'idle',
-  statusSaveTask: 'idle',
-  statusDeleteTask: 'idle',
-
-  errorFetchTasks: null,
-  errorGetTask: null,
-  errorSaveTask: null,
-  errorDeleteTask: null,
-  curentTask: null,
-};
 
 interface GetTaskParams {
   pokerID: string;
@@ -48,7 +31,7 @@ interface GetTaskParams {
 interface SaveTaskParams {
   pokerID: string;
   task: Task;
-  callback: () => void | null;
+  callback?: () => void;
 }
 
 interface DeleteTaskParams {
@@ -56,28 +39,33 @@ interface DeleteTaskParams {
   taskID: number;
 }
 
-// Функция для обработки ошибок Axios
-const handleAxiosError = (error: unknown): string => {
-  if (error instanceof AxiosError && error.response && error.response.data) {
-    return error.response.data.message;
-  }
-  return 'Something went wrong';
+// ===== Начальное состояние =====
+const initialState: TaskState = {
+  currentTask: null,
+  tasks: [],
+  status: {
+    fetch: 'idle',
+    get: 'idle',
+    save: 'idle',
+    delete: 'idle',
+  },
+  error: {
+    fetch: null,
+    get: null,
+    save: null,
+    delete: null,
+  },
 };
 
-export const getTask = createAsyncThunk(
-  'tasks/getTask',
-  async (params: GetTaskParams, { rejectWithValue }) => {
-    const { pokerID, taskID } = params;
-    try {
-      const response = await authAxios.get(`/poker/${pokerID}/tasks/${taskID}`);
-      return response.data;
-    } catch (error) {
-      const errorMessage = handleAxiosError(error);
-      return rejectWithValue(errorMessage);
-    }
+// ===== Утилиты =====
+const getErrorMessage = (error: unknown): string => {
+  if (error instanceof AxiosError) {
+    return error.response?.data?.message || error.message;
   }
-);
+  return 'Unknown error occurred';
+};
 
+// ===== Асинхронные операции =====
 export const fetchTasks = createAsyncThunk(
   'tasks/fetchTasks',
   async (pokerID: string, { rejectWithValue }) => {
@@ -85,160 +73,114 @@ export const fetchTasks = createAsyncThunk(
       const response = await authAxios.get(`/poker/${pokerID}/tasks`);
       return response.data;
     } catch (error) {
-      const errorMessage = handleAxiosError(error);
-      return rejectWithValue(errorMessage);
+      return rejectWithValue(getErrorMessage(error));
     }
   }
 );
 
-export const addTask = createAsyncThunk(
-  'tasks/addTask',
-  async (params: SaveTaskParams, { rejectWithValue }) => {
-    const { pokerID, task, callback } = params;
+export const getTask = createAsyncThunk(
+  'tasks/getTask',
+  async ({ pokerID, taskID }: GetTaskParams, { rejectWithValue }) => {
     try {
-      const response = await authAxios.post(`/poker/${pokerID}/tasks`, task);
-      if (callback) callback();
+      const response = await authAxios.get(`/poker/${pokerID}/tasks/${taskID}`);
       return response.data;
     } catch (error) {
-      const errorMessage = handleAxiosError(error);
-      return rejectWithValue(errorMessage);
+      return rejectWithValue(getErrorMessage(error));
     }
   }
 );
 
-export const updateTask = createAsyncThunk(
-  'tasks/updateTask',
-  async (params: SaveTaskParams, { rejectWithValue }) => {
-    const { pokerID, task, callback } = params;
+export const saveTask = createAsyncThunk(
+  'tasks/saveTask',
+  async ({ pokerID, task, callback }: SaveTaskParams, { rejectWithValue }) => {
     try {
-      const response = await authAxios.put(`/poker/${pokerID}/tasks/${task.ID}`, task);
-      if (callback) callback();
+      const method = task.ID === -1 ? 'post' : 'put';
+      const url = task.ID !== -1
+        ? `/poker/${pokerID}/tasks/${task.ID}`
+        : `/poker/${pokerID}/tasks`;
+      const response = await authAxios[method](url, task);
+      callback?.();
       return response.data;
     } catch (error) {
-      const errorMessage = handleAxiosError(error);
-      return rejectWithValue(errorMessage);
+      return rejectWithValue(getErrorMessage(error));
     }
   }
 );
 
 export const deleteTask = createAsyncThunk(
   'tasks/deleteTask',
-  async (params: DeleteTaskParams, { rejectWithValue }) => {
-    const { pokerID, taskID } = params;
+  async ({ pokerID, taskID }: DeleteTaskParams, { rejectWithValue }) => {
     try {
       await authAxios.delete(`/poker/${pokerID}/tasks/${taskID}`);
       return taskID;
     } catch (error) {
-      const errorMessage = handleAxiosError(error);
-      return rejectWithValue(errorMessage);
+      return rejectWithValue(getErrorMessage(error));
     }
   }
 );
 
+// ===== Слайс =====
 const taskSlice = createSlice({
   name: 'tasks',
   initialState,
   reducers: {
-    taskAdded: (state, action: PayloadAction<Task>) => {
-
-      const updatedTask = action.payload;
-      const index = state.tasks.findIndex((task) => task.ID === updatedTask.ID);
-      if (index !== -1) {
-        state.tasks[index] = updatedTask;
-      } else {
-        state.tasks.push(updatedTask);
-      }
+    setCurrentTask: (state, action: PayloadAction<Task>) => {
+      state.currentTask = action.payload;
     },
-
-    tasksUpdating: (state, action: PayloadAction<Task>) => {
-      const updatedTask = action.payload;
-
-      const index = state.tasks.findIndex((task) => task.ID === updatedTask.ID);
-      if (index !== -1) {
-        state.tasks[index] = updatedTask;
-      }
+    updateTaskLocally: (state, action: PayloadAction<Task>) => {
+      const task = action.payload;
+      const index = state.tasks.findIndex(t => t.ID === task.ID);
+      index !== -1 ? state.tasks[index] = task : state.tasks.push(task);
     },
-
-    changeCurrentTask: (state, action: PayloadAction<Task>) => {
-      state.curentTask = action.payload;
-    },
-
-    taskRemoved: (state, action: PayloadAction<number>) => {
-      state.tasks = state.tasks.filter((task) => task.ID !== action.payload);
+    removeTaskLocally: (state, action: PayloadAction<number>) => {
+      state.tasks = state.tasks.filter(task => task.ID !== action.payload);
     },
   },
   extraReducers: (builder) => {
+    const handleStatus = (
+      state: TaskState,
+      key: keyof TaskState['status'],
+      status: StatusType,
+      error: string | null = null
+    ) => {
+      state.status[key] = status;
+      if (error !== null) state.error[key] = error;
+    };
+
     builder
-      // 'tasks/fetchTasks'
-      .addCase(fetchTasks.pending, (state) => {
-        state.statusFetchTasks = 'loading';
-        state.errorFetchTasks = '';
-      })
-      .addCase(fetchTasks.fulfilled, (state, action: PayloadAction<Task[]>) => {
-        state.statusFetchTasks = 'succeeded';
+      .addCase(fetchTasks.pending, (state) => handleStatus(state, 'fetch', 'loading'))
+      .addCase(fetchTasks.fulfilled, (state, action) => {
         state.tasks = action.payload;
+        handleStatus(state, 'fetch', 'succeeded');
       })
-      .addCase(fetchTasks.rejected, (state, action) => {
-        state.statusFetchTasks = 'failed';
-        state.errorFetchTasks = action.payload as string;
-      })
+      .addCase(fetchTasks.rejected, (state, action) => 
+        handleStatus(state, 'fetch', 'failed', action.payload as string))
 
-      // 'tasks/addTask'
-      .addCase(addTask.pending, (state) => {
-        state.statusSaveTask = 'loading';
-        state.errorSaveTask = '';
-      })
-      .addCase(addTask.fulfilled, (state) => {
-        state.statusSaveTask = 'succeeded';
-      })
-      .addCase(addTask.rejected, (state, action) => {
-        state.statusSaveTask = 'failed';
-        state.errorSaveTask = action.payload as string;
-      })
-
-      // 'tasks/updateTask'
-      .addCase(updateTask.pending, (state) => {
-        state.statusSaveTask = 'loading';
-        state.errorSaveTask = '';
-      })
-      .addCase(updateTask.fulfilled, (state) => {
-        state.statusSaveTask = 'succeeded';
-      })
-      .addCase(updateTask.rejected, (state, action) => {
-        state.statusSaveTask = 'failed';
-        state.errorSaveTask = action.payload as string;
-      })
-
-      // 'tasks/deleteTask'
-      .addCase(deleteTask.pending, (state) => {
-        state.statusDeleteTask = 'loading';
-        state.errorDeleteTask = '';
-      })
-      .addCase(deleteTask.fulfilled, (state, action) => {
-        state.statusDeleteTask = 'succeeded';
-        state.tasks = state.tasks.filter((task) => task.ID !== action.payload);
-      })
-      .addCase(deleteTask.rejected, (state, action) => {
-        state.statusDeleteTask = 'failed';
-        state.errorDeleteTask = action.payload as string;
-      })
-
-      // 'tasks/getTask'
       .addCase(getTask.pending, (state) => {
-        state.statusGetTask = 'loading';
-        state.curentTask = null;
-        state.errorGetTask = '';
+        state.currentTask = null;
+        handleStatus(state, 'get', 'loading');
       })
-      .addCase(getTask.fulfilled, (state, action: PayloadAction<Task>) => {
-        state.statusGetTask = 'succeeded';
-        state.curentTask = action.payload;
+      .addCase(getTask.fulfilled, (state, action) => {
+        state.currentTask = action.payload;
+        handleStatus(state, 'get', 'succeeded');
       })
-      .addCase(getTask.rejected, (state, action) => {
-        state.statusGetTask = 'failed';
-        state.errorGetTask = action.payload as string;
-      });
+      .addCase(getTask.rejected, (state, action) => 
+        handleStatus(state, 'get', 'failed', action.payload as string))
+
+      .addCase(saveTask.pending, (state) => handleStatus(state, 'save', 'loading'))
+      .addCase(saveTask.fulfilled, (state) => handleStatus(state, 'save', 'succeeded'))
+      .addCase(saveTask.rejected, (state, action) => 
+        handleStatus(state, 'save', 'failed', action.payload as string))
+
+      .addCase(deleteTask.pending, (state) => handleStatus(state, 'delete', 'loading'))
+      .addCase(deleteTask.fulfilled, (state, action) => {
+        state.tasks = state.tasks.filter(task => task.ID !== action.payload);
+        handleStatus(state, 'delete', 'succeeded');
+      })
+      .addCase(deleteTask.rejected, (state, action) => 
+        handleStatus(state, 'delete', 'failed', action.payload as string));
   },
 });
 
-export const { taskAdded, taskRemoved, changeCurrentTask, tasksUpdating } = taskSlice.actions;
+export const { setCurrentTask, updateTaskLocally, removeTaskLocally } = taskSlice.actions;
 export default taskSlice.reducer;
