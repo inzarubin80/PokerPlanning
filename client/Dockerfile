@@ -27,7 +27,5 @@ RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 USER appuser
 
 EXPOSE 3003
-HEALTHCHECK --interval=30s --timeout=3s \
-  CMD curl -f http://localhost:3003/ || exit 1
 
 CMD ["serve", "-s", "build", "-l", "3003"]
