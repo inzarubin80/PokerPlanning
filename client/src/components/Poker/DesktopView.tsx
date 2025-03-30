@@ -31,18 +31,20 @@ const DesktopView: React.FC<DesktopViewProps> = ({
             alignItems: 'center',
             height: 'calc(100vh - 80px)',
             width: '100%',
-            p: 2
+            p: 2,
+            backgroundColor: '#f5f5f5' // Добавляем легкий фон для контраста
         }}>
             <Grid container spacing={2} sx={{
-                maxWidth: '95vw',
-                height: '90vh',
+                maxWidth: { xs: '100%', lg: '95vw' },
+                height: { xs: '100%', md: '90vh' },
                 margin: 0,
                 flexWrap: 'nowrap'
             }}>
                 {/* Блок задач */}
                 <Grid item xs={12} md={taskId > 0 ? 5 : 6} sx={{
                     display: 'flex',
-                    height: '100%'
+                    height: '100%',
+                    minWidth: 300 // Минимальная ширина для предотвращения сжатия
                 }}>
                     <Box sx={{
                         width: '100%',
@@ -54,14 +56,43 @@ const DesktopView: React.FC<DesktopViewProps> = ({
                         overflow: 'hidden',
                         mr: 1
                     }}>
-                        {/* ... (остальное содержимое без изменений) ... */}
+                        <Box sx={{ 
+                            p: 2,
+                            borderBottom: '1px solid',
+                            borderColor: 'divider',
+                            backgroundColor: theme => theme.palette.primary.main,
+                            color: 'common.white'
+                        }}>
+                            <Typography variant="h6" fontWeight="bold">Задачи</Typography>
+                        </Box>
+                        <Box sx={{
+                            flex: 1,
+                            overflow: 'auto',
+                            padding: 2,
+                            '&::-webkit-scrollbar': {
+                                width: '6px',
+                            },
+                            '&::-webkit-scrollbar-thumb': {
+                                backgroundColor: theme => theme.palette.primary.main,
+                                borderRadius: '3px',
+                            }
+                        }}>
+                            <TaskList
+                                tasks={tasks}
+                                isAdmin={isAdmin}
+                                handleEditTask={handleEditTask}
+                                handleDeleteTask={handleDeleteTask}
+                                handleSetVotingTask={handleSetVotingTask}
+                            />
+                        </Box>
                     </Box>
                 </Grid>
 
                 {/* Блок голосования */}
                 <Grid item xs={12} md={taskId > 0 ? 4 : 6} sx={{
                     display: 'flex',
-                    height: '100%'
+                    height: '100%',
+                    minWidth: 280
                 }}>
                     <Box sx={{
                         width: '100%',
@@ -73,7 +104,28 @@ const DesktopView: React.FC<DesktopViewProps> = ({
                         overflow: 'hidden',
                         mx: 1
                     }}>
-                        {/* ... (остальное содержимое без изменений) ... */}
+                        <Box sx={{ 
+                            p: 2,
+                            borderBottom: '1px solid',
+                            borderColor: 'divider',
+                            backgroundColor: theme => theme.palette.secondary.main,
+                            color: 'common.white'
+                        }}>
+                            <Typography variant="h6" fontWeight="bold">Голосование</Typography>
+                        </Box>
+                        <Box sx={{ 
+                            flex: 1,
+                            padding: 2,
+                            display: 'flex',
+                            flexDirection: 'column'
+                        }}>
+                            <Voting
+                                averageEstimate={1}
+                                averageMethod={""}
+                                isAdmin={isAdmin}
+                                handleSettingsToggle={() => { }}
+                            />
+                        </Box>
                     </Box>
                 </Grid>
 
@@ -81,7 +133,8 @@ const DesktopView: React.FC<DesktopViewProps> = ({
                 {taskId > 0 && (
                     <Grid item xs={12} md={3} sx={{
                         display: 'flex',
-                        height: '100%'
+                        height: '100%',
+                        minWidth: 250
                     }}>
                         <Box sx={{
                             width: '100%',
@@ -93,7 +146,29 @@ const DesktopView: React.FC<DesktopViewProps> = ({
                             overflow: 'hidden',
                             ml: 1
                         }}>
-                            {/* ... (остальное содержимое без изменений) ... */}
+                            <Box sx={{ 
+                                p: 2,
+                                borderBottom: '1px solid',
+                                borderColor: 'divider',
+                                backgroundColor: theme => theme.palette.info.main,
+                                color: 'common.white'
+                            }}>
+                                <Typography variant="h6" fontWeight="bold">Комментарии</Typography>
+                            </Box>
+                            <Box sx={{
+                                flex: 1,
+                                overflow: 'auto',
+                                padding: 2,
+                                '&::-webkit-scrollbar': {
+                                    width: '6px',
+                                },
+                                '&::-webkit-scrollbar-thumb': {
+                                    backgroundColor: theme => theme.palette.info.main,
+                                    borderRadius: '3px',
+                                }
+                            }}>
+                                <Comments pokerID={pokerId} />
+                            </Box>
                         </Box>
                     </Grid>
                 )}
