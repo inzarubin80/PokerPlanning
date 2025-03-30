@@ -25,26 +25,106 @@ const DesktopView: React.FC<DesktopViewProps> = ({
     handleSetVotingTask
 }) => {
     return (
-        <Box sx={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
+        <Grid container spacing={2} sx={{
             height: 'calc(100vh - 80px)',
-            width: '100%',
-            p: 2,
-            backgroundColor: '#f5f5f5' // Добавляем легкий фон для контраста
+            padding: 2,
+            alignItems: 'stretch',
+            margin: 0,
+            flexWrap: 'nowrap',
+            overflow: 'hidden'
         }}>
-            <Grid container spacing={2} sx={{
-                maxWidth: { xs: '100%', lg: '95vw' },
-                height: { xs: '100%', md: '90vh' },
-                margin: 0,
-                flexWrap: 'nowrap'
+            {/* Блок задач */}
+            <Grid item xs={12} md={taskId > 0 ? 5 : 6} sx={{
+                display: 'flex',
+                height: '100%'
             }}>
-                {/* Блок задач */}
-                <Grid item xs={12} md={taskId > 0 ? 5 : 6} sx={{
+                <Box sx={{
+                    width: '100%',
                     display: 'flex',
-                    height: '100%',
-                    minWidth: 300 // Минимальная ширина для предотвращения сжатия
+                    flexDirection: 'column',
+                    backgroundColor: 'background.paper',
+                    borderRadius: 2,
+                    boxShadow: 3,
+                    overflow: 'hidden',
+                    mr: 1
+                }}>
+                    <Box sx={{ 
+                        p: 2,
+                        borderBottom: '1px solid',
+                        borderColor: 'divider',
+                        backgroundColor: theme => theme.palette.primary.main,
+                        color: 'common.white'
+                    }}>
+                        <Typography variant="h6" fontWeight="bold">Задачи</Typography>
+                    </Box>
+                    <Box sx={{
+                        flex: 1,
+                        overflow: 'auto',
+                        padding: 2,
+                        '&::-webkit-scrollbar': {
+                            width: '6px',
+                        },
+                        '&::-webkit-scrollbar-thumb': {
+                            backgroundColor: theme => theme.palette.primary.main,
+                            borderRadius: '3px',
+                        }
+                    }}>
+                        <TaskList
+                            tasks={tasks}
+                            isAdmin={isAdmin}
+                            handleEditTask={handleEditTask}
+                            handleDeleteTask={handleDeleteTask}
+                            handleSetVotingTask={handleSetVotingTask}
+                        />
+                    </Box>
+                </Box>
+            </Grid>
+
+            {/* Блок голосования */}
+            <Grid item xs={12} md={taskId > 0 ? 4 : 6} sx={{
+                display: 'flex',
+                height: '100%'
+            }}>
+                <Box sx={{
+                    width: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    backgroundColor: 'background.paper',
+                    borderRadius: 2,
+                    boxShadow: 3,
+                    overflow: 'hidden',
+                    mx: 1
+                }}>
+                    <Box sx={{ 
+                        p: 2,
+                        borderBottom: '1px solid',
+                        borderColor: 'divider',
+                        backgroundColor: theme => theme.palette.secondary.main,
+                        color: 'common.white'
+                    }}>
+                        <Typography variant="h6" fontWeight="bold">Голосование</Typography>
+                    </Box>
+                    <Box sx={{ 
+                        flex: 1,
+                        padding: 2,
+                        display: 'flex',
+                        flexDirection: 'column'
+                    }}>
+                        <Voting
+                            averageEstimate={1}
+                            averageMethod={""}
+                            isAdmin={isAdmin}
+                            handleSettingsToggle={() => { }}
+                        />
+                    </Box>
+                </Box>
+            </Grid>
+
+            {/* Блок комментариев (только при выбранной задаче) */}
+            {taskId > 0 && (
+                <Grid item xs={12} md={3} sx={{
+                    display: 'flex',
+                    height: '100%'
                 }}>
                     <Box sx={{
                         width: '100%',
@@ -54,16 +134,16 @@ const DesktopView: React.FC<DesktopViewProps> = ({
                         borderRadius: 2,
                         boxShadow: 3,
                         overflow: 'hidden',
-                        mr: 1
+                        ml: 1
                     }}>
                         <Box sx={{ 
                             p: 2,
                             borderBottom: '1px solid',
                             borderColor: 'divider',
-                            backgroundColor: theme => theme.palette.primary.main,
+                            backgroundColor: theme => theme.palette.info.main,
                             color: 'common.white'
                         }}>
-                            <Typography variant="h6" fontWeight="bold">Задачи</Typography>
+                            <Typography variant="h6" fontWeight="bold">Комментарии</Typography>
                         </Box>
                         <Box sx={{
                             flex: 1,
@@ -73,107 +153,16 @@ const DesktopView: React.FC<DesktopViewProps> = ({
                                 width: '6px',
                             },
                             '&::-webkit-scrollbar-thumb': {
-                                backgroundColor: theme => theme.palette.primary.main,
+                                backgroundColor: theme => theme.palette.info.main,
                                 borderRadius: '3px',
                             }
                         }}>
-                            <TaskList
-                                tasks={tasks}
-                                isAdmin={isAdmin}
-                                handleEditTask={handleEditTask}
-                                handleDeleteTask={handleDeleteTask}
-                                handleSetVotingTask={handleSetVotingTask}
-                            />
+                            <Comments pokerID={pokerId} />
                         </Box>
                     </Box>
                 </Grid>
-
-                {/* Блок голосования */}
-                <Grid item xs={12} md={taskId > 0 ? 4 : 6} sx={{
-                    display: 'flex',
-                    height: '100%',
-                    minWidth: 280
-                }}>
-                    <Box sx={{
-                        width: '100%',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        backgroundColor: 'background.paper',
-                        borderRadius: 2,
-                        boxShadow: 3,
-                        overflow: 'hidden',
-                        mx: 1
-                    }}>
-                        <Box sx={{ 
-                            p: 2,
-                            borderBottom: '1px solid',
-                            borderColor: 'divider',
-                            backgroundColor: theme => theme.palette.secondary.main,
-                            color: 'common.white'
-                        }}>
-                            <Typography variant="h6" fontWeight="bold">Голосование</Typography>
-                        </Box>
-                        <Box sx={{ 
-                            flex: 1,
-                            padding: 2,
-                            display: 'flex',
-                            flexDirection: 'column'
-                        }}>
-                            <Voting
-                                averageEstimate={1}
-                                averageMethod={""}
-                                isAdmin={isAdmin}
-                                handleSettingsToggle={() => { }}
-                            />
-                        </Box>
-                    </Box>
-                </Grid>
-
-                {/* Блок комментариев (только при выбранной задаче) */}
-                {taskId > 0 && (
-                    <Grid item xs={12} md={3} sx={{
-                        display: 'flex',
-                        height: '100%',
-                        minWidth: 250
-                    }}>
-                        <Box sx={{
-                            width: '100%',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            backgroundColor: 'background.paper',
-                            borderRadius: 2,
-                            boxShadow: 3,
-                            overflow: 'hidden',
-                            ml: 1
-                        }}>
-                            <Box sx={{ 
-                                p: 2,
-                                borderBottom: '1px solid',
-                                borderColor: 'divider',
-                                backgroundColor: theme => theme.palette.info.main,
-                                color: 'common.white'
-                            }}>
-                                <Typography variant="h6" fontWeight="bold">Комментарии</Typography>
-                            </Box>
-                            <Box sx={{
-                                flex: 1,
-                                overflow: 'auto',
-                                padding: 2,
-                                '&::-webkit-scrollbar': {
-                                    width: '6px',
-                                },
-                                '&::-webkit-scrollbar-thumb': {
-                                    backgroundColor: theme => theme.palette.info.main,
-                                    borderRadius: '3px',
-                                }
-                            }}>
-                                <Comments pokerID={pokerId} />
-                            </Box>
-                        </Box>
-                    </Grid>
-                )}
-            </Grid>
-        </Box>
+            )}
+        </Grid>
     );
 };
 
