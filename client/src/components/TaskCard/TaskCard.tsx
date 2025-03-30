@@ -61,7 +61,7 @@ const TaskCard: React.FC<TaskCardProps> = ({task, onEdit, onDelete, onVote, isAd
           }}>
             <IconButton 
               size={isSmallScreen ? 'small' : 'medium'}
-              aria-label="edit"
+              aria-label="изменить"
               onClick={() => onEdit(task.ID)}
               sx={{ 
                 flex: isSmallScreen ? 1 : 0,
@@ -74,7 +74,7 @@ const TaskCard: React.FC<TaskCardProps> = ({task, onEdit, onDelete, onVote, isAd
             
             <IconButton 
               size={isSmallScreen ? 'small' : 'medium'}
-              aria-label="delete"
+              aria-label="удалить"
               onClick={() => onDelete(task.ID)}
               sx={{ 
                 flex: isSmallScreen ? 1 : 0,
@@ -87,7 +87,7 @@ const TaskCard: React.FC<TaskCardProps> = ({task, onEdit, onDelete, onVote, isAd
             
             <IconButton 
               size={isSmallScreen ? 'small' : 'medium'}
-              aria-label="vote"
+              aria-label="голосовать"
               onClick={() => onVote(task.ID)}
               sx={{ 
                 flex: isSmallScreen ? 1 : 0,
