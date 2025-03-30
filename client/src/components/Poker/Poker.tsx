@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Container, Box, useMediaQuery, useTheme , Typography} from '@mui/material';
+import { Container, Box, useMediaQuery, useTheme, Typography } from '@mui/material';
 import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -19,7 +19,6 @@ import { fetchPokerDetails, setUsers, setActiveUsers } from '../../features/poke
 import { AppDispatch, RootState } from '../../app/store';
 import WebSocketClient from '../../api/WebSocketClient';
 
-
 const getWebSocketUrl = (pokerId: string, accessToken: string | null): string => {
   const isProduction = process.env.NODE_ENV === 'production';
   const protocol = isProduction ? process.env.REACT_APP_WS_PROTOCOL || 'wss' : 'ws';
@@ -36,8 +35,6 @@ const PokerPlanningApp: React.FC = () => {
 
   const taskData = useSelector((state: RootState) => state.volumeReducer.taskData);
   const tasks = useSelector((state: RootState) => state.taskReducer.tasks);
-
-
   
   const wsClientRef = useRef<WebSocketClient | null>(null);
 
@@ -46,9 +43,7 @@ const PokerPlanningApp: React.FC = () => {
   const activeUsersID = useSelector((state: RootState) => state.pokerReducer.activeUsersID);
   const isAdmin = useSelector((state: RootState) => state.pokerReducer.isAdmin);
 
-
   const navigate = useNavigate();
-
 
   const handleDeleteTask = useCallback((taskId: number) => {
     if (taskId && pokerId) {
@@ -60,9 +55,7 @@ const PokerPlanningApp: React.FC = () => {
     navigate(`/poker/${pokerId}/task/${taskId}`);
   }, [navigate, pokerId]);
 
-
   // WebSocket message handler
-// WebSocket message handler
   const handleWebSocketMessage = useCallback((msgEvent: MessageEvent) => {
     const messages = msgEvent.data.split("\n")
       .map((message: string) => {
@@ -111,13 +104,11 @@ const PokerPlanningApp: React.FC = () => {
     });
   }, [dispatch, pokerId]);
 
-    // Event handlers
-
-    const handleSetVotingTask = useCallback((taskID: number) => {
-      if (pokerId) {
-        dispatch(setActiveVotingTask({ pokerId, taskId: taskID}));
-      }
-    }, [dispatch, pokerId, isMobile]);
+  const handleSetVotingTask = useCallback((taskID: number) => {
+    if (pokerId) {
+      dispatch(setActiveVotingTask({ pokerId, taskId: taskID }));
+    }
+  }, [dispatch, pokerId, isMobile]);
     
   // Initialize app data
   useEffect(() => {
@@ -186,31 +177,60 @@ const PokerPlanningApp: React.FC = () => {
         <UserCardButton />
       </Box>
 
-      {/* Main content */}
-      {isMobile ? (
-        <MobileView 
-        pokerId={pokerId} 
-        isAdmin={isAdmin} 
-        handleDeleteTask={handleDeleteTask}
-        handleEditTask={handleEditTask}
-        handleSetVotingTask={handleSetVotingTask}
-        taskId={taskData.id}
-        tasks={tasks}
-        />
-
-      ) : (
-        <DesktopView 
-        
-        pokerId={pokerId} 
-        isAdmin={isAdmin} 
-        handleDeleteTask={handleDeleteTask}
-        handleEditTask={handleEditTask}
-        handleSetVotingTask={handleSetVotingTask}
-        taskId={taskData.id}
-        tasks={tasks}
-        
-        />
-      )}
+      {/* Main content with centering wrapper */}
+      <Box
+        sx={{
+          flex: 1,
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          width: '100%',
+          overflow: 'hidden',
+          backgroundColor: '#f5f5f5'
+        }}
+      >
+        {isMobile ? (
+          <Box
+            sx={{
+              width: '100%',
+              height: '100%',
+              maxWidth: '100%',
+              display: 'flex',
+              justifyContent: 'center'
+            }}
+          >
+            <MobileView 
+              pokerId={pokerId} 
+              isAdmin={isAdmin} 
+              handleDeleteTask={handleDeleteTask}
+              handleEditTask={handleEditTask}
+              handleSetVotingTask={handleSetVotingTask}
+              taskId={taskData.id}
+              tasks={tasks}
+            />
+          </Box>
+        ) : (
+          <Box
+            sx={{
+              width: '100%',
+              height: '100%',
+              maxWidth: '95vw',
+              display: 'flex',
+              justifyContent: 'center'
+            }}
+          >
+            <DesktopView 
+              pokerId={pokerId} 
+              isAdmin={isAdmin} 
+              handleDeleteTask={handleDeleteTask}
+              handleEditTask={handleEditTask}
+              handleSetVotingTask={handleSetVotingTask}
+              taskId={taskData.id}
+              tasks={tasks}
+            />
+          </Box>
+        )}
+      </Box>
     </Container>
   );
 };
