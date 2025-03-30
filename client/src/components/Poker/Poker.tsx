@@ -144,7 +144,7 @@ const PokerPlanningApp: React.FC = () => {
       maxWidth={false} 
       disableGutters
       sx={{ 
-        height: '100vh',
+        height: '100dvh',
         display: 'flex',
         flexDirection: 'column',
         overflow: 'hidden'
