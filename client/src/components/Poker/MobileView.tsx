@@ -48,6 +48,9 @@ const MobileView: React.FC<MobileViewProps> = ({ pokerId, isAdmin, taskId, tasks
           onClick={() => setActiveView('tasks')}
           size="small"
           fullWidth
+          
+       
+
         >
           Задачи
         </Button>
@@ -57,6 +60,8 @@ const MobileView: React.FC<MobileViewProps> = ({ pokerId, isAdmin, taskId, tasks
           size="small"
           fullWidth
           disabled={taskId<= 0}
+          color="secondary"
+        
         >
           Голосование
         </Button>
@@ -66,6 +71,7 @@ const MobileView: React.FC<MobileViewProps> = ({ pokerId, isAdmin, taskId, tasks
           size="small"
           fullWidth
           disabled={taskId<= 0}
+          color={"info"}
         >
           Комментарии
         </Button>
