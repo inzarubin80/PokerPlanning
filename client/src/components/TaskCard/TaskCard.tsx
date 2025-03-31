@@ -69,7 +69,7 @@ const TaskCard: React.FC<TaskCardProps> = ({task, onEdit, onDelete, onVote, isAd
               }}
             >
               <Edit fontSize={isSmallScreen ? 'small' : 'medium'} />
-              {isSmallScreen && <Typography variant="caption" sx={{ ml: 0.5 }}>Изменить</Typography>}
+                <Typography variant="caption" sx={{ ml: 0.5 }}>Изменить</Typography>
             </IconButton>
             
             <IconButton 
@@ -82,7 +82,7 @@ const TaskCard: React.FC<TaskCardProps> = ({task, onEdit, onDelete, onVote, isAd
               }}
             >
               <Delete fontSize={isSmallScreen ? 'small' : 'medium'} />
-              {isSmallScreen && <Typography variant="caption" sx={{ ml: 0.5 }}>Удалить</Typography>}
+              <Typography variant="caption" sx={{ ml: 0.5 }}>Удалить</Typography>
             </IconButton>
             
             <IconButton 
@@ -95,7 +95,7 @@ const TaskCard: React.FC<TaskCardProps> = ({task, onEdit, onDelete, onVote, isAd
               }}
             >
               <ThumbUp fontSize={isSmallScreen ? 'small' : 'medium'} />
-              {isSmallScreen && <Typography variant="caption" sx={{ ml: 0.5 }}>Голосовать</Typography>}
+               <Typography variant="caption" sx={{ ml: 0.5 }}>Голосовать</Typography>
             </IconButton>
           </CardActions>
         </Box>
