@@ -35,7 +35,7 @@ const PokerPlanningApp: React.FC = () => {
 
   const taskData = useSelector((state: RootState) => state.volumeReducer.taskData);
   const tasks = useSelector((state: RootState) => state.taskReducer.tasks);
-  
+
   const wsClientRef = useRef<WebSocketClient | null>(null);
 
   // Selectors
@@ -109,7 +109,7 @@ const PokerPlanningApp: React.FC = () => {
       dispatch(setActiveVotingTask({ pokerId, taskId: taskID }));
     }
   }, [dispatch, pokerId, isMobile]);
-    
+
   // Initialize app data
   useEffect(() => {
     if (!pokerId) return;
@@ -140,10 +140,10 @@ const PokerPlanningApp: React.FC = () => {
   }
 
   return (
-    <Container 
-      maxWidth={false} 
+    <Container
+      maxWidth={false}
       disableGutters
-      sx={{ 
+      sx={{
         height: '100dvh',
         display: 'flex',
         flexDirection: 'column',
@@ -151,7 +151,7 @@ const PokerPlanningApp: React.FC = () => {
       }}
     >
       {/* Header */}
-      <Box 
+      <Box
         sx={{
           p: 1,
           flexShrink: 0,
@@ -166,23 +166,22 @@ const PokerPlanningApp: React.FC = () => {
           alignItems: 'center'
         }}
       >
-         <Box display="flex" alignItems="center" gap={1}>
-    <Typography variant={isMobile ? 'subtitle1' : 'h6'} noWrap>
-      Покер планирования
-    </Typography>
-    <Typography variant="caption" color="text.secondary">
-      ({activeUsersID.length})
-    </Typography>
-  </Box>
-  <Typography variant="caption" color="text.secondary">
-      Обратная связь: inzarubin80@yandex.ru
-    </Typography>
-    
-  <Box display="flex" alignItems="center" gap={2}>
-   
-    <UserCardButton />
-  </Box>
-  
+        <Box display="flex" alignItems="center" gap={1}>
+          <Typography variant={isMobile ? 'subtitle1' : 'h6'} noWrap>
+            Покер планирования
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            ({activeUsersID.length})
+          </Typography>
+        </Box>
+        {!isMobile && <Typography variant="caption" color="text.secondary">
+          Обратная связь: inzarubin80@yandex.ru
+        </Typography>}
+        <Box display="flex" alignItems="center" gap={2}>
+
+          <UserCardButton />
+        </Box>
+
       </Box>
 
       {/* Main content with centering wrapper */}
@@ -207,9 +206,9 @@ const PokerPlanningApp: React.FC = () => {
               justifyContent: 'center'
             }}
           >
-            <MobileView 
-              pokerId={pokerId} 
-              isAdmin={isAdmin} 
+            <MobileView
+              pokerId={pokerId}
+              isAdmin={isAdmin}
               handleDeleteTask={handleDeleteTask}
               handleEditTask={handleEditTask}
               handleSetVotingTask={handleSetVotingTask}
@@ -227,9 +226,9 @@ const PokerPlanningApp: React.FC = () => {
               justifyContent: 'center'
             }}
           >
-            <DesktopView 
-              pokerId={pokerId} 
-              isAdmin={isAdmin} 
+            <DesktopView
+              pokerId={pokerId}
+              isAdmin={isAdmin}
               handleDeleteTask={handleDeleteTask}
               handleEditTask={handleEditTask}
               handleSetVotingTask={handleSetVotingTask}
