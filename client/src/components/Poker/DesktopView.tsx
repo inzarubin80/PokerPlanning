@@ -13,6 +13,7 @@ interface DesktopViewProps {
     handleEditTask: (id: number) => void;
     handleDeleteTask: (id: number) => void;
     handleSetVotingTask: (id: number) => void;
+    votingTask: number | null;
 }
 
 const DesktopView: React.FC<DesktopViewProps> = ({
@@ -22,7 +23,8 @@ const DesktopView: React.FC<DesktopViewProps> = ({
     tasks,
     handleEditTask,
     handleDeleteTask,
-    handleSetVotingTask
+    handleSetVotingTask,
+    votingTask
 }) => {
     return (
         <Grid container spacing={2} sx={{
@@ -75,6 +77,7 @@ const DesktopView: React.FC<DesktopViewProps> = ({
                             handleEditTask={handleEditTask}
                             handleDeleteTask={handleDeleteTask}
                             handleSetVotingTask={handleSetVotingTask}
+                            votingTask={votingTask}
                         />
                     </Box>
                 </Box>

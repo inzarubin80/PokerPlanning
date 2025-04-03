@@ -43,6 +43,7 @@ const PokerPlanningApp: React.FC = () => {
   const activeUsersID = useSelector((state: RootState) => state.pokerReducer.activeUsersID);
   const isAdmin = useSelector((state: RootState) => state.pokerReducer.isAdmin);
 
+  const votingTask = useSelector((state: RootState) => state.volumeReducer.taskData.id);
   const navigate = useNavigate();
 
   const handleDeleteTask = useCallback((taskId: number) => {
@@ -214,6 +215,7 @@ const PokerPlanningApp: React.FC = () => {
               handleSetVotingTask={handleSetVotingTask}
               taskId={taskData.id}
               tasks={tasks}
+              votingTask={votingTask}
             />
           </Box>
         ) : (
@@ -234,6 +236,7 @@ const PokerPlanningApp: React.FC = () => {
               handleSetVotingTask={handleSetVotingTask}
               taskId={taskData.id}
               tasks={tasks}
+              votingTask={votingTask}
             />
           </Box>
         )}

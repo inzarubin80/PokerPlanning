@@ -18,10 +18,11 @@ interface TaskCardProps {
   onEdit: (id: number) => void;
   onDelete: (id: number) => void;
   onVote: (id: number) => void;
+  votingTask: number | null  
 }
 
 
-const TaskCard: React.FC<TaskCardProps> = ({task, onEdit, onDelete, onVote, isAdmin }) => {
+const TaskCard: React.FC<TaskCardProps> = ({task, onEdit, onDelete, onVote, isAdmin, votingTask}) => {
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
   return (
@@ -88,11 +89,14 @@ const TaskCard: React.FC<TaskCardProps> = ({task, onEdit, onDelete, onVote, isAd
             <IconButton 
               size={isSmallScreen ? 'small' : 'medium'}
               aria-label="голосовать"
+              color = {votingTask==task.ID?"primary" : "default"}
               onClick={() => onVote(task.ID)}
               sx={{ 
                 flex: isSmallScreen ? 1 : 0,
                 minWidth: 'unset'
               }}
+
+
             >
               <ThumbUp fontSize={isSmallScreen ? 'small' : 'medium'} />
                <Typography variant="caption" sx={{ ml: 0.5 }}>Голосовать</Typography>

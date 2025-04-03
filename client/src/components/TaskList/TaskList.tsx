@@ -10,6 +10,7 @@ interface TaskListProps {
   handleEditTask: (id: number) => void;
   handleDeleteTask: (id: number) => void;
   handleSetVotingTask: (id: number) => void;
+  votingTask: number | null;
 }
 
 const TaskList: React.FC<TaskListProps> = ({ 
@@ -17,7 +18,9 @@ const TaskList: React.FC<TaskListProps> = ({
   handleEditTask, 
   handleDeleteTask, 
   handleSetVotingTask, 
-  isAdmin 
+  isAdmin,
+  votingTask
+
 }) => {
   return (
     <Box 
@@ -42,6 +45,7 @@ const TaskList: React.FC<TaskListProps> = ({
                 onEdit={handleEditTask}
                 onDelete={handleDeleteTask}
                 onVote={handleSetVotingTask}
+                votingTask={votingTask}
               />
             </Box>
           ))}

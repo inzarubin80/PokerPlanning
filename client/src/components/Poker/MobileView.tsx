@@ -14,9 +14,10 @@ interface MobileViewProps {
   handleEditTask: (id: number) => void;
   handleDeleteTask: (id: number) => void;
   handleSetVotingTask: (id: number) => void;
+  votingTask: number | null;
 }
 
-const MobileView: React.FC<MobileViewProps> = ({ pokerId, isAdmin, taskId, tasks, handleEditTask, handleDeleteTask, handleSetVotingTask}) => {
+const MobileView: React.FC<MobileViewProps> = ({votingTask, pokerId, isAdmin, taskId, tasks, handleEditTask, handleDeleteTask, handleSetVotingTask}) => {
   const [activeView, setActiveView] = useState<'tasks' | 'voting' | 'comments'>('tasks');
   const [showSettings, setShowSettings] = useState(false);
 
@@ -82,6 +83,7 @@ const MobileView: React.FC<MobileViewProps> = ({ pokerId, isAdmin, taskId, tasks
         {activeView === 'tasks' && (
           <TaskList
             tasks={tasks}
+            votingTask={votingTask}
             isAdmin={isAdmin}
             handleEditTask={handleEditTask}
             handleDeleteTask={handleDeleteTask}
