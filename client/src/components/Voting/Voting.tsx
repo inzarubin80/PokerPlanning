@@ -6,7 +6,6 @@ import {
   Box,
   Card,
   CardContent,
-  CardActions,
   List,
   ListItem,
   ListItemText,
