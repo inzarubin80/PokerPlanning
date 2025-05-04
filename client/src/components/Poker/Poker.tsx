@@ -153,6 +153,7 @@ const PokerPlanningApp: React.FC = () => {
     >
       {/* Main content with centering wrapper */}
       <Box
+      
         sx={{
           flex: 1,
           display: 'flex',
