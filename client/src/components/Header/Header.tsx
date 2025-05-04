@@ -32,13 +32,8 @@ const Header: React.FC = ({ }) => {
           <Typography variant={isMobile ? 'subtitle1' : 'h6'} noWrap>
             Покер планирования
           </Typography>
-          <Typography variant="caption" color="text.secondary">
-            ({activeUsersID.length})
-          </Typography>
         </Box>
-        {!isMobile && <Typography variant="caption" color="text.secondary">
-          Обратная связь: inzarubin80@yandex.ru
-        </Typography>}
+      
         <Box display="flex" alignItems="center" gap={2}>
            <UserCardButton />
         </Box>
