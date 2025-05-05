@@ -13,8 +13,11 @@ import {
   CardActionArea,
   Chip
 } from '@mui/material';
+
+import { useNavigate } from 'react-router-dom';
+
 import { EmailOutlined, Telegram } from '@mui/icons-material';
-import PokerForm from '../PokerForm/PokerForm';
+
 
 import ObjectivityImg from '../../images/Objectivity.jpg';
 import SaveTimeImg from '../../images/SaveTime.jpg';
@@ -24,7 +27,10 @@ import TeamCollaborationImg from '../../images/TeamCollaboration.jpg';
 const Home: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const [isPokerFormOpen, setIsPokerFormOpen] = useState(false);
-  const recentRooms = [{"id": 1, "status": "open", "participants":0, "name": "Команда ураган"}];
+  //const recentRooms = [{"id": 1, "status": "open", "participants":0, "name": "Команда ураган"}];
+  const recentRooms: any[] = [];
+
+    const navigate = useNavigate();
 
   useEffect(() => {
     dispatch(getUser());
@@ -50,7 +56,7 @@ const Home: React.FC = () => {
         <Button
           variant="contained"
           size="large"
-          onClick={() => setIsPokerFormOpen(true)}
+          onClick={() =>  navigate(`/startPoker`)}
           sx={{ px: 6, py: 1.5, fontSize: '1.2rem' }}
         >
           Начать оценку

@@ -28,8 +28,6 @@ function PokerForm() {
   const evaluationStrategy = useSelector((state: RootState) => state.userReducer.EvaluationStrategy);
   const maximumScore = useSelector((state: RootState) => state.userReducer.MaximumScore);
 
-
-
   const handleCreatePoker = async () => {
     try {
       const response = await dispatch(createPoker({ EvaluationStrategy: evaluationStrategy, MaximumScore: maximumScore })).unwrap();
