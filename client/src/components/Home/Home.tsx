@@ -16,9 +16,13 @@ import {
 import { EmailOutlined, Telegram } from '@mui/icons-material';
 import PokerForm from '../PokerForm/PokerForm';
 
+import ObjectivityImg from '../../images/Objectivity.jpg';
+import SaveTimeImg from '../../images/SaveTime.jpg';
+import SharedUnderstandingImg from '../../images/SharedUnderstanding.jpg';
+import TeamCollaborationImg from '../../images/TeamCollaboration.jpg';
+
 const Home: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const [isPokerFormOpen, setIsPokerFormOpen] = useState(false);
   const recentRooms = [{"id": 1, "status": "open", "participants":0, "name": "Команда ураган"}];
 
   useEffect(() => {
@@ -45,13 +49,14 @@ const Home: React.FC = () => {
         <Button
           variant="contained"
           size="large"
-          onClick={() => setIsPokerFormOpen(true)}
+          onClick={() => {}}
           sx={{ px: 6, py: 1.5, fontSize: '1.2rem' }}
         >
           Начать оценку
         </Button>
       </Box>
 
+      {/* Недавние сессии */}
       {recentRooms?.length > 0 && (
         <Box sx={{ my: 6 }}>
           <Typography variant="h4" sx={{ mb: 3 }}>Недавние сессии</Typography>
@@ -82,6 +87,60 @@ const Home: React.FC = () => {
         </Box>
       )}
 
+      {/* Описание метода */}
+      <Box sx={{ 
+        my: 8,
+        py: 6,
+        background: 'linear-gradient(to right, #ffffff 0%, #f8f9fa 100%)',
+        borderRadius: 3
+      }}>
+        <Grid container spacing={6} alignItems="center">
+          <Grid item xs={12} md={6}>
+            <Box sx={{
+              borderRadius: 3,
+              overflow: 'hidden',
+              boxShadow: 3,
+              height: { xs: 300, md: 400 },
+              backgroundImage: `url(${TeamCollaborationImg})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center'
+            }}/>
+          </Grid>
+          
+          <Grid item xs={12} md={6}>
+            <Typography variant="h3" sx={{ mb: 3, fontWeight: 600 }}>
+              Что такое Planning Poker?
+            </Typography>
+            <Typography variant="body1" paragraph sx={{ fontSize: '1.1rem', lineHeight: 1.6 }}>
+              Planning Poker® - это консенсус-ориентированная методика оценки задач, 
+              разработанная для Agile команд. Основные принципы:
+            </Typography>
+            <Box component="ul" sx={{ 
+              pl: 3, 
+              mb: 3,
+              '& li': { 
+                fontSize: '1.1rem',
+                mb: 1.5,
+                color: 'text.secondary'
+              } 
+            }}>
+              <li>Анонимное голосование для исключения группового влияния</li>
+              <li>Использование последовательности Фибоначчи для оценки сложности</li>
+              <li>Итеративное обсуждение расхождений в оценках</li>
+              <li>Фокус на относительной сложности задач</li>
+            </Box>
+            <Button 
+              variant="outlined" 
+              size="large"
+              onClick={() => window.open('https://ru.wikipedia.org/wiki/Покер_планирования', '_blank')}
+              sx={{ mt: 2 }}
+            >
+              Узнать больше о методике
+            </Button>
+          </Grid>
+        </Grid>
+      </Box>
+
       {/* Преимущества методики */}
       <Box sx={{ 
         my: 8,
@@ -99,17 +158,17 @@ const Home: React.FC = () => {
             { 
               title: 'Объективность оценок', 
               text: 'Анонимность исключает давление мнения большинства',
-              img: '/placeholder-benefit1.jpg'
+              img: ObjectivityImg
             },
             { 
               title: 'Экономия времени', 
               text: 'Структурированный процесс вместо бесконечных споров',
-              img: '/placeholder-benefit2.jpg'
+              img: SaveTimeImg
             },
             { 
               title: 'Совместное понимание', 
               text: 'Обсуждение расхождений выявляет нюансы задач',
-              img: '/placeholder-benefit3.jpg'
+              img: SharedUnderstandingImg
             }
           ].map((item, index) => (
             <Grid item xs={12} md={4} key={index}>
@@ -142,15 +201,15 @@ const Home: React.FC = () => {
         <Grid container spacing={4}>
           {[
             { 
-              title: '1. Создайте сессию', 
+              title: 'Создайте сессию', 
               text: 'Начните новую сессию оценки, выбрав стратегию и параметры планирования'
             },
             { 
-              title: '2. Пригласите команду', 
+              title: 'Пригласите команду', 
               text: 'Отправьте ссылку на сессию участникам для совместной работы'
             },
             { 
-              title: '3. Проведите оценку', 
+              title: 'Проведите оценку', 
               text: 'Обсуждайте задачи и голосуйте анонимно для объективных результатов'
             }
           ].map((item, index) => (
@@ -184,7 +243,7 @@ const Home: React.FC = () => {
         borderRadius: 4,
         textAlign: 'center'
       }}>
-       <Typography variant="h6" sx={{ mb: 1, textAlign: 'center' }}>
+        <Typography variant="h6" sx={{ mb: 1, textAlign: 'center' }}>
           Свяжитесь с нами
         </Typography>
         
