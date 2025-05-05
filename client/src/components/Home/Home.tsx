@@ -23,6 +23,7 @@ import TeamCollaborationImg from '../../images/TeamCollaboration.jpg';
 
 const Home: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
+  const [isPokerFormOpen, setIsPokerFormOpen] = useState(false);
   const recentRooms = [{"id": 1, "status": "open", "participants":0, "name": "Команда ураган"}];
 
   useEffect(() => {
@@ -49,7 +50,7 @@ const Home: React.FC = () => {
         <Button
           variant="contained"
           size="large"
-          onClick={() => {}}
+          onClick={() => setIsPokerFormOpen(true)}
           sx={{ px: 6, py: 1.5, fontSize: '1.2rem' }}
         >
           Начать оценку
@@ -87,58 +88,89 @@ const Home: React.FC = () => {
         </Box>
       )}
 
-      {/* Описание метода */}
+      {/* Что такое Planning Poker? */}
       <Box sx={{ 
         my: 8,
-        py: 6,
-        background: 'linear-gradient(to right, #ffffff 0%, #f8f9fa 100%)',
-        borderRadius: 3
+        p: 6,
+        backgroundColor: '#f8f9fa',
+        borderRadius: 3,
+        boxShadow: '0 4px 20px rgba(0,0,0,0.05)'
       }}>
-        <Grid container spacing={6} alignItems="center">
-          <Grid item xs={12} md={6}>
-            <Box sx={{
-              borderRadius: 3,
-              overflow: 'hidden',
-              boxShadow: 3,
-              height: { xs: 300, md: 400 },
-              backgroundImage: `url(${TeamCollaborationImg})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center'
-            }}/>
+        <Typography variant="h4" sx={{ 
+          mb: 6, 
+          textAlign: 'center',
+          fontWeight: 600
+        }}>
+          Что такое Planning Poker?
+        </Typography>
+
+        <Box sx={{
+          borderRadius: 3,
+          overflow: 'hidden',
+          boxShadow: 3,
+          height: 400,
+          maxWidth: 800,
+          margin: '0 auto 40px',
+          backgroundImage: `url(${TeamCollaborationImg})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center'
+        }}/>
+
+        <Box sx={{ maxWidth: 800, margin: '0 auto' }}>
+          <Typography variant="body1" paragraph sx={{ 
+            fontSize: '1.1rem', 
+            lineHeight: 1.7,
+            mb: 3,
+            textAlign: 'justify'
+          }}>
+            Planning Poker® - это консенсус-ориентированная методика оценки задач, 
+            разработанная для Agile команд. Основные принципы:
+          </Typography>
+
+          <Grid container spacing={3} sx={{ mb: 4 }}>
+            {[
+              'Анонимное голосование для исключения группового влияния',
+              'Использование последовательности Фибоначчи для оценки сложности',
+              'Итеративное обсуждение расхождений в оценках',
+              'Фокус на относительной сложности задач'
+            ].map((text, index) => (
+              <Grid item xs={12} md={6} key={index}>
+                <Box sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  p: 2,
+                  bgcolor: 'rgba(25, 118, 210, 0.05)',
+                  borderRadius: 2
+                }}>
+                  <Box sx={{
+                    width: 8,
+                    height: 8,
+                    bgcolor: 'primary.main',
+                    borderRadius: '50%',
+                    mr: 2
+                  }}/>
+                  <Typography variant="body1">{text}</Typography>
+                </Box>
+              </Grid>
+            ))}
           </Grid>
-          
-          <Grid item xs={12} md={6}>
-            <Typography variant="h3" sx={{ mb: 3, fontWeight: 600 }}>
-              Что такое Planning Poker?
-            </Typography>
-            <Typography variant="body1" paragraph sx={{ fontSize: '1.1rem', lineHeight: 1.6 }}>
-              Planning Poker® - это консенсус-ориентированная методика оценки задач, 
-              разработанная для Agile команд. Основные принципы:
-            </Typography>
-            <Box component="ul" sx={{ 
-              pl: 3, 
-              mb: 3,
-              '& li': { 
-                fontSize: '1.1rem',
-                mb: 1.5,
-                color: 'text.secondary'
-              } 
-            }}>
-              <li>Анонимное голосование для исключения группового влияния</li>
-              <li>Использование последовательности Фибоначчи для оценки сложности</li>
-              <li>Итеративное обсуждение расхождений в оценках</li>
-              <li>Фокус на относительной сложности задач</li>
-            </Box>
+
+          <Box sx={{ textAlign: 'center' }}>
             <Button 
               variant="outlined" 
               size="large"
               onClick={() => window.open('https://ru.wikipedia.org/wiki/Покер_планирования', '_blank')}
-              sx={{ mt: 2 }}
+              sx={{ 
+                px: 6,
+                borderRadius: 4,
+                textTransform: 'none',
+                fontSize: '1.1rem'
+              }}
             >
               Узнать больше о методике
             </Button>
-          </Grid>
-        </Grid>
+          </Box>
+        </Box>
       </Box>
 
       {/* Преимущества методики */}
