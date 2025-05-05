@@ -291,14 +291,14 @@ const Home: React.FC = () => {
               fullWidth
               variant="contained"
               startIcon={<EmailOutlined />}
-              href="mailto:support@pokerx.com"
+              href="mailto:inzarubin80@yandex.ru"
               sx={{
                 borderRadius: 4,
                 py: 1.5,
                 textTransform: 'none'
               }}
             >
-              support@pokerx.com
+              inzarubin80@yandex.ru
             </Button>
           </Grid>
           
