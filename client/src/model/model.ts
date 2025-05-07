@@ -51,7 +51,8 @@ export interface UserSettings{
 
 export interface PokerSettings{
   EvaluationStrategy: string,
-  MaximumScore: number
+  MaximumScore: number,
+  Name: string
 }
 
 export interface Poker{

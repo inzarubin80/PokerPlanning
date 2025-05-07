@@ -56,7 +56,7 @@ const Home: React.FC = () => {
         <Button
           variant="contained"
           size="large"
-          onClick={() =>  navigate(`/startPoker`)}
+          onClick={() =>  navigate(`/new`)}
           sx={{ px: 6, py: 1.5, fontSize: '1.2rem' }}
         >
           Начать оценку

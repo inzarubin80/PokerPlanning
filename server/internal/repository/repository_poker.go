@@ -20,13 +20,12 @@ func (r *Repository) CreatePoker(ctx context.Context, userID model.UserID, poker
 		Valid: true,
 	}
 
-	name := ""
 	arg := &sqlc_repository.CreatePokerParams{
 		PokerID:            pgUUID,
 		Autor:              int64(userID),
 		EvaluationStrategy: pokerSettings.EvaluationStrategy,
 		MaximumScore:       int32(pokerSettings.MaximumScore),
-		Name:               &name,
+		Name:               &pokerSettings.Name,
 	}
 
 	poker, err := reposqlsc.CreatePoker(ctx, arg)

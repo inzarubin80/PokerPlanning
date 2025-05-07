@@ -25,13 +25,17 @@ const App: React.FC = () => {
       <Route path="/login" element={<Login />} />
       <Route path="/YandexAuthCallback" element={<YandexAuthCallback />} />
 
-      <Route element={<MainLayout/>}>
+      <Route element={<MainLayout />}>
         <Route element={<PrivateRoute accessToken={accessToken} />}>
-          <Route path="/" element={<Home />} />
-          <Route path="/startPoker" element={<StartPoker />} />
-          <Route path="poker/:pokerId" element={<Poker />} />
-          <Route path="poker/:pokerId/task/:taskId" element={<TaskForm />} />
-          <Route path="/user" element={<UserCard />} />
+        
+          <Route index element={<Home />} />
+          <Route path="new" element={<StartPoker />} />
+          <Route path="poker"> 
+            <Route path=":pokerId" element={<Poker />} />
+            <Route path=":pokerId/task/:taskId" element={<TaskForm />} />
+          </Route>
+          <Route path="user" element={<UserCard />} />
+
         </Route>
       </Route>
       <Route path="*" element={<NoMatch />} />

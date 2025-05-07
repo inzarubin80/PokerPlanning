@@ -13,6 +13,7 @@ interface PokerState {
   users: User[];
   activeUsersID: number[];
   maximumScore: number;
+  name: string;
   evaluationStrategy: string;
   possibleEstimates: number[];
 }
@@ -25,6 +26,7 @@ const INITIAL_LOADING = false;
 // Начальное состояние
 const initialState: PokerState = {
   pokerId: '',
+  name: '',
   isAdmin: false,
   createdAt: null,
   loading: INITIAL_LOADING,
@@ -101,6 +103,12 @@ const pokerSlice = createSlice({
     setActiveUsers: (state, action: PayloadAction<number[]>) => {
       state.activeUsersID = action.payload;
     },
+
+    setName: (state, action: PayloadAction<string>) => {
+      state.name = action.payload;
+    },
+    
+
     setUsers: (state, action: PayloadAction<User[]>) => {
       state.users = action.payload;
     },
@@ -157,5 +165,5 @@ const pokerSlice = createSlice({
   },
 });
 
-export const { setActiveUsers, setUsers, resetPokerState } = pokerSlice.actions;
+export const { setActiveUsers, setUsers, resetPokerState, setName } = pokerSlice.actions;
 export default pokerSlice.reducer;

@@ -104,7 +104,9 @@ type (
 	PokerSettings struct {
 		EvaluationStrategy string
 		MaximumScore       int
+		Name string
 	}
+
 
 	Poker struct {
 		ID                 PokerID
