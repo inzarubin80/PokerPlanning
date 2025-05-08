@@ -426,7 +426,7 @@ const Home: React.FC = () => {
               fullWidth
               variant="outlined"
               startIcon={<Telegram />}
-              href="https://t.me/pokerx_channel"
+              href="https://t.me/poker_planning"
               target="_blank"
               rel="noopener"
               sx={{
@@ -435,7 +435,7 @@ const Home: React.FC = () => {
                 textTransform: 'none'
               }}
             >
-              @pokerx_updates
+              @poker_planning
             </Button>
           </Grid>
         </Grid>
