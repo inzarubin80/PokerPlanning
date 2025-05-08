@@ -2,6 +2,7 @@ import React from 'react';
 import { Box, Container, Typography, useTheme, useMediaQuery } from '@mui/material';
 import YandexAuthButton from '../AuthButton/AuthButton';
 import { useLocation } from 'react-router-dom';
+import TeamCollaborationImg from '../../images/TeamCollaboration.svg';
 
 const Login: React.FC = () => {
     const location = useLocation();
@@ -15,15 +16,17 @@ const Login: React.FC = () => {
                 flexDirection="column"
                 alignItems="center"
                 justifyContent="center"
-                minHeight="100vh"
+                height="100%"
                 py={isMobile ? 8 : 20}
                 px={isMobile ? 2 : 4}
             >
-                <Typography 
+
+
+                <Typography
                     variant={isMobile ? "h4" : "h3"}
-                    component="h1" 
-                    gutterBottom 
-                    sx={{ 
+                    component="h1"
+                    gutterBottom
+                    sx={{
                         whiteSpace: 'nowrap',
                         fontSize: isMobile ? '1.75rem' : '2.5rem',
                         textAlign: 'center'
@@ -31,10 +34,23 @@ const Login: React.FC = () => {
                 >
                     Покер планирования
                 </Typography>
-                
+
                 <Box sx={{ width: '100%', maxWidth: 300, mt: isMobile ? 2 : 4 }}>
                     <YandexAuthButton isMobile={isMobile} />
                 </Box>
+
+                <Box
+                    component="img"
+                    src={TeamCollaborationImg}
+                    alt="Planning Poker"
+                    sx={{
+                        marginTop: 7,
+                        maxWidth: 800,
+                        height: 'auto',
+                        //mb: isMobile ? 2 : 3
+                    }}
+                />
+
             </Box>
         </Container>
     );
