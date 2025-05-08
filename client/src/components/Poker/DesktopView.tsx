@@ -28,7 +28,7 @@ const DesktopView: React.FC<DesktopViewProps> = ({
 }) => {
     return (
         <Grid container spacing={2} sx={{
-            height: 'calc(100vh - 80px)',
+            height: 'calc(100vh - 64px)',
             padding: 2,
             alignItems: 'stretch',
             margin: 0,
