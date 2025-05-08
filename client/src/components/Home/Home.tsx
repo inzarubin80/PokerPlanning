@@ -29,8 +29,6 @@ import SaveTimeImg from '../../images/SaveTime.svg';
 import SharedUnderstandingImg from '../../images/SharedUnderstanding.svg';
 import TeamCollaborationImg from '../../images/TeamCollaboration.svg';
 
-
-
 const Home: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
 
@@ -89,23 +87,45 @@ const Home: React.FC = () => {
       {/* Hero Section */}
       <Box sx={{
         textAlign: 'center',
-        py: 8,
+        py: { xs: 4, md: 8 },
+        px: { xs: 2, sm: 0 },
         background: 'linear-gradient(45deg, #f5f7fa 0%, #c3cfe2 100%)',
         borderRadius: 3,
         width: '100%',
-        my: 4
+        my: 4,
+        mx: 'auto',
+        maxWidth: '1200px'
       }}>
-        <Typography variant="h2" component="h1" sx={{ mb: 3, fontWeight: 700 }}>
+        <Typography
+          variant="h2"
+          component="h1"
+          sx={{
+            mb: 3,
+            fontWeight: 700,
+            fontSize: { xs: '2rem', sm: '3rem', md: '3.75rem' }
+          }}
+        >
           Покер планирования
         </Typography>
-        <Typography variant="h5" sx={{ mb: 4, color: 'text.secondary' }}>
+        <Typography
+          variant="h5"
+          sx={{
+            mb: 4,
+            color: 'text.secondary',
+            fontSize: { xs: '1.1rem', sm: '1.5rem' }
+          }}
+        >
           Совместная оценка задач для Agile команд
         </Typography>
         <Button
           variant="contained"
           size="large"
           onClick={() => navigate(`/new`)}
-          sx={{ px: 6, py: 1.5, fontSize: '1.2rem' }}
+          sx={{
+            px: 6,
+            py: 1.5,
+            fontSize: { xs: '1rem', sm: '1.2rem' }
+          }}
         >
           Начать оценку
         </Button>
