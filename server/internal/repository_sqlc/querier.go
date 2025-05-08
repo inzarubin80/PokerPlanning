@@ -23,6 +23,7 @@ type Querier interface {
 	CreateUser(ctx context.Context, name string) (int64, error)
 	DeleteTask(ctx context.Context, arg *DeleteTaskParams) error
 	GetComments(ctx context.Context, arg *GetCommentsParams) ([]*Comment, error)
+	GetLastSession(ctx context.Context, userID int64) ([]*GetLastSessionRow, error)
 	GetPoker(ctx context.Context, pokerID pgtype.UUID) (*Poker, error)
 	GetPokerAdmins(ctx context.Context, pokerID pgtype.UUID) ([]int64, error)
 	GetTask(ctx context.Context, arg *GetTaskParams) (*Task, error)

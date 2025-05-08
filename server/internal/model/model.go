@@ -51,6 +51,13 @@ type (
 		MaximumScore       int
 	}
 
+	LastSessionPoker struct {
+		PokerID     PokerID
+		UserID      UserID
+		Name        string
+	    IsAdmin     bool
+	}
+
 	UserSettings struct {
 		UserID             UserID
 		EvaluationStrategy string

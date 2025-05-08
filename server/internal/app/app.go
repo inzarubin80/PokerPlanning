@@ -56,6 +56,7 @@ type (
 		UserIsAdmin(ctx context.Context, pokerID model.PokerID, userID model.UserID) (bool, error)
 		SetUserName(ctx context.Context, userID model.UserID, name string) error
 		SetUserSettings(ctx context.Context, userID model.UserID, userSettings *model.UserSettings) error
+		GetLastSession(ctx context.Context, UserID model.UserID) ([]*model.LastSessionPoker, error)
 	}
 
 	TokenService interface {
@@ -98,6 +99,7 @@ func (a *App) ListenAndServe() error {
 		a.config.path.ws:                    appHttp.NewWSPokerHandler(a.pokerService, a.config.path.ws, a.hub),
 		a.config.path.setUserName:           appHttp.NewSetUserNameHandler(a.pokerService, a.config.path.setUserName),
 		a.config.path.setUserSettings:       appHttp.NewSetUserSettingsHandler(a.pokerService, a.config.path.setUserSettings),
+		a.config.path.getLastSession:        appHttp.NewGetLastSessionHandler(a.pokerService, a.config.path.getLastSession),
 	}
 
 	for path, handler := range handlers {

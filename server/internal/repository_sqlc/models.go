@@ -33,8 +33,9 @@ type PokerAdmin struct {
 }
 
 type PokerUser struct {
-	UserID  int64
-	PokerID pgtype.UUID
+	UserID   int64
+	PokerID  pgtype.UUID
+	LastDate pgtype.Timestamptz
 }
 
 type Task struct {

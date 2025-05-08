@@ -21,7 +21,7 @@ type (
 		getTasks, getTask, updateTask, deleteTask,
 		getComents, addComent, setVotingTask,
 		getVotingControlState, ws, login, session, refreshToken, logOut, getProviders,
-		ping, vote, getUserEstimates, setVotingControlState, setUserName, getUser, setUserSettings string
+		ping, vote, getUserEstimates, setVotingControlState, setUserName, getUser, setUserSettings, getLastSession string
 	}
 
 	sectrets struct {
@@ -64,31 +64,32 @@ func NewConfig(opts Options) config {
 		addr: opts.Addr,
 		path: path{
 			index:        "",
-			ping:         fmt.Sprintf("GET /api/ping"),
+			ping:         "GET /api/ping",
 			createPoker:  "POST	/api/poker",
 			getProviders: "GET /api/providers",
 
-			login:           fmt.Sprintf("POST	/api/user/login"),
-			setUserName:     fmt.Sprintf("POST	/api/user/name"),
-			setUserSettings: fmt.Sprintf("POST	/api/user/settings"),
+			login:           "POST	/api/user/login",
+			setUserName:     "POST	/api/user/name",
+			setUserSettings: "POST	/api/user/settings",
 
-			getUser: fmt.Sprintf("GET	/api/user"),
+			getUser: "GET	/api/user",
 
-			refreshToken: fmt.Sprintf("POST	/api/user/refresh"),
-			session:      fmt.Sprintf("GET		/api/user/session"),
-			logOut:       fmt.Sprintf("GET		/api/user/logout"),
+			refreshToken: "POST	/api/user/refresh",
+			session:      "GET		/api/user/session",
+			logOut:       "GET		/api/user/logout",
 
 			vote:                  fmt.Sprintf("POST 	/api/poker/{%s}/vote", defenitions.ParamPokerID),
 			setVotingTask:         fmt.Sprintf("POST 	/api/poker/{%s}/voting-control/task/{%s}", defenitions.ParamPokerID, defenitions.ParamTaskID),
 			getVotingControlState: fmt.Sprintf("GET  	/api/poker/{%s}/voting-control", defenitions.ParamPokerID),
 			setVotingControlState: fmt.Sprintf("POST 	/api/poker/{%s}/voting-control/{%s}", defenitions.ParamPokerID, defenitions.ParamVotingControlAction),
 			getUserEstimates:      fmt.Sprintf("GET		/api/poker/{%s}/user-estimates", defenitions.ParamPokerID),
+			getLastSession:        			   "GET		/api/poker/last-session:",
 
 			createTask: fmt.Sprintf("POST	/api/poker/{%s}/tasks", defenitions.ParamPokerID),
-			getTasks:   fmt.Sprintf("GET		/api/poker/{%s}/tasks", defenitions.ParamPokerID),
-			getTask:    fmt.Sprintf("GET		/api/poker/{%s}/tasks/{%s}", defenitions.ParamPokerID, defenitions.ParamTaskID),
-			updateTask: fmt.Sprintf("PUT 	/api/poker/{%s}/tasks/{%s}", defenitions.ParamPokerID, defenitions.ParamTaskID),
-			deleteTask: fmt.Sprintf("DELETE 	/api/poker/{%s}/tasks/{%s}", defenitions.ParamPokerID, defenitions.ParamTaskID),
+			getTasks:   fmt.Sprintf("GET	/api/poker/{%s}/tasks", defenitions.ParamPokerID),
+			getTask:    fmt.Sprintf("GET	/api/poker/{%s}/tasks/{%s}", defenitions.ParamPokerID, defenitions.ParamTaskID),
+			updateTask: fmt.Sprintf("PUT	/api/poker/{%s}/tasks/{%s}", defenitions.ParamPokerID, defenitions.ParamTaskID),
+			deleteTask: fmt.Sprintf("DELETE	/api/poker/{%s}/tasks/{%s}", defenitions.ParamPokerID, defenitions.ParamTaskID),
 
 			getComents: fmt.Sprintf("GET 	/api/poker/{%s}/comments", defenitions.ParamPokerID),
 			addComent:  fmt.Sprintf("POST 	/api/poker/{%s}/comments", defenitions.ParamPokerID),

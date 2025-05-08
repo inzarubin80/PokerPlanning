@@ -40,7 +40,7 @@ ON CONFLICT (user_id, poker_id)
 DO UPDATE SET
     user_id = EXCLUDED.user_id,
     poker_id = EXCLUDED.poker_id
-RETURNING user_id, poker_id
+RETURNING user_id, poker_id, last_date
 `
 
 type AddPokerUserParams struct {
@@ -51,7 +51,7 @@ type AddPokerUserParams struct {
 func (q *Queries) AddPokerUser(ctx context.Context, arg *AddPokerUserParams) (*PokerUser, error) {
 	row := q.db.QueryRow(ctx, addPokerUser, arg.UserID, arg.PokerID)
 	var i PokerUser
-	err := row.Scan(&i.UserID, &i.PokerID)
+	err := row.Scan(&i.UserID, &i.PokerID, &i.LastDate)
 	return &i, err
 }
 
@@ -310,6 +310,62 @@ func (q *Queries) GetComments(ctx context.Context, arg *GetCommentsParams) ([]*C
 	return items, nil
 }
 
+const getLastSession = `-- name: GetLastSession :many
+SELECT 
+    t1.user_id, 
+    t1.poker_id,
+    CASE
+        WHEN t2.poker_id IS NOT NULL THEN true  
+        ELSE false
+    END AS is_admin,
+    t3.name AS poker_name
+FROM 
+    public.poker_users AS t1
+LEFT JOIN 
+    public.poker_admins AS t2
+    ON t1.poker_id = t2.poker_id
+    AND t1.user_id = t2.user_id
+LEFT JOIN 
+    public.poker AS t3
+    ON t3.poker_id = t1.poker_id
+WHERE 
+    t1.user_id = $1
+ORDER BY 
+    t1.last_date
+`
+
+type GetLastSessionRow struct {
+	UserID    int64
+	PokerID   pgtype.UUID
+	IsAdmin   bool
+	PokerName *string
+}
+
+func (q *Queries) GetLastSession(ctx context.Context, userID int64) ([]*GetLastSessionRow, error) {
+	rows, err := q.db.Query(ctx, getLastSession, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*GetLastSessionRow
+	for rows.Next() {
+		var i GetLastSessionRow
+		if err := rows.Scan(
+			&i.UserID,
+			&i.PokerID,
+			&i.IsAdmin,
+			&i.PokerName,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getPoker = `-- name: GetPoker :one
 SELECT poker_id, name, autor, evaluation_strategy, maximum_score, task_id, start_date, end_date FROM poker WHERE poker_id = $1
 `
@@ -471,7 +527,7 @@ func (q *Queries) GetUserEstimate(ctx context.Context, arg *GetUserEstimateParam
 }
 
 const getUserIDsByPokerID = `-- name: GetUserIDsByPokerID :many
-SELECT user_id, poker_id FROM poker_users
+SELECT user_id, poker_id, last_date FROM poker_users
 WHERE poker_id = $1
 `
 
@@ -484,7 +540,7 @@ func (q *Queries) GetUserIDsByPokerID(ctx context.Context, pokerID pgtype.UUID) 
 	var items []*PokerUser
 	for rows.Next() {
 		var i PokerUser
-		if err := rows.Scan(&i.UserID, &i.PokerID); err != nil {
+		if err := rows.Scan(&i.UserID, &i.PokerID, &i.LastDate); err != nil {
 			return nil, err
 		}
 		items = append(items, &i)

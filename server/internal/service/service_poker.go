@@ -93,3 +93,15 @@ func (s *PokerService) GetPokerUsers(ctx context.Context, pokerID model.PokerID)
 	}
 	return users, nil
 }
+
+
+func (s *PokerService)  GetLastSession(ctx context.Context, UserID model.UserID) ([]*model.LastSessionPoker, error) {
+
+	res, err := s.repository.GetLastSession(ctx, UserID)
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
+
+}

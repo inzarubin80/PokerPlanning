@@ -148,3 +148,27 @@ func (r *Repository) GetVotingState(ctx context.Context, pokerID model.PokerID) 
 	}, nil
 
 }
+
+
+func (r *Repository)  GetLastSession(ctx context.Context, UserID model.UserID) ([]*model.LastSessionPoker, error) {
+
+	reposqlc := sqlc_repository.New(r.conn)
+
+	lastSessionPoker, err := reposqlc.GetLastSession(ctx, int64(UserID))
+	if err!=nil {
+		return nil, err
+	}
+
+	res := make([]*model.LastSessionPoker, len(lastSessionPoker))
+	for i, row := range lastSessionPoker {
+		res[i] = &model.LastSessionPoker{
+			UserID:    model.UserID(row.UserID),  // Explicit type conversion
+			PokerID:   model.PokerID(row.PokerID.String()), // Same for PokerID if needed
+			IsAdmin:   row.IsAdmin,
+			Name:      *row.PokerName,
+		}
+	}
+
+	return res, nil
+
+}

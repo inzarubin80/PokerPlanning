@@ -140,3 +140,26 @@ WHERE poker_id = $1 AND task_id = $2;
 DELETE FROM  voting
 WHERE
 poker_id = $1 AND task_id = $2 AND user_id = $3;
+
+-- name: GetLastSession :many
+SELECT 
+    t1.user_id, 
+    t1.poker_id,
+    CASE
+        WHEN t2.poker_id IS NOT NULL THEN true  
+        ELSE false
+    END AS is_admin,
+    t3.name AS poker_name
+FROM 
+    public.poker_users AS t1
+LEFT JOIN 
+    public.poker_admins AS t2
+    ON t1.poker_id = t2.poker_id
+    AND t1.user_id = t2.user_id
+LEFT JOIN 
+    public.poker AS t3
+    ON t3.poker_id = t1.poker_id
+WHERE 
+    t1.user_id = $1
+ORDER BY 
+    t1.last_date;
