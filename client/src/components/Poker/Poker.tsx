@@ -145,7 +145,7 @@ const PokerPlanningApp: React.FC = () => {
       maxWidth={false}
       disableGutters
       sx={{
-        height: '100dvh',
+        //height: '100dvh',
         display: 'flex',
         flexDirection: 'column',
         overflow: 'hidden'
@@ -160,6 +160,7 @@ const PokerPlanningApp: React.FC = () => {
           justifyContent: 'center',
           alignItems: 'center',
           width: '100%',
+        //  height: '100%',
           overflow: 'hidden',
           backgroundColor: '#f5f5f5'
         }}
@@ -168,7 +169,7 @@ const PokerPlanningApp: React.FC = () => {
           <Box
             sx={{
               width: '100%',
-              height: '100%',
+              height: 'calc(100vh - 56px)',
               maxWidth: '100%',
               display: 'flex',
               justifyContent: 'center'
@@ -189,7 +190,7 @@ const PokerPlanningApp: React.FC = () => {
           <Box
             sx={{
               width: '100%',
-              height: '100%',
+              height: 'calc(100vh - 70px)',
               maxWidth: '95vw',
               display: 'flex',
               justifyContent: 'center'

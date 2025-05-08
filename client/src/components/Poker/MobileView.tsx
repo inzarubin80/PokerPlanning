@@ -30,7 +30,8 @@ const MobileView: React.FC<MobileViewProps> = ({votingTask, pokerId, isAdmin, ta
       display: 'flex', 
       flexDirection: 'column', 
       height: '100%',
-      overflow: 'hidden'
+      overflow: 'hidden',
+      width:'100%'
     }}>
       {/* Mobile navigation */}
       <Box 

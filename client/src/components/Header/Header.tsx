@@ -31,7 +31,10 @@ const Header: React.FC = ({ }) => {
             justifyContent: 'space-between',
             alignItems: 'center',
             width: '100%',
-            boxSizing: 'border-box' // Важно!
+            boxSizing: 'border-box', // Важно!
+            height: { xs: 56, md: 64 }, // 56px на мобильных, 64px на десктопе
+            minHeight: { xs: 56, md: 64 }, // Фиксированная минимальная высота
+
           }}
         >
             <Box display="flex" alignItems="center" gap={1}>
