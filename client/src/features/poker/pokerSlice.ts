@@ -114,7 +114,7 @@ export const getLastSessionPoker = createAsyncThunk<
   { rejectValue: string }
 >(`${SLICE_NAME}/getLastSessions`, async (_, { rejectWithValue }) => {
   try {
-    
+
     //const response = await authAxios.get(`/poker/sessions?page=1&limit=${PAGE_SIZE}`);
     const response = await authAxios.get(`/sessions/1/${PAGE_SIZE}`);
     return response.data;
@@ -124,7 +124,7 @@ export const getLastSessionPoker = createAsyncThunk<
 });
 
 export const loadMoreSessions = createAsyncThunk<
-   LastSessionPoker[],
+  LastSessionPoker[],
   void,
   { state: { pokerReducer: PokerState }, rejectValue: string }
 >(`${SLICE_NAME}/loadMoreSessions`, async (_, { getState, rejectWithValue }) => {
@@ -151,6 +151,23 @@ export const getPokerUsers = createAsyncThunk<
   }
 });
 
+export const deletePokerWithAllRelations = createAsyncThunk<
+  string, // Тип возвращаемого значения при успехе
+  string, // Тип аргумента (pokerId)
+  { rejectValue: string } // Тип ошибки
+>(
+  `${SLICE_NAME}/deletePokerWithAllRelations`,
+  async (pokerId: string, { rejectWithValue }) => {
+    try {
+      const response = await authAxios.delete<string>(`/poker/${pokerId}`);
+       return response.data;
+    } catch (error) {
+
+      return rejectWithValue(handleAxiosError(error));
+    }
+  }
+);
+
 // Создание slice
 const pokerSlice = createSlice({
   name: SLICE_NAME,
@@ -171,16 +188,6 @@ const pokerSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    // Общие обработчики состояний
-    const handlePending = (state: PokerState) => {
-      state.session.loading = true;
-      state.session.error = INITIAL_ERROR;
-    };
-
-    const handleRejected = (state: PokerState, action: any) => {
-      state.session.loading = INITIAL_LOADING;
-      state.session.error = action.payload as string;
-    };
 
     // Обработчики для сессий
     builder
@@ -213,10 +220,28 @@ const pokerSlice = createSlice({
         state.session.error = action.payload as string;
       });
 
+      // Обработчики для сессий
+      builder
+      .addCase(deletePokerWithAllRelations.pending, (state) => {
+        state.session.loading = true;
+        state.session.error = null;
+      })
+      .addCase(deletePokerWithAllRelations.fulfilled, (state, action) => {
+        state.session.loading = false;
+        // Удалите удаленный покер из state.session.sessions если нужно
+        state.session.sessions = state.session.sessions.filter(
+          session => session.PokerID !== action.meta.arg
+        );
+      })
+      .addCase(deletePokerWithAllRelations.rejected, (state, action) => {
+        state.session.loading = false;
+        state.session.error = action.payload as string;
+      });
+
     // Обработчики для комнаты
     builder
       .addCase(createPoker.pending, (state) => {
-        state.room = initialRoomState;
+        state.room = { ...initialRoomState }; // создаём копию
         state.room.loading = true;
         state.room.error = INITIAL_ERROR;
       })
@@ -224,7 +249,13 @@ const pokerSlice = createSlice({
         state.room.loading = INITIAL_LOADING;
         state.room.id = action.payload;
       })
-      .addCase(createPoker.rejected, handleRejected)
+      .addCase(createPoker.rejected, (state: PokerState, action: any) => {
+
+        state.room.loading = INITIAL_LOADING;
+        state.room.error = action.payload as string;
+
+
+      })
       .addCase(fetchPokerDetails.pending, (state) => {
         state.room.loading = true;
         state.room.error = INITIAL_ERROR;
@@ -251,19 +282,26 @@ const pokerSlice = createSlice({
           maximumScore: MaximumScore,
           evaluationStrategy: EvaluationStrategy,
           possibleEstimates: calculatePossibleEstimates(MaximumScore),
+          loading:false
         };
       })
-      .addCase(fetchPokerDetails.rejected, handleRejected)
+      .addCase(fetchPokerDetails.rejected, (state: PokerState, action: any) => {
+
+        state.room.loading = INITIAL_LOADING;
+        state.room.error = action.payload as string;
+
+
+      })
       .addCase(getPokerUsers.fulfilled, (state, action: PayloadAction<User[]>) => {
         state.room.users = action.payload;
       });
   },
 });
 
-export const { 
-  setActiveUsers, 
-  setUsers, 
-  resetPokerState, 
+export const {
+  setActiveUsers,
+  setUsers,
+  resetPokerState,
   setName,
   resetSessions,
 } = pokerSlice.actions;

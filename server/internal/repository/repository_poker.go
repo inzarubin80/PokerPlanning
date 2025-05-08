@@ -5,10 +5,10 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"inzarubin80/PokerPlanning/internal/model"
-	sqlc_repository "inzarubin80/PokerPlanning/internal/repository_sqlc"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
+	"inzarubin80/PokerPlanning/internal/model"
+	sqlc_repository "inzarubin80/PokerPlanning/internal/repository_sqlc"
 )
 
 func (r *Repository) CreatePoker(ctx context.Context, userID model.UserID, pokerSettings *model.PokerSettings) (model.PokerID, error) {
@@ -42,8 +42,6 @@ func (r *Repository) AddPokerAdmin(ctx context.Context, pokerID model.PokerID, u
 
 	reposqlc := sqlc_repository.New(r.conn)
 
-
-
 	arg := &sqlc_repository.AddPokerAdminParams{
 		UserID:  int64(userID),
 		PokerID: pokerID.UUID(),
@@ -59,7 +57,6 @@ func (r *Repository) GetPokerAdmins(ctx context.Context, pokerID model.PokerID) 
 
 	reposqlc := sqlc_repository.New(r.conn)
 
-
 	users, err := reposqlc.GetPokerAdmins(ctx, pokerID.UUID())
 	if err != nil {
 		return nil, err
@@ -72,13 +69,11 @@ func (r *Repository) GetPokerAdmins(ctx context.Context, pokerID model.PokerID) 
 
 	return usersRes, nil
 
-
 }
 
 func (r *Repository) GetPoker(ctx context.Context, pokerID model.PokerID) (*model.Poker, error) {
 
 	sqlc_repository := sqlc_repository.New(r.conn)
-
 
 	pokerSql, err := sqlc_repository.GetPoker(ctx, pokerID.UUID())
 	if err != nil {
@@ -97,21 +92,27 @@ func (r *Repository) GetPoker(ctx context.Context, pokerID model.PokerID) (*mode
 
 }
 
+func (r *Repository) DeletePokerWithAllRelations(ctx context.Context, pokerID model.PokerID) error {
+
+	sqlc_repository := sqlc_repository.New(r.conn)
+	err := sqlc_repository.DeletePokerWithAllRelations(ctx, pokerID.UUID())
+	return err
+
+}
+
 func (r *Repository) SetVotingState(ctx context.Context, pokerID model.PokerID, state *model.VoteControlState) (*model.VoteControlState, error) {
 
 	reposqlc := sqlc_repository.New(r.conn)
 
 	startDate := pgtype.Timestamp{
-		Time: state.StartDate,
+		Time:  state.StartDate,
 		Valid: true,
 	}
 
 	endDate := pgtype.Timestamp{
-		Time: state.EndDate,
+		Time:  state.EndDate,
 		Valid: true,
 	}
-
-
 
 	arg := &sqlc_repository.UpdatePokerTaskAndDatesParams{
 		TaskID:    (*int64)(&state.TaskID),
@@ -133,7 +134,6 @@ func (r *Repository) GetVotingState(ctx context.Context, pokerID model.PokerID) 
 
 	reposqlc := sqlc_repository.New(r.conn)
 
-
 	getVotingStateRow, err := reposqlc.GetVotingState(ctx, pokerID.UUID())
 
 	if err != nil {
@@ -150,43 +150,43 @@ func (r *Repository) GetVotingState(ctx context.Context, pokerID model.PokerID) 
 }
 
 func (r *Repository) GetLastSession(
-    ctx context.Context,
-    userID model.UserID,
-    page int32,
-    pageSize int32,
+	ctx context.Context,
+	userID model.UserID,
+	page int32,
+	pageSize int32,
 ) ([]*model.LastSessionPoker, error) {
 
 	reposqlc := sqlc_repository.New(r.conn)
 
-    arg := &sqlc_repository.GetLastSessionParams{
-        UserID: int64(userID),
-        Limit:  pageSize,
-        Offset: (page - 1) * pageSize,
-    }
-    
-    rows, err := reposqlc.GetLastSession(ctx, arg)
-    if err != nil {
-        return nil, fmt.Errorf("failed to get last sessions: %w", err)
-    }
+	arg := &sqlc_repository.GetLastSessionParams{
+		UserID: int64(userID),
+		Limit:  pageSize,
+		Offset: (page - 1) * pageSize,
+	}
 
-    if len(rows) == 0 {
-        return nil, nil
-    }
+	rows, err := reposqlc.GetLastSession(ctx, arg)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get last sessions: %w", err)
+	}
 
-    res := make([]*model.LastSessionPoker, 0, len(rows))
-    for _, row := range rows {
-        var name string
-        if row.PokerName != nil {
-            name = *row.PokerName
-        }
+	if len(rows) == 0 {
+		return nil, nil
+	}
 
-        res = append(res, &model.LastSessionPoker{
-            UserID:  model.UserID(row.UserID),
-            PokerID: model.PokerID(row.PokerID.String()),
-            IsAdmin: row.IsAdmin,
-            Name:    name,
-        })
-    }
+	res := make([]*model.LastSessionPoker, 0, len(rows))
+	for _, row := range rows {
+		var name string
+		if row.PokerName != nil {
+			name = *row.PokerName
+		}
 
-    return res, nil
+		res = append(res, &model.LastSessionPoker{
+			UserID:  model.UserID(row.UserID),
+			PokerID: model.PokerID(row.PokerID.String()),
+			IsAdmin: row.IsAdmin,
+			Name:    name,
+		})
+	}
+
+	return res, nil
 }

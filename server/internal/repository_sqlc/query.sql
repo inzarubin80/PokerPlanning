@@ -66,12 +66,13 @@ WHERE poker_id = $1 AND tasks_id = $2
 RETURNING *;
 
 -- name: AddPokerUser :one
-INSERT INTO poker_users (user_id, poker_id)
-VALUES ($1, $2)
+INSERT INTO poker_users (user_id, poker_id, last_date)
+VALUES ($1, $2, CURRENT_TIMESTAMP)
 ON CONFLICT (user_id, poker_id)
 DO UPDATE SET
     user_id = EXCLUDED.user_id,
-    poker_id = EXCLUDED.poker_id
+    poker_id = EXCLUDED.poker_id,
+    last_date = CURRENT_TIMESTAMP
 RETURNING *;
 
 -- name: GetUserIDsByPokerID :many
@@ -165,3 +166,10 @@ ORDER BY
     t1.last_date DESC
 LIMIT $2 OFFSET $3;
 ;
+-- name: DeletePokerWithAllRelations :exec
+DELETE FROM poker_admins WHERE poker_id = $1;
+DELETE FROM poker_users WHERE poker_id = $1;
+DELETE FROM tasks WHERE poker_id = $1;
+DELETE FROM voting WHERE poker_id = $1;
+DELETE FROM comments WHERE poker_id = $1;
+DELETE FROM poker WHERE poker_id = $1;

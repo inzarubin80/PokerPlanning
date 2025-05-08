@@ -21,6 +21,7 @@ type Querier interface {
 	CreateComent(ctx context.Context, arg *CreateComentParams) (int64, error)
 	CreatePoker(ctx context.Context, arg *CreatePokerParams) (*Poker, error)
 	CreateUser(ctx context.Context, name string) (int64, error)
+	DeletePokerWithAllRelations(ctx context.Context, pokerID pgtype.UUID) error
 	DeleteTask(ctx context.Context, arg *DeleteTaskParams) error
 	GetComments(ctx context.Context, arg *GetCommentsParams) ([]*Comment, error)
 	GetLastSession(ctx context.Context, arg *GetLastSessionParams) ([]*GetLastSessionRow, error)

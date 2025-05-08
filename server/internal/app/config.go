@@ -21,7 +21,7 @@ type (
 		getTasks, getTask, updateTask, deleteTask,
 		getComents, addComent, setVotingTask,
 		getVotingControlState, ws, login, session, refreshToken, logOut, getProviders,
-		ping, vote, getUserEstimates, setVotingControlState, setUserName, getUser, setUserSettings, getLastSession string
+		ping, vote, getUserEstimates, setVotingControlState, setUserName, getUser, setUserSettings, getLastSession, deletePoker string
 	}
 
 	sectrets struct {
@@ -91,7 +91,8 @@ func NewConfig(opts Options) config {
 			getTask:    fmt.Sprintf("GET	/api/poker/{%s}/tasks/{%s}", defenitions.ParamPokerID, defenitions.ParamTaskID),
 			updateTask: fmt.Sprintf("PUT	/api/poker/{%s}/tasks/{%s}", defenitions.ParamPokerID, defenitions.ParamTaskID),
 			deleteTask: fmt.Sprintf("DELETE	/api/poker/{%s}/tasks/{%s}", defenitions.ParamPokerID, defenitions.ParamTaskID),
-
+			deletePoker: fmt.Sprintf("DELETE	/api/poker/{%s}", defenitions.ParamPokerID),
+			
 			getComents: fmt.Sprintf("GET 	/api/poker/{%s}/comments", defenitions.ParamPokerID),
 			addComent:  fmt.Sprintf("POST 	/api/poker/{%s}/comments", defenitions.ParamPokerID),
 			getPoker:   fmt.Sprintf("GET 	/api/poker/{%s}", defenitions.ParamPokerID),

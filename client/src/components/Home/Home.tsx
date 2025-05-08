@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { getLastSessionPoker, loadMoreSessions } from '../../features/poker/pokerSlice';
-
+import { getLastSessionPoker, loadMoreSessions, deletePokerWithAllRelations } from '../../features/poker/pokerSlice';
+import FileCopyIcon from '@mui/icons-material/FileCopy';
 import { AppDispatch, RootState } from '../../app/store';
+import DeleteIcon from '@mui/icons-material/Delete';
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import {
   Container,
   Typography,
@@ -11,19 +13,21 @@ import {
   Grid,
   Card,
   CardContent,
-  CardActionArea,
-  Chip,
-  CircularProgress
+  CircularProgress,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
 } from '@mui/material';
 
+import { LastSessionPoker } from '../../model/model';
 import { useNavigate } from 'react-router-dom';
 import { EmailOutlined, Telegram } from '@mui/icons-material';
-
-
-import ObjectivityImg from '../../images/Objectivity.jpg';
-import SaveTimeImg from '../../images/SaveTime.jpg';
-import SharedUnderstandingImg from '../../images/SharedUnderstanding.jpg';
-import TeamCollaborationImg from '../../images/TeamCollaboration.jpg';
+import ObjectivityImg from '../../images/Objectivity.svg';
+import SaveTimeImg from '../../images/SaveTime.svg';
+import SharedUnderstandingImg from '../../images/SharedUnderstanding.svg';
+import TeamCollaborationImg from '../../images/TeamCollaboration.svg';
 
 
 
@@ -43,6 +47,27 @@ const Home: React.FC = () => {
     navigate(`/poker/${pokerId}`);
   }, [navigate]);
 
+
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  const [sessionToDelete, setSessionToDelete] = useState<LastSessionPoker | null>(null);
+
+
+  const handleOpenDeleteModal = (room: LastSessionPoker) => {
+    setSessionToDelete(room);
+    setOpenDeleteModal(true);
+  };
+
+  const handleCloseDeleteModal = () => {
+    setOpenDeleteModal(false);
+    setSessionToDelete(null);
+  };
+
+  const handleConfirmDelete = () => {
+    if (sessionToDelete) {
+      dispatch(deletePokerWithAllRelations(sessionToDelete.PokerID));
+      handleCloseDeleteModal();
+    }
+  };
 
   // Обработчик кнопки "Загрузить еще"
   const handleLoadMore = useCallback(() => {
@@ -91,22 +116,75 @@ const Home: React.FC = () => {
         <Box sx={{ my: 6 }}>
           <Typography variant="h4" sx={{ mb: 3 }}>Недавние сессии</Typography>
           <Grid container spacing={3}>
-            {sessions.map((room) => (
-              <Grid item xs={12} sm={6} md={4} key={room.PokerID}>
-                <Card variant="outlined">
-                  <CardActionArea onClick={() => handleCardClick(room.PokerID)}>
+            {sessions.map((room) => {
+              const sessionUrl = `${window.location.origin}/poker/${room.PokerID}`;
+
+              return (
+                <Grid item xs={12} sm={6} md={4} key={room.PokerID}>
+                  <Card variant="outlined">
                     <CardContent>
-                      <Typography variant="h6" gutterBottom>
+                      <Typography
+                        variant="h6"
+                        gutterBottom
+                        sx={{
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          minHeight: '3em', // Высота двух строк (1.5em на строку)
+                          lineHeight: '1.5em',
+                        }}
+                      >
                         {room.Name || `Сессия #${room.PokerID}`}
                       </Typography>
-                        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                               {room.IsAdmin?"Администратор":"Участник"}
-                        </Typography>  
+                      <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                        {room.IsAdmin ? "Администратор" : "Участник"}
+                      </Typography>
+
+                      <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
+                        <Button
+                          variant="contained"
+                          size="small"
+                          onClick={() => handleCardClick(room.PokerID)}
+                          sx={{
+                            flexGrow: 1,
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            pr: 1, // небольшой отступ справа
+                          }}
+                          endIcon={<KeyboardArrowRightIcon />}
+                        >
+                          Перейти
+                        </Button>
+
+                        <Button
+                          variant="outlined"
+                          size="small"
+                          onClick={() => {
+                            navigator.clipboard.writeText(sessionUrl);
+                          }}
+                          sx={{ minWidth: 40 }}
+                        >
+                          <FileCopyIcon fontSize="small" />
+                        </Button>
+
+                        {/* Кнопка удаления */}
+                        {room.IsAdmin && <Button
+                          variant="outlined"
+                          size="small"
+                          onClick={() => handleOpenDeleteModal(room)}
+                          sx={{ minWidth: 40 }}
+                        >
+                          <DeleteIcon fontSize="small" />
+                        </Button>}
+
+                      </Box>
                     </CardContent>
-                  </CardActionArea>
-                </Card>
-              </Grid>
-            ))}
+                  </Card>
+                </Grid>
+              );
+            })}
           </Grid>
 
           {/* Кнопка "Загрузить еще" и индикатор загрузки */}
@@ -362,6 +440,31 @@ const Home: React.FC = () => {
           </Grid>
         </Grid>
       </Box>
+
+      <Dialog
+        open={openDeleteModal}
+        onClose={handleCloseDeleteModal}
+        maxWidth="xs"
+        fullWidth
+      >
+        <DialogTitle>Подтверждение удаления</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Вы уверены, что хотите удалить сессию "{sessionToDelete?.Name || `Сессия #${sessionToDelete?.PokerID}`}"?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDeleteModal}>Отмена</Button>
+          <Button
+            onClick={handleConfirmDelete}
+            color="error"
+            variant="contained"
+          >
+            Удалить
+          </Button>
+        </DialogActions>
+      </Dialog>
+
     </Container>
   );
 };

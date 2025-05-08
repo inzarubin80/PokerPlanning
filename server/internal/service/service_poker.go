@@ -80,6 +80,14 @@ func (s *PokerService) CreatePoker(ctx context.Context, userID model.UserID, pok
 	return pokerID, nil
 }
 
+func (s *PokerService)  DeletePokerWithAllRelations(ctx context.Context, pokerID model.PokerID) error  {
+
+	return s.repository.DeletePokerWithAllRelations(ctx, pokerID)
+	
+}
+
+
+
 func (s *PokerService) GetPokerUsers(ctx context.Context, pokerID model.PokerID) ([]*model.User, error) {
 
 	ids, err := s.repository.GetUserIDsByPokerID(ctx, pokerID)

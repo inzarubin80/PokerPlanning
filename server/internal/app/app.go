@@ -34,7 +34,9 @@ type (
 	}
 
 	PokerService interface {
+
 		CreatePoker(ctx context.Context, userID model.UserID, pokerSettings *model.PokerSettings) (model.PokerID, error)
+		DeletePokerWithAllRelations(ctx context.Context, pokerID model.PokerID) error 
 		GetPoker(ctx context.Context, pokerID model.PokerID, userID model.UserID) (*model.Poker, error)
 		AddTask(ctx context.Context, task *model.Task) (*model.Task, error)
 		GetTasks(ctx context.Context, pokerID model.PokerID) ([]*model.Task, error)
@@ -100,6 +102,7 @@ func (a *App) ListenAndServe() error {
 		a.config.path.setUserName:           appHttp.NewSetUserNameHandler(a.pokerService, a.config.path.setUserName),
 		a.config.path.setUserSettings:       appHttp.NewSetUserSettingsHandler(a.pokerService, a.config.path.setUserSettings),
 		a.config.path.getLastSession:        appHttp.NewGetLastSessionHandler(a.pokerService, a.config.path.getLastSession),
+		a.config.path.deletePoker:           middleware.NewAdminMiddleware(appHttp.NewDeletePokerWithAllRelationsHandler(a.pokerService, a.config.path.deletePoker), a.pokerService),
 	}
 
 	for path, handler := range handlers {
@@ -147,7 +150,6 @@ func NewApp(ctx context.Context, config config, dbConn *pgxpool.Pool) (*App, err
 	pokerService := service.NewPokerService(pokerRepository, hub, accessTokenService, refreshTokenService, providers)
 
 
-	
    // Создаем CORS middleware
    corsMiddleware := cors.New(cors.Options{
     // Явно разрешаем оба домена (без точки в начале)

@@ -49,7 +49,7 @@ type (
 		AddPokerAdmin(ctx context.Context, pokerID model.PokerID, userID model.UserID) error
 		GetPokerAdmins(ctx context.Context, pokerID model.PokerID) ([]model.UserID, error)
 		GetLastSession(ctx context.Context, UserID model.UserID, page int32, pageSize int32) ([]*model.LastSessionPoker, error)
-
+		DeletePokerWithAllRelations(ctx context.Context, pokerID model.PokerID) error 
 
 		//Task
 		AddTask(ctx context.Context, task *model.Task) (*model.Task, error)

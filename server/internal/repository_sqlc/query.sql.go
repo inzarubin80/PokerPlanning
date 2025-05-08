@@ -34,12 +34,13 @@ func (q *Queries) AddPokerAdmin(ctx context.Context, arg *AddPokerAdminParams) (
 }
 
 const addPokerUser = `-- name: AddPokerUser :one
-INSERT INTO poker_users (user_id, poker_id)
-VALUES ($1, $2)
+INSERT INTO poker_users (user_id, poker_id, last_date)
+VALUES ($1, $2, CURRENT_TIMESTAMP)
 ON CONFLICT (user_id, poker_id)
 DO UPDATE SET
     user_id = EXCLUDED.user_id,
-    poker_id = EXCLUDED.poker_id
+    poker_id = EXCLUDED.poker_id,
+    last_date = CURRENT_TIMESTAMP
 RETURNING user_id, poker_id, last_date
 `
 
@@ -258,6 +259,15 @@ func (q *Queries) CreateUser(ctx context.Context, name string) (int64, error) {
 	var user_id int64
 	err := row.Scan(&user_id)
 	return user_id, err
+}
+
+const deletePokerWithAllRelations = `-- name: DeletePokerWithAllRelations :exec
+DELETE FROM poker_admins WHERE poker_id = $1
+`
+
+func (q *Queries) DeletePokerWithAllRelations(ctx context.Context, pokerID pgtype.UUID) error {
+	_, err := q.db.Exec(ctx, deletePokerWithAllRelations, pokerID)
+	return err
 }
 
 const deleteTask = `-- name: DeleteTask :exec

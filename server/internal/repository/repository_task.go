@@ -45,9 +45,7 @@ func (r *Repository) GetTask(ctx context.Context, pokerID model.PokerID, taskID 
 		Status: task.Status,
 		Completed: task.Completed,
 		Estimate: model.Estimate(*task.Estimate),
-	}, nil
-
-	
+	}, nil	
 }
 
 func (r *Repository) DeleteTask(ctx context.Context, pokerID model.PokerID, taskID model.TaskID) error {
@@ -96,7 +94,6 @@ func (r *Repository) GetTasks(ctx context.Context, pokerID model.PokerID) ([]*mo
 	})
 
 	return tasksRes, nil
-
 }
 
 func (r *Repository) AddTask(ctx context.Context, task *model.Task) (*model.Task, error) {
@@ -142,7 +139,6 @@ func (r *Repository) UpdateTask(ctx context.Context, pokerID model.PokerID, task
 	storyPoint := int32(task.StoryPoint)
 	estimate := int32(task.Estimate)
 
-	
 	arg := &sqlc_repository.UpdateTaskParams{
 		TasksID: int64(task.ID),
 		PokerID: pokerID.UUID(),
