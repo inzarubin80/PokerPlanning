@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { useDispatch } from 'react-redux';
-import { getUser } from '../../features/user/userSlice';
-import { AppDispatch } from '../../app/store';
-import { 
+import React, { useState, useEffect, useCallback } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { getLastSessionPoker, loadMoreSessions } from '../../features/poker/pokerSlice';
+
+import { AppDispatch, RootState } from '../../app/store';
+import {
   Container,
   Typography,
   Button,
@@ -11,11 +12,11 @@ import {
   Card,
   CardContent,
   CardActionArea,
-  Chip
+  Chip,
+  CircularProgress
 } from '@mui/material';
 
 import { useNavigate } from 'react-router-dom';
-
 import { EmailOutlined, Telegram } from '@mui/icons-material';
 
 
@@ -24,27 +25,49 @@ import SaveTimeImg from '../../images/SaveTime.jpg';
 import SharedUnderstandingImg from '../../images/SharedUnderstanding.jpg';
 import TeamCollaborationImg from '../../images/TeamCollaboration.jpg';
 
+
+
 const Home: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const [isPokerFormOpen, setIsPokerFormOpen] = useState(false);
-  //const recentRooms = [{"id": 1, "status": "open", "participants":0, "name": "Команда ураган"}];
-  const recentRooms: any[] = [];
 
-    const navigate = useNavigate();
+  const {
+    sessions,
+    loading,
+    hasMore,
+    page
+  } = useSelector((state: RootState) => state.pokerReducer.session);
 
+  const navigate = useNavigate();
+
+  const handleCardClick = useCallback((pokerId: string) => {
+    navigate(`/poker/${pokerId}`);
+  }, [navigate]);
+
+
+  // Обработчик кнопки "Загрузить еще"
+  const handleLoadMore = useCallback(() => {
+    if (hasMore && !loading) {
+      dispatch(loadMoreSessions());
+    }
+  }, [hasMore, loading, dispatch]);
+
+
+
+  // Загрузка первых данных
   useEffect(() => {
-    dispatch(getUser());
+    dispatch(getLastSessionPoker());
   }, [dispatch]);
+
 
   return (
     <Container maxWidth="lg">
       {/* Hero Section */}
-      <Box sx={{ 
-        textAlign: 'center', 
+      <Box sx={{
+        textAlign: 'center',
         py: 8,
         background: 'linear-gradient(45deg, #f5f7fa 0%, #c3cfe2 100%)',
         borderRadius: 3,
-        width: '100%', 
+        width: '100%',
         my: 4
       }}>
         <Typography variant="h2" component="h1" sx={{ mb: 3, fontWeight: 700 }}>
@@ -56,7 +79,7 @@ const Home: React.FC = () => {
         <Button
           variant="contained"
           size="large"
-          onClick={() =>  navigate(`/new`)}
+          onClick={() => navigate(`/new`)}
           sx={{ px: 6, py: 1.5, fontSize: '1.2rem' }}
         >
           Начать оценку
@@ -64,46 +87,64 @@ const Home: React.FC = () => {
       </Box>
 
       {/* Недавние сессии */}
-      {recentRooms?.length > 0 && (
+      {sessions?.length > 0 && (
         <Box sx={{ my: 6 }}>
           <Typography variant="h4" sx={{ mb: 3 }}>Недавние сессии</Typography>
           <Grid container spacing={3}>
-            {recentRooms.map((room) => (
-              <Grid item xs={12} sm={6} md={4} key={room.id}>
+            {sessions.map((room) => (
+              <Grid item xs={12} sm={6} md={4} key={room.PokerID}>
                 <Card variant="outlined">
-                  <CardActionArea onClick={() => window.location.href = `/poker/${room.id}`}>
+                  <CardActionArea onClick={() => handleCardClick(room.PokerID)}>
                     <CardContent>
                       <Typography variant="h6" gutterBottom>
-                        {room.name || `Сессия #${room.id}`}
+                        {room.Name || `Сессия #${room.PokerID}`}
                       </Typography>
-                      <Chip 
-                        label={room.status} 
-                        size="small"
-                        color={room.status === 'active' ? 'success' : 'default'}
-                        sx={{ mr: 1 }}
-                      />
-                      <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                        Участников: {room.participants}
-                      </Typography>
+                        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                               {room.IsAdmin?"Администратор":"Участник"}
+                        </Typography>  
                     </CardContent>
                   </CardActionArea>
                 </Card>
               </Grid>
             ))}
           </Grid>
+
+          {/* Кнопка "Загрузить еще" и индикатор загрузки */}
+          <Box sx={{ py: 4, display: 'flex', justifyContent: 'center' }}>
+            {loading ? (
+              <CircularProgress />
+            ) : hasMore ? (
+              <Button
+                variant="outlined"
+                onClick={handleLoadMore}
+                disabled={loading}
+                sx={{
+                  px: 4,
+                  py: 1.5,
+                  borderRadius: 2,
+                }}
+              >
+                Загрузить еще
+              </Button>
+            ) : (
+              <Typography variant="body2" color="text.secondary">
+                Все сессии загружены
+              </Typography>
+            )}
+          </Box>
         </Box>
       )}
 
       {/* Что такое Planning Poker? */}
-      <Box sx={{ 
+      <Box sx={{
         my: 8,
         p: 6,
         backgroundColor: '#f8f9fa',
         borderRadius: 3,
         boxShadow: '0 4px 20px rgba(0,0,0,0.05)'
       }}>
-        <Typography variant="h4" sx={{ 
-          mb: 6, 
+        <Typography variant="h4" sx={{
+          mb: 6,
           textAlign: 'center',
           fontWeight: 600
         }}>
@@ -120,16 +161,16 @@ const Home: React.FC = () => {
           backgroundImage: `url(${TeamCollaborationImg})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center'
-        }}/>
+        }} />
 
         <Box sx={{ maxWidth: 800, margin: '0 auto' }}>
-          <Typography variant="body1" paragraph sx={{ 
-            fontSize: '1.1rem', 
+          <Typography variant="body1" paragraph sx={{
+            fontSize: '1.1rem',
             lineHeight: 1.7,
             mb: 3,
             textAlign: 'justify'
           }}>
-            Planning Poker® - это консенсус-ориентированная методика оценки задач, 
+            Planning Poker® - это консенсус-ориентированная методика оценки задач,
             разработанная для Agile команд. Основные принципы:
           </Typography>
 
@@ -154,7 +195,7 @@ const Home: React.FC = () => {
                     bgcolor: 'primary.main',
                     borderRadius: '50%',
                     mr: 2
-                  }}/>
+                  }} />
                   <Typography variant="body1">{text}</Typography>
                 </Box>
               </Grid>
@@ -162,11 +203,11 @@ const Home: React.FC = () => {
           </Grid>
 
           <Box sx={{ textAlign: 'center' }}>
-            <Button 
-              variant="outlined" 
+            <Button
+              variant="outlined"
               size="large"
               onClick={() => window.open('https://ru.wikipedia.org/wiki/Покер_планирования', '_blank')}
-              sx={{ 
+              sx={{
                 px: 6,
                 borderRadius: 4,
                 textTransform: 'none',
@@ -180,7 +221,7 @@ const Home: React.FC = () => {
       </Box>
 
       {/* Преимущества методики */}
-      <Box sx={{ 
+      <Box sx={{
         my: 8,
         p: 6,
         backgroundColor: '#f8f9fa',
@@ -190,33 +231,33 @@ const Home: React.FC = () => {
         <Typography variant="h4" sx={{ mb: 6, textAlign: 'center' }}>
           Преимущества методики
         </Typography>
-        
+
         <Grid container spacing={4}>
           {[
-            { 
-              title: 'Объективность оценок', 
+            {
+              title: 'Объективность оценок',
               text: 'Анонимность исключает давление мнения большинства',
               img: ObjectivityImg
             },
-            { 
-              title: 'Экономия времени', 
+            {
+              title: 'Экономия времени',
               text: 'Структурированный процесс вместо бесконечных споров',
               img: SaveTimeImg
             },
-            { 
-              title: 'Совместное понимание', 
+            {
+              title: 'Совместное понимание',
               text: 'Обсуждение расхождений выявляет нюансы задач',
               img: SharedUnderstandingImg
             }
           ].map((item, index) => (
             <Grid item xs={12} md={4} key={index}>
-              <Box sx={{ 
+              <Box sx={{
                 height: 200,
                 backgroundImage: `url(${item.img})`,
                 backgroundSize: 'cover',
                 mb: 2,
                 borderRadius: 3
-              }}/>
+              }} />
               <Typography variant="h6" sx={{ mb: 1, textAlign: 'center' }}>{item.title}</Typography>
               <Typography variant="body2" sx={{ textAlign: 'center' }}>{item.text}</Typography>
             </Grid>
@@ -225,7 +266,7 @@ const Home: React.FC = () => {
       </Box>
 
       {/* Как это работает */}
-      <Box sx={{ 
+      <Box sx={{
         my: 8,
         p: 6,
         backgroundColor: '#f8f9fa',
@@ -235,24 +276,24 @@ const Home: React.FC = () => {
         <Typography variant="h4" sx={{ mb: 6, textAlign: 'center' }}>
           Как это работает?
         </Typography>
-        
+
         <Grid container spacing={4}>
           {[
-            { 
-              title: 'Создайте сессию', 
+            {
+              title: 'Создайте сессию',
               text: 'Начните новую сессию оценки, выбрав стратегию и параметры планирования'
             },
-            { 
-              title: 'Пригласите команду', 
+            {
+              title: 'Пригласите команду',
               text: 'Отправьте ссылку на сессию участникам для совместной работы'
             },
-            { 
-              title: 'Проведите оценку', 
+            {
+              title: 'Проведите оценку',
               text: 'Обсуждайте задачи и голосуйте анонимно для объективных результатов'
             }
           ].map((item, index) => (
             <Grid item xs={12} md={4} key={index}>
-              <Box sx={{ 
+              <Box sx={{
                 height: 200,
                 backgroundColor: 'rgba(25, 118, 210, 0.1)',
                 display: 'flex',
@@ -274,7 +315,7 @@ const Home: React.FC = () => {
       </Box>
 
       {/* Секция с контактами */}
-      <Box sx={{ 
+      <Box sx={{
         my: 6,
         p: 4,
         bgcolor: 'grey.100',
@@ -284,7 +325,7 @@ const Home: React.FC = () => {
         <Typography variant="h6" sx={{ mb: 1, textAlign: 'center' }}>
           Свяжитесь с нами
         </Typography>
-        
+
         <Grid container spacing={3} justifyContent="center">
           <Grid item xs={12} md={6}>
             <Button
@@ -301,7 +342,7 @@ const Home: React.FC = () => {
               inzarubin80@yandex.ru
             </Button>
           </Grid>
-          
+
           <Grid item xs={12} md={6}>
             <Button
               fullWidth

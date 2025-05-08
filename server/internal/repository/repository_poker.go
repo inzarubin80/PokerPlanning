@@ -149,26 +149,44 @@ func (r *Repository) GetVotingState(ctx context.Context, pokerID model.PokerID) 
 
 }
 
-
-func (r *Repository)  GetLastSession(ctx context.Context, UserID model.UserID) ([]*model.LastSessionPoker, error) {
+func (r *Repository) GetLastSession(
+    ctx context.Context,
+    userID model.UserID,
+    page int32,
+    pageSize int32,
+) ([]*model.LastSessionPoker, error) {
 
 	reposqlc := sqlc_repository.New(r.conn)
 
-	lastSessionPoker, err := reposqlc.GetLastSession(ctx, int64(UserID))
-	if err!=nil {
-		return nil, err
-	}
+    arg := &sqlc_repository.GetLastSessionParams{
+        UserID: int64(userID),
+        Limit:  pageSize,
+        Offset: (page - 1) * pageSize,
+    }
+    
+    rows, err := reposqlc.GetLastSession(ctx, arg)
+    if err != nil {
+        return nil, fmt.Errorf("failed to get last sessions: %w", err)
+    }
 
-	res := make([]*model.LastSessionPoker, len(lastSessionPoker))
-	for i, row := range lastSessionPoker {
-		res[i] = &model.LastSessionPoker{
-			UserID:    model.UserID(row.UserID),  // Explicit type conversion
-			PokerID:   model.PokerID(row.PokerID.String()), // Same for PokerID if needed
-			IsAdmin:   row.IsAdmin,
-			Name:      *row.PokerName,
-		}
-	}
+    if len(rows) == 0 {
+        return nil, nil
+    }
 
-	return res, nil
+    res := make([]*model.LastSessionPoker, 0, len(rows))
+    for _, row := range rows {
+        var name string
+        if row.PokerName != nil {
+            name = *row.PokerName
+        }
 
+        res = append(res, &model.LastSessionPoker{
+            UserID:  model.UserID(row.UserID),
+            PokerID: model.PokerID(row.PokerID.String()),
+            IsAdmin: row.IsAdmin,
+            Name:    name,
+        })
+    }
+
+    return res, nil
 }

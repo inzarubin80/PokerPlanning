@@ -12,7 +12,7 @@ const Comments: React.FC<CommentsProps> = ({ pokerID }) => {
   const commentsEndRef = useRef<HTMLDivElement>(null);
   const listContainerRef = useRef<HTMLDivElement>(null);
   const { comments } = useSelector((state: RootState) => state.commentReducer);
-  const { users } = useSelector((state: RootState) => state.pokerReducer);
+  const { users } = useSelector((state: RootState) => state.pokerReducer.room);
 
   useEffect(() => {
     if (commentsEndRef.current) {

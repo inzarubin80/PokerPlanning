@@ -315,7 +315,7 @@ SELECT
     t1.user_id, 
     t1.poker_id,
     CASE
-        WHEN t2.poker_id IS NOT NULL THEN true  
+        WHEN t2.poker_id IS NOT NULL THEN true
         ELSE false
     END AS is_admin,
     t3.name AS poker_name
@@ -331,8 +331,15 @@ LEFT JOIN
 WHERE 
     t1.user_id = $1
 ORDER BY 
-    t1.last_date
+    t1.last_date DESC
+LIMIT $2 OFFSET $3
 `
+
+type GetLastSessionParams struct {
+	UserID int64
+	Limit  int32
+	Offset int32
+}
 
 type GetLastSessionRow struct {
 	UserID    int64
@@ -341,8 +348,8 @@ type GetLastSessionRow struct {
 	PokerName *string
 }
 
-func (q *Queries) GetLastSession(ctx context.Context, userID int64) ([]*GetLastSessionRow, error) {
-	rows, err := q.db.Query(ctx, getLastSession, userID)
+func (q *Queries) GetLastSession(ctx context.Context, arg *GetLastSessionParams) ([]*GetLastSessionRow, error) {
+	rows, err := q.db.Query(ctx, getLastSession, arg.UserID, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}

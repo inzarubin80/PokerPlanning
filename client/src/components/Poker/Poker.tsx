@@ -40,8 +40,8 @@ const PokerPlanningApp: React.FC = () => {
 
   // Selectors
   const accessToken = useSelector((state: RootState) => state.userReducer.accessToken);
-  const activeUsersID = useSelector((state: RootState) => state.pokerReducer.activeUsersID);
-  const isAdmin = useSelector((state: RootState) => state.pokerReducer.isAdmin);
+  const activeUsersID = useSelector((state: RootState) => state.pokerReducer.room.activeUsersID);
+  const isAdmin = useSelector((state: RootState) => state.pokerReducer.room.isAdmin);
 
   const votingTask = useSelector((state: RootState) => state.volumeReducer.taskData.id);
   const navigate = useNavigate();

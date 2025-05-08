@@ -56,7 +56,7 @@ type (
 		UserIsAdmin(ctx context.Context, pokerID model.PokerID, userID model.UserID) (bool, error)
 		SetUserName(ctx context.Context, userID model.UserID, name string) error
 		SetUserSettings(ctx context.Context, userID model.UserID, userSettings *model.UserSettings) error
-		GetLastSession(ctx context.Context, UserID model.UserID) ([]*model.LastSessionPoker, error)
+		GetLastSession(ctx context.Context, userID model.UserID, page int32, pageSize int32) ([]*model.LastSessionPoker, error)
 	}
 
 	TokenService interface {

@@ -71,3 +71,10 @@ export interface VotingResult {
   UserEstimates: UserEstimate[]
   FinalResult: number
 }
+
+export interface LastSessionPoker {
+  PokerID:     string,
+  UserID:      number,
+  Name:        string,
+  IsAdmin:     boolean
+}

@@ -146,7 +146,7 @@ SELECT
     t1.user_id, 
     t1.poker_id,
     CASE
-        WHEN t2.poker_id IS NOT NULL THEN true  
+        WHEN t2.poker_id IS NOT NULL THEN true
         ELSE false
     END AS is_admin,
     t3.name AS poker_name
@@ -162,4 +162,6 @@ LEFT JOIN
 WHERE 
     t1.user_id = $1
 ORDER BY 
-    t1.last_date;
+    t1.last_date DESC
+LIMIT $2 OFFSET $3;
+;

@@ -83,7 +83,8 @@ func NewConfig(opts Options) config {
 			getVotingControlState: fmt.Sprintf("GET  	/api/poker/{%s}/voting-control", defenitions.ParamPokerID),
 			setVotingControlState: fmt.Sprintf("POST 	/api/poker/{%s}/voting-control/{%s}", defenitions.ParamPokerID, defenitions.ParamVotingControlAction),
 			getUserEstimates:      fmt.Sprintf("GET		/api/poker/{%s}/user-estimates", defenitions.ParamPokerID),
-			getLastSession:        			   "GET		/api/poker/last-session:",
+			
+			getLastSession:        fmt.Sprintf( "GET	/api/sessions/{%s}/{%s}", defenitions.Page, defenitions.PageSize),
 
 			createTask: fmt.Sprintf("POST	/api/poker/{%s}/tasks", defenitions.ParamPokerID),
 			getTasks:   fmt.Sprintf("GET	/api/poker/{%s}/tasks", defenitions.ParamPokerID),

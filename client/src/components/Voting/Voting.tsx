@@ -44,11 +44,11 @@ const Voting: React.FC<VotingProps> = ({ isAdmin }) => {
   const votingTask: number | null = useSelector((state: RootState) => state.volumeReducer.taskData.id);
   const userEstimates: UserEstimate[] = useSelector((state: RootState) => state.volumeReducer.taskData.estimates);
   const userID: number = useSelector((state: RootState) => state.userReducer.userID);
-  const possibleEstimates: number[] = useSelector((state: RootState) => state.pokerReducer.possibleEstimates);
+  const possibleEstimates: number[] = useSelector((state: RootState) => state.pokerReducer.room.possibleEstimates);
   const action: string = useSelector((state: RootState) => state.volumeReducer.taskData.votingAction);
   const actionName: string = useSelector((state: RootState) => state.volumeReducer.taskData.votingActionName);
-  const activeUsersID = useSelector((state: RootState) => state.pokerReducer.activeUsersID);
-  const users = useSelector((state: RootState) => state.pokerReducer.users);
+  const activeUsersID = useSelector((state: RootState) => state.pokerReducer.room.activeUsersID);
+  const users = useSelector((state: RootState) => state.pokerReducer.room.users);
   const finalResult: number = useSelector((state: RootState) => state.volumeReducer.taskData.finalResult);
   const dispatch: AppDispatch = useDispatch();
   const { pokerId } = useParams<{ pokerId: string }>();

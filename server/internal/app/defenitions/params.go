@@ -11,4 +11,6 @@ const (
 	SessionAuthenticationName = "authentication"
 	Token                     = "token"
 	ProviderKey               = "provider_Key"
+	Page              		  = "page"
+	PageSize                  = "page_size"	
 )

@@ -25,7 +25,8 @@ interface ApiError {
 function PokerForm() {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
-  const { pokerId, loading, error, name } = useSelector((state: RootState) => state.pokerReducer);
+  const { id, loading, error, name } = useSelector((state: RootState) => state.pokerReducer.room);
+  
 
   const evaluationStrategy = useSelector((state: RootState) => state.userReducer.EvaluationStrategy);
   const maximumScore = useSelector((state: RootState) => state.userReducer.MaximumScore);

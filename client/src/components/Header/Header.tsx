@@ -8,7 +8,7 @@ import { RootState } from '../../app/store';
 const Header: React.FC = ({ }) => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-    const activeUsersID = useSelector((state: RootState) => state.pokerReducer.activeUsersID);
+    const activeUsersID = useSelector((state: RootState) => state.pokerReducer.room.activeUsersID);
 
     return (
         <Box
