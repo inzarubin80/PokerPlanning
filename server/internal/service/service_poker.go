@@ -7,16 +7,17 @@ import (
 )
 
 func (s *PokerService) GetPoker(ctx context.Context, pokerID model.PokerID, userID model.UserID) (*model.Poker, error) {
-
-	err := s.repository.AddPokerUser(ctx, pokerID, userID)
-	if err != nil {
-		return nil, model.ErrorNotFound
-	}
-
+	
 	poker, err := s.repository.GetPoker(ctx, pokerID)
 	if err != nil {
 		return nil, model.ErrorNotFound
 	}
+
+	err = s.repository.AddPokerUser(ctx, pokerID, userID)
+	if err != nil {
+		return nil, model.ErrorNotFound
+	}
+
 
 	activeUsersID, err := s.hub.GetActiveUsersID(pokerID)
 	if err != nil {

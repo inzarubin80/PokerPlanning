@@ -2,11 +2,13 @@
 INSERT INTO users (name)
 VALUES ($1)
 returning user_id;
+
 -- name: UpdateUserName :one
 UPDATE users
 SET name = $1
 WHERE user_id = $2
 RETURNING *;
+
 -- name: UpsertUserSettings :one
 INSERT INTO user_settings (user_id, evaluation_strategy, maximum_score)
 VALUES ($1, $2, $3)
@@ -16,26 +18,33 @@ DO UPDATE SET
     evaluation_strategy = EXCLUDED.evaluation_strategy,
     maximum_score = EXCLUDED.maximum_score
 RETURNING *;
+
 -- name: GetUsersByIDs :many
 SELECT * FROM users
 WHERE user_id = ANY($1::bigint[]);
+
 -- name: GetUserByID :one
 SELECT * FROM users
 WHERE user_id = $1;
+
 -- name: GetUserAuthProvidersByProviderUid :one
 SELECT * FROM user_auth_providers
 WHERE provider_uid = $1 AND provider = $2;
+
 -- name: AddUserAuthProviders :one
 INSERT INTO user_auth_providers (user_id, provider_uid, provider, name)
 VALUES ($1, $2, $3, $4)
 returning *;
+
 -- name: GetComments :many
 SELECT * FROM comments
 WHERE poker_id = $1 AND task_id = $2;
+
 -- name: CreateComent :one
 INSERT INTO comments (poker_id, user_id, task_id, text)
 VALUES ($1, $2, $3, $4) 
 RETURNING comment_id;
+
 -- name: ClearTasks :exec
 DELETE FROM tasks WHERE poker_id = $1;
 
@@ -110,13 +119,12 @@ WHERE
     poker_id = $4;
 
 -- name: GetVotingState :one
-SELECT  task_id, start_date, end_date FROM poker
+SELECT task_id, start_date, end_date FROM poker
 WHERE poker_id = $1;
 
 -- name: ClearVote :exec
-DELETE FROM  voting
-WHERE
-poker_id = $1 AND task_id = $2;
+DELETE FROM voting
+WHERE poker_id = $1 AND task_id = $2;
 
 -- name: AddVoting :one
 INSERT INTO voting (poker_id, task_id, user_id, estimate)
@@ -130,7 +138,7 @@ DO UPDATE SET
 RETURNING *;
 
 -- name: GetUserEstimate :one 
-SELECT  estimate FROM voting
+SELECT estimate FROM voting
 WHERE poker_id = $1 AND task_id = $2 AND user_id = $3;
 
 -- name: GetVotingResults :many
@@ -138,9 +146,8 @@ SELECT user_id, estimate FROM voting
 WHERE poker_id = $1 AND task_id = $2;
 
 -- name: RemoveVote :exec
-DELETE FROM  voting
-WHERE
-poker_id = $1 AND task_id = $2 AND user_id = $3;
+DELETE FROM voting
+WHERE poker_id = $1 AND task_id = $2 AND user_id = $3;
 
 -- name: GetLastSession :many
 SELECT 
@@ -157,7 +164,7 @@ LEFT JOIN
     public.poker_admins AS t2
     ON t1.poker_id = t2.poker_id
     AND t1.user_id = t2.user_id
-LEFT JOIN 
+JOIN 
     public.poker AS t3
     ON t3.poker_id = t1.poker_id
 WHERE 
@@ -165,11 +172,21 @@ WHERE
 ORDER BY 
     t1.last_date DESC
 LIMIT $2 OFFSET $3;
-;
--- name: DeletePokerWithAllRelations :exec
+
+-- name: DeletePokerAdmins :exec
 DELETE FROM poker_admins WHERE poker_id = $1;
+
+-- name: DeletePokerUsers :exec
 DELETE FROM poker_users WHERE poker_id = $1;
+
+-- name: DeletePokerTasks :exec
 DELETE FROM tasks WHERE poker_id = $1;
+
+-- name: DeletePokerVotings :exec
 DELETE FROM voting WHERE poker_id = $1;
+
+-- name: DeletePokerComments :exec
 DELETE FROM comments WHERE poker_id = $1;
+
+-- name: DeletePoker :exec
 DELETE FROM poker WHERE poker_id = $1;

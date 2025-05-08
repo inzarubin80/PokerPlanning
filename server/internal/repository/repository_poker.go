@@ -93,11 +93,35 @@ func (r *Repository) GetPoker(ctx context.Context, pokerID model.PokerID) (*mode
 }
 
 func (r *Repository) DeletePokerWithAllRelations(ctx context.Context, pokerID model.PokerID) error {
+    // Начинаем транзакцию
+  
+    sqlcRepo := sqlc_repository.New(r.conn)
 
-	sqlc_repository := sqlc_repository.New(r.conn)
-	err := sqlc_repository.DeletePokerWithAllRelations(ctx, pokerID.UUID())
-	return err
+	if err := sqlcRepo.DeletePoker(ctx, pokerID.UUID()); err != nil {
+		return fmt.Errorf("failed to delete poker session: %w", err)
+	}
 
+	if err := sqlcRepo.DeletePokerComments(ctx, pokerID.UUID()); err != nil {
+        return fmt.Errorf("failed to delete comments: %w", err)
+    }
+
+    if err := sqlcRepo.DeletePokerVotings(ctx, pokerID.UUID()); err != nil {
+        return fmt.Errorf("failed to delete votings: %w", err)
+    }
+
+    if err := sqlcRepo.DeletePokerTasks(ctx, pokerID.UUID()); err != nil {
+        return fmt.Errorf("failed to delete tasks: %w", err)
+    }
+
+    if err := sqlcRepo.DeletePokerUsers(ctx, pokerID.UUID()); err != nil {
+        return fmt.Errorf("failed to delete poker users: %w", err)
+    }
+
+    if err := sqlcRepo.DeletePokerAdmins(ctx, pokerID.UUID()); err != nil {
+        return fmt.Errorf("failed to delete poker admins: %w", err)
+    }
+
+    return nil
 }
 
 func (r *Repository) SetVotingState(ctx context.Context, pokerID model.PokerID, state *model.VoteControlState) (*model.VoteControlState, error) {
@@ -168,12 +192,12 @@ func (r *Repository) GetLastSession(
 	if err != nil {
 		return nil, fmt.Errorf("failed to get last sessions: %w", err)
 	}
+	res := make([]*model.LastSessionPoker, 0, len(rows))
 
 	if len(rows) == 0 {
-		return nil, nil
+		return res, nil
 	}
 
-	res := make([]*model.LastSessionPoker, 0, len(rows))
 	for _, row := range rows {
 		var name string
 		if row.PokerName != nil {

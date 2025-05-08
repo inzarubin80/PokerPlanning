@@ -172,9 +172,8 @@ func (q *Queries) ClearTasks(ctx context.Context, pokerID pgtype.UUID) error {
 }
 
 const clearVote = `-- name: ClearVote :exec
-DELETE FROM  voting
-WHERE
-poker_id = $1 AND task_id = $2
+DELETE FROM voting
+WHERE poker_id = $1 AND task_id = $2
 `
 
 type ClearVoteParams struct {
@@ -261,12 +260,57 @@ func (q *Queries) CreateUser(ctx context.Context, name string) (int64, error) {
 	return user_id, err
 }
 
-const deletePokerWithAllRelations = `-- name: DeletePokerWithAllRelations :exec
+const deletePoker = `-- name: DeletePoker :exec
+DELETE FROM poker WHERE poker_id = $1
+`
+
+func (q *Queries) DeletePoker(ctx context.Context, pokerID pgtype.UUID) error {
+	_, err := q.db.Exec(ctx, deletePoker, pokerID)
+	return err
+}
+
+const deletePokerAdmins = `-- name: DeletePokerAdmins :exec
 DELETE FROM poker_admins WHERE poker_id = $1
 `
 
-func (q *Queries) DeletePokerWithAllRelations(ctx context.Context, pokerID pgtype.UUID) error {
-	_, err := q.db.Exec(ctx, deletePokerWithAllRelations, pokerID)
+func (q *Queries) DeletePokerAdmins(ctx context.Context, pokerID pgtype.UUID) error {
+	_, err := q.db.Exec(ctx, deletePokerAdmins, pokerID)
+	return err
+}
+
+const deletePokerComments = `-- name: DeletePokerComments :exec
+DELETE FROM comments WHERE poker_id = $1
+`
+
+func (q *Queries) DeletePokerComments(ctx context.Context, pokerID pgtype.UUID) error {
+	_, err := q.db.Exec(ctx, deletePokerComments, pokerID)
+	return err
+}
+
+const deletePokerTasks = `-- name: DeletePokerTasks :exec
+DELETE FROM tasks WHERE poker_id = $1
+`
+
+func (q *Queries) DeletePokerTasks(ctx context.Context, pokerID pgtype.UUID) error {
+	_, err := q.db.Exec(ctx, deletePokerTasks, pokerID)
+	return err
+}
+
+const deletePokerUsers = `-- name: DeletePokerUsers :exec
+DELETE FROM poker_users WHERE poker_id = $1
+`
+
+func (q *Queries) DeletePokerUsers(ctx context.Context, pokerID pgtype.UUID) error {
+	_, err := q.db.Exec(ctx, deletePokerUsers, pokerID)
+	return err
+}
+
+const deletePokerVotings = `-- name: DeletePokerVotings :exec
+DELETE FROM voting WHERE poker_id = $1
+`
+
+func (q *Queries) DeletePokerVotings(ctx context.Context, pokerID pgtype.UUID) error {
+	_, err := q.db.Exec(ctx, deletePokerVotings, pokerID)
 	return err
 }
 
@@ -335,7 +379,7 @@ LEFT JOIN
     public.poker_admins AS t2
     ON t1.poker_id = t2.poker_id
     AND t1.user_id = t2.user_id
-LEFT JOIN 
+JOIN 
     public.poker AS t3
     ON t3.poker_id = t1.poker_id
 WHERE 
@@ -526,7 +570,7 @@ func (q *Queries) GetUserByID(ctx context.Context, userID int64) (*User, error) 
 }
 
 const getUserEstimate = `-- name: GetUserEstimate :one
-SELECT  estimate FROM voting
+SELECT estimate FROM voting
 WHERE poker_id = $1 AND task_id = $2 AND user_id = $3
 `
 
@@ -634,7 +678,7 @@ func (q *Queries) GetVotingResults(ctx context.Context, arg *GetVotingResultsPar
 }
 
 const getVotingState = `-- name: GetVotingState :one
-SELECT  task_id, start_date, end_date FROM poker
+SELECT task_id, start_date, end_date FROM poker
 WHERE poker_id = $1
 `
 
@@ -652,9 +696,8 @@ func (q *Queries) GetVotingState(ctx context.Context, pokerID pgtype.UUID) (*Get
 }
 
 const removeVote = `-- name: RemoveVote :exec
-DELETE FROM  voting
-WHERE
-poker_id = $1 AND task_id = $2 AND user_id = $3
+DELETE FROM voting
+WHERE poker_id = $1 AND task_id = $2 AND user_id = $3
 `
 
 type RemoveVoteParams struct {
