@@ -161,17 +161,10 @@ const Voting: React.FC<VotingProps> = ({ isAdmin }) => {
                   }}
                 >
                   <Typography variant="subtitle1">
-                    Открыть список голосования: {userEstimates.length || 0} 
+                    Открыть список голосования: {userEstimates.length || 0}
                   </Typography>
-          
 
                 </Button>
-
-                {action === 'stop' && (
-                  <Box sx={{ width: '100%' }}>
-                    <LinearProgress />
-                  </Box>
-                )}
               </Box>
             </Card>
           </Box>
@@ -241,57 +234,57 @@ const Voting: React.FC<VotingProps> = ({ isAdmin }) => {
             </Typography>
 
             <List dense sx={{ width: '100%' }}>
-  {userEstimatesRes.map((userEstimate: UserEstimate) => (
-    <ListItem 
-      key={userEstimate.UserID.toString()} 
-      sx={{ 
-        py: { xs: 1, sm: 0.5 },
-        display: 'flex',
-        alignItems: 'center',
-        gap: 2,
-        flexWrap: { xs: 'wrap', sm: 'nowrap' }
-      }}
-    >
-      <ListItemText
-        primary={users.find(item => item.ID === userEstimate.UserID)?.Name}
-        secondary={action === 'end' ? `Оценка: ${userEstimate.Estimate < 0 ? "-" : userEstimate.Estimate}` : undefined}
-        primaryTypographyProps={{
-          variant: 'body2',
-          sx: {
-            color: userEstimate.Estimate > 0 ? 'green' : 'inherit',
-            fontWeight: userEstimate.Estimate > 0 ? 'bold' : 'normal',
-            whiteSpace: 'nowrap',
-            textOverflow: 'ellipsis',
-            overflow: 'hidden',
-            maxWidth: { xs: '60vw', sm: 'none' }
-          }
-        }}
-        secondaryTypographyProps={{ 
-          variant: 'body2', 
-          color: 'text.secondary',
-          sx: { fontSize: { xs: '0.75rem', sm: '0.875rem' } } 
-        }}
-        sx={{ flex: '1 1 auto', minWidth: 0 }}
-      />
-      {action === 'end' && (
-        <StyledRating
-          disabled
-          value={possibleEstimates.findIndex(item => item === userEstimate.Estimate) + 1}
-          max={possibleEstimates.length}
-          precision={1}
-          icon={<FavoriteIcon fontSize="inherit" />}
-          emptyIcon={<FavoriteBorderIcon fontSize="inherit" />}
-          sx={{
-            flexShrink: 0,
-            '& .MuiRating-icon': {
-              fontSize: { xs: '16px', sm: '20px' }
-            }
-          }}
-        />
-      )}
-    </ListItem>
-  ))}
-</List>
+              {userEstimatesRes.map((userEstimate: UserEstimate) => (
+                <ListItem
+                  key={userEstimate.UserID.toString()}
+                  sx={{
+                    py: { xs: 1, sm: 0.5 },
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 2,
+                    flexWrap: { xs: 'wrap', sm: 'nowrap' }
+                  }}
+                >
+                  <ListItemText
+                    primary={users.find(item => item.ID === userEstimate.UserID)?.Name}
+                    secondary={action === 'end' ? `Оценка: ${userEstimate.Estimate < 0 ? "-" : userEstimate.Estimate}` : undefined}
+                    primaryTypographyProps={{
+                      variant: 'body2',
+                      sx: {
+                        color: userEstimate.Estimate > 0 ? 'green' : 'inherit',
+                        fontWeight: userEstimate.Estimate > 0 ? 'bold' : 'normal',
+                        whiteSpace: 'nowrap',
+                        textOverflow: 'ellipsis',
+                        overflow: 'hidden',
+                        maxWidth: { xs: '60vw', sm: 'none' }
+                      }
+                    }}
+                    secondaryTypographyProps={{
+                      variant: 'body2',
+                      color: 'text.secondary',
+                      sx: { fontSize: { xs: '0.75rem', sm: '0.875rem' } }
+                    }}
+                    sx={{ flex: '1 1 auto', minWidth: 0 }}
+                  />
+                  {action === 'end' && (
+                    <StyledRating
+                      disabled
+                      value={possibleEstimates.findIndex(item => item === userEstimate.Estimate) + 1}
+                      max={possibleEstimates.length}
+                      precision={1}
+                      icon={<FavoriteIcon fontSize="inherit" />}
+                      emptyIcon={<FavoriteBorderIcon fontSize="inherit" />}
+                      sx={{
+                        flexShrink: 0,
+                        '& .MuiRating-icon': {
+                          fontSize: { xs: '16px', sm: '20px' }
+                        }
+                      }}
+                    />
+                  )}
+                </ListItem>
+              ))}
+            </List>
           </Box>
 
           <Box p={2} borderTop={1} borderColor="divider">
