@@ -287,13 +287,6 @@ const Home: React.FC = () => {
                   bgcolor: 'rgba(25, 118, 210, 0.05)',
                   borderRadius: 2
                 }}>
-                  <Box sx={{
-                    width: 8,
-                    height: 8,
-                    bgcolor: 'primary.main',
-                    borderRadius: '50%',
-                    mr: 2
-                  }} />
                   <Typography variant="body1">{text}</Typography>
                 </Box>
               </Grid>
